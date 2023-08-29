@@ -1,0 +1,50 @@
+{% extends 'base_g.html' %}
+
+{% block content %}
+
+<style>
+    .container2 {
+        position: relative;
+        text-align: center;
+        color: white;
+    }
+
+    .centered {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+</style>
+
+<div class="container2">
+    <img src="http://imatges.vrn47.cat/Logo/UCL-FormBanner2.jpg" style="width:100%;"">
+    <h1 class='centered'>El Joc</h1>
+</div>
+
+<main class="container">
+    <div class="row">
+        <div class="col-md-8 offset-md-2 mt-5">
+            <div class="d-grid gap-2">
+                <a class="btn btn-primary" href="/forecasts/">Forecast</a>
+            </div>
+            <div class="row mt-5">
+                <div class="col d-grid gap-2">
+                    <a class="btn btn-info" href="/standings/">Standings</a>
+                </div>
+                <div class="col d-grid gap-2">
+                    <a class="btn btn-info" href="/standings/">Statistics</a>
+                </div>
+            </div>
+            <div class="row mt-5">
+                <div class="col d-grid gap-2">
+                    <a class="btn btn-info" href="/items/">Previous forecasts & points</a>
+                </div>
+                <div class="col d-grid gap-2">
+                    <a class="btn btn-info" href="/football data/">Community</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    </main>
+    {% endblock %}

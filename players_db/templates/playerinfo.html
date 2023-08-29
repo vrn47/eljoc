@@ -1,0 +1,98 @@
+{% extends 'base_pdb.html' %}
+
+{% block content %}
+
+<style>
+    .container2 {
+        position: relative;
+        text-align: center;
+        color: white;
+    }
+
+    .centered {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+</style>
+
+<div class="container2">
+    <img src="http://imatges.vrn47.cat/Logo/UCL-FormBanner2.jpg" style="width:100%;"">
+    <h1 class='centered'>Player info</h1>
+</div>
+
+
+<main>
+    <div class="container">
+        <form method="POST" class="card card-body col-md-8 offset-md-2 mt-5">
+            <div class="row">
+                <div class="col-6 mt-1">
+                    {% csrf_token %}
+                    <div class="form-floating mb-3">
+                        <input type="email" name="email" id="email" class="form-control" value="{{ playerDB.email }}" readonly>
+                        <label for="player.email">Email:</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input type="text" name="fname" id="fname" class="form-control" value="{{ playerDB.fname }}" readonly>
+                        <label for="form.fname">Name: </label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input type="text" name="lname" id="lname" class="form-control" value="{{ playerDB.lname }}" readonly>
+                        <label for="lname">Last name: </label>
+                    </div>
+                </div>
+                <div class="col-3 mt-1">
+                    <div class="form-floating mb-3">
+                        <input type="number" name="stars" id="stars" class="form-control" value="{{ playerDB.stars }}" readonly>
+                        <label for="stars">Stars: </label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input type="number" name="id" id="id" class="form-control" value="{{ playerDB.id }}" readonly>
+                        <label for="id">DB Id: </label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input type="number" name="id" id="id" class="form-control" value="{{ player.id }}" readonly>
+                        <label for="id">Id: </label>
+                    </div>
+                </div>
+                <div class="col-3 mt-1">
+                    <div class="mb-3">
+                        <img src="http://imatges.vrn47.cat/Honours/Stars/v2/{{ playerDB.stars }}.png" width="60" height="60">
+                    </div>
+                    <div class="form-floating mb-3">
+                        <img src="http://imatges.vrn47.cat/Logo/LogoElJocDEF50.png" width="60" height="60">
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input type="number" name="winnable" id="winnable" class="form-control" value="{{ player.winnable }}" readonly>
+                        <label for="stars">Winnable: </label>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="container">
+        <form method="POST" class="card card-body col-md-8 offset-md-2 mt-5">
+            <div class="row">
+                <h3>Join edition</h3>
+                {% csrf_token %}
+                <div class="form-floating gx-2">
+                    <select name="e_id" id="e_id" class="form-select" placeholder="">
+                        <option selected></option>
+                        {% for editions in editions %}
+                        <option value="{{ editions.id }}">{{editions.name}}</option>
+                        {% endfor %}
+                    </select>
+                    <label for="e_id">Select El Joc edition: </label>
+                    <div class="helptext"></div>
+                    <button class="btn btn-primary col-md-12 mt-2">
+                        Join
+                    </button>
+                </div>     
+            </div>
+       </form>
+    </div>
+</main>
+
+
+    {% endblock %}

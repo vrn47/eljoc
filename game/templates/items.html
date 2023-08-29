@@ -1,0 +1,51 @@
+{% extends 'base_g.html' %}
+
+{% block content %}
+
+<style>
+    .container2 {
+      position: relative;
+      text-align: center;
+      color: white;
+    }
+    
+    .centered {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+    </style>
+
+<div class="container2">
+    <img src="http://imatges.vrn47.cat/Logo/UCL-FormBanner2.jpg" style="width:100%;"">
+    <h1 class='centered'>Item list</h1>
+</div>
+
+
+<main class="container">
+  <div class="row">
+    {% for item in item %}    
+      <div class="col-md-4 offset-md-4 mt-5">
+          <form method="POST" class="card card-body">
+<!--             <h1 class="text-center"></h1>
+
+              <div class="mb-3">
+                  {{error}}
+              </div>
+-->          
+              {% csrf_token %}
+              <div class="mb-3">
+                  {{form.as_div}}
+              </div>
+              <div>
+                {{item.description}}: {{ item.open }} -- {{ item.close }} ({{ item.fixtures.localteam.teamsdb.name}} vs. {{ item.fixtures.awayteam.teamsdb.name }})
+              </div>
+          </form>
+      </div>
+      {% endfor %}
+  </div>
+</main>
+
+
+{% endblock %}

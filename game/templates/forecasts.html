@@ -1,0 +1,110 @@
+{% extends 'base_g.html' %}
+
+{% block content %}
+
+<style>
+    .container2 {
+      position: relative;
+      text-align: center;
+      color: white;
+    }
+    
+    .centered {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+    
+    </style>
+
+<div class="container2">
+    <img src="http://imatges.vrn47.cat/Logo/UCL-FormBanner2.jpg" style="width:100%;"">
+    <h1 class='centered'>Forecasts</h1>
+</div>
+
+
+<main class="container">
+  <div class="row">
+      <div class="col-md-8 offset-md-2 mt-2">
+          <form method="POST" class="card card-body">
+             <h3 class="text-center"></h3>
+
+              <div class="mb-3">
+                  {{error}}
+              </div>
+              
+            <div class="form-floating mb-3">
+                  <input type="email" name="p_email" id="p_email" class="form-control" placeholder="" required>
+                  <label for="p_email"><i class="bi-at"> Email: </i></label>
+                  <div class="helptext"></div>
+                </div>
+            {% for item in item %}
+ 
+                
+              {% csrf_token %}
+
+<!--            start of new development             -->
+              <div class="card card-body">
+                <div class="row gx-2">
+                    {% if item.fields.id == 2 %}
+                      {{ item.close }} ({{ item.fixtures.localteam.teamsdb.name}} vs. {{ item.fixtures.awayteam.teamsdb.name }})
+                    {% else %}
+                      {{ item.close }}
+                    {% endif %}
+                </div>
+                <div class="row mt-1">
+                  <div class="form-floating col-md-1 gx-2">
+                    <input type="number" name="id" id="id" class="form-control" placeholder=""  value="{{ item.id }}" readonly>
+                    <label class="" for="id">Item</label>
+                    <div class="helptext"></div>
+                  </div>
+                  {% if item.fields.id == 2 %}
+                    <div class="form-floating col-md-10 gx-2">
+                      <input type="number" name="fvalue1" id="fvalue1" class="form-control" placeholder="" required>
+                      <label for="fvalue1">{{ item.description }} - Local</label>
+                      <div class="helptext"></div>
+                    </div>
+                  {% else %}
+                    <div class="form-floating col-md-10 gx-2">
+                      <select name="fvalue1" id="fvalue1" class="form-select" placeholder="" required>
+                        <option selected></option>
+                        {% for team in team %}
+                          <option value="{{team.teamsdb.name}}">{{team.teamsdb.name}}</option>
+                        {% endfor %}
+                      </select>
+                      <label for="fvalue1">{{ item.description }}</label>
+                      <div class="helptext"></div>
+                    </div>
+                  {% endif %}  
+                  <div class="form-floating col-md-1 gx-2">
+                    {% if item.fields.id == 2 %}
+                      <input type="number" name= "fvalue2" id="fvalue2" class="form-control" placeholder="" required>
+                      <label for="fvalue2">Visitor</label>
+                    {% else %}
+                      <input type="text" name= "fvalue2" id="fvalue2" class="form-control bg-secondary" placeholder="" readonly>
+                      <label for="fvalue2"> </label>
+                    {% endif %}
+                  <div class="helptext"></div>
+                </div>
+              </div>
+              </div>
+<!--            end of new development             -->
+<!--              <div class="mb-3">
+                  {{form.as_p}}
+              </div>
+--><!--              <div>
+                {{item.description}}: {{ item.open }} -- {{ item.close }} ({{ item.fixtures.localteam.teamsdb.name}} vs. {{ item.fixtures.awayteam.teamsdb.name }})
+              </div>
+-->         {% endfor %}
+              <button class="btn btn-primary mt-3">
+                <i class="bi-send"> Send forecast</i>
+              </button>
+
+          </form>
+      </div>
+  </div>
+</main>
+
+
+{% endblock %}
