@@ -31,5 +31,7 @@ urlpatterns = [
     path('forecasts/', views1.forecasts, name = 'forecasts'),
     path('standings/', views1.standings, name = 'standings'),
     path('footballdata/', views1.footballdata, name = 'footballdata'),
-    path('game/', views1.game, name = 'game')
+    path('game/', views1.game, name = 'game'),
+    path('casa/', views0.casa, name = 'casa')
+
 ]
