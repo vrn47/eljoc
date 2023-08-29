@@ -1,0 +1,28 @@
+{% extends 'base_pt.html' %}
+
+{% block content %}
+
+<h1 class='text-center'>Home</h1>
+
+<table class="table">
+    <thead>
+      <tr>
+        <th scope="col">#</th>
+        <th scope="col">First</th>
+        <th scope="col">Last</th>
+        <th scope="col">Handle</th>
+      </tr>
+    </thead>
+    <tbody>
+        {% for player in players %}
+      <tr>
+        <th scope="row">{{player.id}}</th>
+        <td>{{player.fname}}</td>
+        <td>{{player.lname}}</td>
+        <td>{{player.paid}}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+{% endblock %}
