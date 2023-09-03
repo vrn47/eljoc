@@ -71,27 +71,29 @@
             </div>
         </form>
     </div>
-    <div class="container">
-        <form method="POST" class="card card-body col-md-8 offset-md-2 mt-5">
-            <div class="row">
-                <h3>Join edition</h3>
-                {% csrf_token %}
-                <div class="form-floating gx-2">
-                    <select name="e_id" id="e_id" class="form-select" placeholder="">
-                        <option selected></option>
-                        {% for editions in editions %}
-                        <option value="{{ editions.id }}">{{editions.name}}</option>
-                        {% endfor %}
-                    </select>
-                    <label for="e_id">Select El Joc edition: </label>
-                    <div class="helptext"></div>
-                    <button class="btn btn-primary col-md-12 mt-2">
-                        Join
-                    </button>
-                </div>     
-            </div>
-       </form>
-    </div>
+    {% if player == None %}
+        <div class="container">
+            <form method="POST" class="card card-body col-md-8 offset-md-2 mt-5">
+                <div class="row">
+                    <h3>Join edition</h3>
+                    {% csrf_token %}
+                    <div class="form-floating gx-2">
+                        <select name="e_id" id="e_id" class="form-select" placeholder="">
+                            <option selected></option>
+                            {% for editions in editions %}
+                            <option value="{{ editions.id }}">{{editions.name}}</option>
+                            {% endfor %}
+                        </select>
+                        <label for="e_id">Select El Joc edition: </label>
+                        <div class="helptext"></div>
+                        <button class="btn btn-primary col-md-12 mt-2">
+                            Join
+                        </button>
+                    </div>     
+                </div>
+            </form>
+        </div>
+    {% endif %}
 </main>
 
 

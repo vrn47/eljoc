@@ -3,108 +3,209 @@
 {% block content %}
 
 <style>
-    .container2 {
-      position: relative;
-      text-align: center;
-      color: white;
-    }
-    
-    .centered {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-    }
-    
-    </style>
+  .container2 {
+    position: relative;
+    text-align: center;
+    color: white;
+  }
+
+  .centered {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+</style>
 
 <div class="container2">
-    <img src="http://imatges.vrn47.cat/Logo/UCL-FormBanner2.jpg" style="width:100%;"">
+  <img src="http://imatges.vrn47.cat/Logo/UCL-FormBanner2.jpg" style="width:100%;"">
     <h1 class='centered'>Forecasts</h1>
 </div>
 
 
-<main class="container">
+<main class=" container">
   <div class="row">
-      <div class="col-md-8 offset-md-2 mt-2">
-          <form method="POST" class="card card-body">
-             <h3 class="text-center"></h3>
+    <div class="col-md-8 offset-md-2 mt-2">
+      <form method="POST" class="card card-body">
+        <h3 class="text-center"></h3>
 
-              <div class="mb-3">
-                  {{error}}
-              </div>
-              
-            <div class="form-floating mb-3">
-                  <input type="email" name="p_email" id="p_email" class="form-control" placeholder="" required>
-                  <label for="p_email"><i class="bi-at"> Email: </i></label>
-                  <div class="helptext"></div>
-                </div>
-            {% for item in item %}
- 
-                
-              {% csrf_token %}
+        <div class="mb-3">
+          {{error}}
+        </div>
 
-<!--            start of new development             -->
-              <div class="card card-body">
-                <div class="row gx-2">
-                    {% if item.fields.id == 2 %}
-                      {{ item.close }} ({{ item.fixtures.localteam.teamsdb.name}} vs. {{ item.fixtures.awayteam.teamsdb.name }})
-                    {% else %}
-                      {{ item.close }}
-                    {% endif %}
-                </div>
-                <div class="row mt-1">
-                  <div class="form-floating col-md-1 gx-2">
-                    <input type="number" name="id" id="id" class="form-control" placeholder=""  value="{{ item.id }}" readonly>
-                    <label class="" for="id">Item</label>
-                    <div class="helptext"></div>
-                  </div>
-                  {% if item.fields.id == 2 %}
-                    <div class="form-floating col-md-10 gx-2">
-                      <input type="number" name="fvalue1" id="fvalue1" class="form-control" placeholder="" required>
-                      <label for="fvalue1">{{ item.description }} - Local</label>
-                      <div class="helptext"></div>
-                    </div>
-                  {% else %}
-                    <div class="form-floating col-md-10 gx-2">
-                      <select name="fvalue1" id="fvalue1" class="form-select" placeholder="" required>
-                        <option selected></option>
-                        {% for team in team %}
-                          <option value="{{team.teamsdb.name}}">{{team.teamsdb.name}}</option>
-                        {% endfor %}
-                      </select>
-                      <label for="fvalue1">{{ item.description }}</label>
-                      <div class="helptext"></div>
-                    </div>
-                  {% endif %}  
-                  <div class="form-floating col-md-1 gx-2">
-                    {% if item.fields.id == 2 %}
-                      <input type="number" name= "fvalue2" id="fvalue2" class="form-control" placeholder="" required>
-                      <label for="fvalue2">Visitor</label>
-                    {% else %}
-                      <input type="text" name= "fvalue2" id="fvalue2" class="form-control bg-secondary" placeholder="" readonly>
-                      <label for="fvalue2"> </label>
-                    {% endif %}
-                  <div class="helptext"></div>
-                </div>
-              </div>
-              </div>
-<!--            end of new development             -->
-<!--              <div class="mb-3">
-                  {{form.as_p}}
-              </div>
---><!--              <div>
-                {{item.description}}: {{ item.open }} -- {{ item.close }} ({{ item.fixtures.localteam.teamsdb.name}} vs. {{ item.fixtures.awayteam.teamsdb.name }})
-              </div>
--->         {% endfor %}
-              <button class="btn btn-primary mt-3">
-                <i class="bi-send"> Send forecast</i>
-              </button>
+        <div class="form-floating mb-3">
+          <input type="email" name="p_email" id="p_email" class="form-control" placeholder="" required>
+          <label for="p_email"><i class="bi-at"> Email: </i></label>
+          <div class="helptext"></div>
+        </div>
+        {% for item in item %}
+        {% csrf_token %}
+        <div class="card card-body">
+          <div class="row gx-2">
+            {% if item.fields.id == 2 %}
+            {{ item.close }} ({{ item.fixtures.localteam.teamsdb.name}} vs.{{ item.fixtures.awayteam.teamsdb.name }})
+            {% else %}
+            {{ item.close }}
+            {% endif %}
+          </div>
+          <div class="row mt-1">
+            <div class="form-floating col-md-2 gx-2">
+              <input type="number" name="id" id="id" class="form-control" placeholder="" value="{{ item.id }}" readonly>
+              <label class="" for="id">Item</label>
+              <div class="helptext"></div>
+            </div>
+            {% if item.fields.id == 2 %}
+            <div class="form-floating col-md-5 gx-2">
+              <input type="number" name="fvalue1" id="fvalue1" class="form-control" placeholder="">
+              <label for="fvalue1">{{ item.description }} - Local</label>
+              <div class="helptext"></div>
+            </div>
+            <div class="form-floating col-md-5 gx-2">
+              <input type="number" name="fvalue2" id="fvalue2" class="form-control" placeholder="">
+              <label for="fvalue2">Visitor</label>
+              <div class="helptext"></div>
+            </div>
+            {% elif item.fields.id == 3 %}
+            <div class="form-floating col-md-9 gx-2">
+              <input type="text" name="fvalue1" id="fvalue1" class="form-control" placeholder="">
+              <label for="fvalue1">{{ item.description }}</label>
+              <div class="helptext"></div>
+            </div>
+            <div class="form-floating col-md-1 gx-2">
+              <input type="text" name="fvalue2" id="fvalue2" class="form-control bg-secondary" value="" placeholder="" readonly>
+              <label for="fvalue2"></label>
+              <div class="helptext"></div>
+            </div>
+            {% elif item.fields.id == 7 %}
+            <div class="form-floating col-md-9 gx-2">
+              <input type="text" name="fvalue1" id="fvalue1" class="form-control" placeholder="" value="{{team.teamsdb.name}}" readonly>
+              <label for="fvalue1">{{ item.description }}</label>
+              <div class="helptext"></div>
+            </div>
+            <div class="form-floating col-md-1 gx-2">
+              <input type="text" name="fvalue2" id="fvalue2" class="form-control bg-secondary" value="" placeholder="" readonly>
+              <label for="fvalue2"></label>
+              <div class="helptext"></div>
+            </div>
+            {% else %}
+            <div class="form-floating col-md-9 gx-2">
+              <select name="fvalue1" id="fvalue1" class="form-select" placeholder="">
+                <option selected></option>
+                {% if item.list == 1 %}
+                  {% for team in team %}
+                  <option value="{{team.teamsdb.name}}">{{team.teamsdb.name}} ({{team.coef}})</option>
+                  {% endfor %}
+                {% endif %}
+                {% if item.list == 3 %}
+                  {% for team_3 in team_3 %}
+                  <option value="{{team_3.teamsdb.name}}">{{team_3.teamsdb.name}} ({{team_3.coef}})</option>
+                  {% endfor %}
+                {% endif %}
+                {% if item.list == 4 %}
+                  {% for team_A in team_A %}
+                  <option value="{{team_A.teamsdb.name}}">{{team_A.teamsdb.name}} ({{team_A.coef}})</option>
+                  {% endfor %}
+                {% endif %}
+                {% if item.list == 5 %}
+                  {% for team_B in team_B %}
+                  <option value="{{team_B.teamsdb.name}}">{{team_B.teamsdb.name}} ({{team_B.coef}})</option>
+                  {% endfor %}
+                {% endif %}
+                {% if item.list == 6 %}
+                  {% for team_C in team_C %}
+                  <option value="{{team_C.teamsdb.name}}">{{team_C.teamsdb.name}} ({{team_C.coef}})</option>
+                  {% endfor %}
+                {% endif %}
+                {% if item.list == 7 %}
+                  {% for team_D in team_D %}
+                  <option value="{{team_D.teamsdb.name}}">{{team_D.teamsdb.name}} ({{team_D.coef}})</option>
+                  {% endfor %}
+                {% endif %}
+                {% if item.list == 8 %}
+                  {% for team_E in team_E %}
+                  <option value="{{team_E.teamsdb.name}}">{{team_E.teamsdb.name}} ({{team_E.coef}})</option>
+                  {% endfor %}
+                {% endif %}
+                {% if item.list == 9 %}
+                  {% for team_F in team_F %}
+                  <option value="{{team_F.teamsdb.name}}">{{team_F.teamsdb.name}} ({{team_F.coef}})</option>
+                  {% endfor %}
+                {% endif %}
+                {% if item.list == 10 %}
+                  {% for team_G in team_G %}
+                  <option value="{{team_G.teamsdb.name}}">{{team_G.teamsdb.name}} ({{team_G.coef}})</option>
+                  {% endfor %}
+                {% endif %}
+                {% if item.list == 11 %}
+                  {% for team_H in team_H %}
+                  <option value="{{team_H.teamsdb.name}}">{{team_H.teamsdb.name}} ({{team_H.coef}})</option>
+                  {% endfor %}
+                {% endif %}
+                {% if item.list == 12 %}
+                  {% for team_rev in team_rev %}
+                  <option value="{{team_rev.teamsdb.name}}">{{team_rev.teamsdb.name}} ({{team_rev.coef}})</option>
+                  {% endfor %}
+                {% endif %}
+                {% if item.list == 20 %}
+                  {% for teamdb_EN in teamdb_EN %}
+                  <option value="{{teamdb_EN.name}}">{{teamdb_EN.name}}</option>
+                  {% endfor %}
+                {% endif %}
+                {% if item.list == 21 %}
+                  {% for teamdb_EN in teamdb_EN %}
+                  <option value="{{teamdb_EN.name}}">{{teamdb_EN.name}}</option>
+                  {% endfor %}
+                {% endif %}
+                {% if item.list == 22 %}
+                  {% for teamdb_ES in teamdb_ES %}
+                  <option value="{{teamdb_ES.name}}">{{teamdb_ES.name}}</option>
+                  {% endfor %}
+                {% endif %}
+                {% if item.list == 23 %}
+                  {% for teamdb_IT in teamdb_IT %}
+                  <option value="{{teamdb_IT.name}}">{{teamdb_IT.name}}</option>
+                  {% endfor %}
+                {% endif %}
+                {% if item.list == 24 %}
+                  {% for teamdb_DE in teamdb_DE %}
+                  <option value="{{teamdb_DE.name}}">{{teamdb_DE.name}}</option>
+                  {% endfor %}
+                {% endif %}
+                {% if item.list == 25 %}
+                  {% for teamdb_FR in teamdb_FR %}
+                  <option value="{{teamdb_FR.name}}">{{teamdb_FR.name}}</option>
+                  {% endfor %}
+                {% endif %}
+                {% if item.list == 26 %}
+                  {% for teamdb_PT in teamdb_PT %}
+                  <option value="{{teamdb_PT.name}}">{{teamdb_PT.name}}</option>
+                  {% endfor %}
+                {% endif %}
+                {% if item.list == 27 %}
+                  {% for teamdb_ND in teamdb_ND %}
+                  <option value="{{teamdb_ND.name}}">{{teamdb_ND.name}}</option>
+                  {% endfor %}
+                {% endif %}
+              </select>
+              <label for="fvalue1">{{ item.description }}</label>
+              <div class="helptext"></div>
+            </div>
+            <div class="form-floating col-md-1 gx-2">
+              <input type="text" name="fvalue2" id="fvalue2" class="form-control bg-secondary" value="" placeholder="" readonly>
+              <label for="fvalue2"></label>
+              <div class="helptext"></div>
+            </div>
+            {% endif %}
+          </div>
+        </div>
 
-          </form>
-      </div>
+        {% endfor %}
+        <button class="btn btn-primary mt-3">
+          <i class="bi-send"> Send forecast</i>
+        </button>
+      </form>
+    </div>
   </div>
-</main>
+  </main>
 
-
-{% endblock %}
+  {% endblock %}

@@ -321,6 +321,8 @@ class Teamsdb(models.Model):
     is_club = models.IntegerField(blank=True, null=True)
     is_active = models.IntegerField(blank=True, null=True)
     alphabet = models.IntegerField(blank=True, null=True)
+    fed = models.TextField(blank=True, null=True)
+
 
     class Meta:
         managed = False

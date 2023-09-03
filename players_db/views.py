@@ -62,47 +62,38 @@ def register(request):
 def playerinfo(request, pid):
 
     if request.method == 'GET':
-        print('GET')
+        print('GET', 'player', pid)
+        playerDBinfo = PlayerDB.objects.get(id=pid)
+        formDB = PlayerDBInfoForm(instance=playerDBinfo)
+        #        form = PlayerInfoForm(instance=playerinfo)    ----> move to under playerinfo
+
         try:
-            print('player')
-            print(pid)
-        #    print(request.POST['email'])
-                
-            playerDBinfo = PlayerDB.objects.get(id=pid)
-            formDB = PlayerDBInfoForm(instance=playerDBinfo)
-
-    #        playerinfo = Players.objects.get(playerdb=pid)
-    #        form = PlayerInfoForm(instance=playerinfo)
-
-            edition = Editions.objects.filter(is_active=1)
-
-            print(playerDBinfo)
-    #        print(playerinfo)
-        #    return render(request, 'playerinfo.html')
-            return render(request, 'playerinfo.html', {
-                'playerDB': playerDBinfo,
-    #            'player': playerinfo,
-                'formDB': formDB,
-    #            'form': form,
-                'pid': pid,
-                'editionform': EditionsForm,
-                'editions': edition
-            })
-        
-        except ValueError:
-            print('Value error')
-            return render(request, 'playerinfo.html', {
-                'playerDB': playerDBinfo,
-                'formDB': formDB,
-                'pid': pid,
-            })
-        
-        except TypeError:
-            print('TypeError')
+            playerinfo = Players.objects.get(playerdb=pid)
+        except ValueError as error:
+            print('Value error', error)
+            playerinfo = None
+        except TypeError as error:
+            print('TypeError', error)
             return redirect('index.html')
-
         except Exception as error:
             print('if except: ', error)
+            playerinfo = None
+
+
+        if(playerinfo is None):
+            edition = Editions.objects.filter(is_active=1)
+        else:
+            edition = None
+
+        print(playerDBinfo)
+        return render(request, 'playerinfo.html', {
+            'playerDB': playerDBinfo,
+            'player': playerinfo,
+            'formDB': formDB,
+            'pid': pid,
+            'editionform': EditionsForm,
+            'editions': edition
+        })
 
     else:
         print('POST')
@@ -117,7 +108,7 @@ def playerinfo(request, pid):
             return redirect('game')
 
         except:
-            print('new player')
+            print('new player joined')
             newuser = Players.objects.create(playerdb=userDB, p_fname=userDB.fname, p_lname=userDB.lname, p_email=userDB.email, ppsw="void", winnable=1)
             newuser.save()
             playerid = newuser.id

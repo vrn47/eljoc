@@ -35,10 +35,29 @@ def items(request):
 def forecasts(request):
     time = timezone.now()
     print(time)    
-    item = Items.objects.filter(open__lt=time,close__gt=time)
+    item = Items.objects.filter(open__lt=time,close__gt=time, ).exclude(fields_id=1).exclude(fields_id=6)
     fixture = Fixtures.objects.all()
-    team = Teams.objects.all()
+    team = Teams.objects.filter(editions=33).order_by('coef')
+    team_3 = Teams.objects.filter(editions=33).order_by('-coef')
+    team_A = Teams.objects.filter(editions=33, grp='A').order_by('pos')
+    team_B = Teams.objects.filter(editions=33, grp='B').order_by('pos')
+    team_C = Teams.objects.filter(editions=33, grp='C').order_by('pos')
+    team_D = Teams.objects.filter(editions=33, grp='D').order_by('pos')
+    team_E = Teams.objects.filter(editions=33, grp='E').order_by('pos')
+    team_F = Teams.objects.filter(editions=33, grp='F').order_by('pos')
+    team_G = Teams.objects.filter(editions=33, grp='G').order_by('pos')
+    team_H = Teams.objects.filter(editions=33, grp='H').order_by('pos')
+    team_rev = Teams.objects.filter(editions=33, rev=1).order_by('-coef')
     teamdb = Teamsdb.objects.all()
+    teamdb_20 = Teamsdb.objects.filter()
+    teamdb_EN = Teamsdb.objects.filter(fed='ENG').order_by('id')
+    teamdb_ES = Teamsdb.objects.filter(fed='ESP').order_by('id')
+    teamdb_IT = Teamsdb.objects.filter(fed='ITA').order_by('id')
+    teamdb_DE = Teamsdb.objects.filter(fed='DEU').order_by('id')
+    teamdb_FR = Teamsdb.objects.filter(fed='FRA').order_by('id')
+    teamdb_PT = Teamsdb.objects.filter(fed='POR').order_by('id')
+    teamdb_ND = Teamsdb.objects.filter(fed='NED').order_by('id')
+
     forecast = Forecasts.objects.all()
     form = ForecastsForm
     form2 = PlayersForm
@@ -50,6 +69,23 @@ def forecasts(request):
             'item': item,
             'fixture': fixture,
             'team': team,
+            'team_3': team_3,
+            'team_A': team_A,
+            'team_B': team_B,
+            'team_C': team_C,
+            'team_D': team_D,
+            'team_E': team_E,
+            'team_F': team_F,
+            'team_G': team_G,
+            'team_H': team_H,
+            'teamdb_EN': teamdb_EN,
+            'teamdb_ES': teamdb_ES,
+            'teamdb_IT': teamdb_IT,
+            'teamdb_DE': teamdb_DE,
+            'teamdb_FR': teamdb_FR,
+            'teamdb_PT': teamdb_PT,
+            'teamdb_ND': teamdb_ND,
+            'team_rev': team_rev,
             'teamdb': teamdb,
             'form': form,
             'form2': form2
@@ -85,14 +121,16 @@ def forecasts(request):
                         print('inner except: ', error2)
 
                     newforecast.f_isactive = 1
-                    if v1[i] == v2[i]:
+                    if v2[i] == '':
+                        newforecast.f1x2 = ''
+                    elif v1[i] == v2[i]:
                         newforecast.f1x2 = 'x'
                     elif v1[i] > v2[i]:
                         newforecast.f1x2 = '1'
                     elif v1[i] < v2[i]:
                         newforecast.f1x2 = '2'
                     else:
-                        newforecast.f1x2 = 'null'
+                        newforecast.f1x2 = ''
                     newforecast.save()
                     i = i + 1
                     print('saved')
@@ -124,6 +162,7 @@ def standings(request):
     players = Players.objects.all()
     ppoints = Forecasts.objects.values('f_email').annotate(pts=Sum('points')).order_by('-pts')
     standings = list(ppoints.values_list('f_email', flat=True))
+    print(standings, ppoints, players)
     names = []
     initial = []
     surnames = []
