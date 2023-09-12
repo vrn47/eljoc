@@ -107,6 +107,7 @@ def playerinfo(request, pid):
             playerid = user.id
             return redirect('game')
 
+
         except:
             print('new player joined')
             newuser = Players.objects.create(playerdb=userDB, p_fname=userDB.fname, p_lname=userDB.lname, p_email=userDB.email, ppsw="void", winnable=1)

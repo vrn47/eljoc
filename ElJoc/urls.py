@@ -32,6 +32,8 @@ urlpatterns = [
     path('standings/', views1.standings, name = 'standings'),
     path('footballdata/', views1.footballdata, name = 'footballdata'),
     path('game/', views1.game, name = 'game'),
+    path('oldforecasts/', views1.oldforecasts, name = 'oldforecasts'),
+    path('pointstable/', views1.pointstable, name = 'pointstable'),
     path('casa/', views0.casa, name = 'casa')
 
 ]

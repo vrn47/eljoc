@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, HttpResponse
-from .models import Items, Fixtures, Teams, Teamsdb, Forecasts, Players
+from .models import Items, Fixtures, Teams, Teamsdb, Forecasts, Players, Scores, Dates, Rounds, Stages
 from .forms import ItemsForm, ForecastsForm, PlayersForm
 from django.contrib.auth import login, logout, authenticate
 from django.utils import timezone
@@ -206,4 +206,100 @@ def footballdata(request):
     if request.method == 'GET':
         return render(request, 'footballdata.html', {
             'match': matches,
+        })
+    
+def oldforecasts(request):
+
+    players = Players.objects.all()
+    formP = PlayersForm
+
+    if request.method == 'GET':
+        return render(request, 'oldforecasts.html', {
+            'players': players,
+            'form': formP,
+        })
+    else:
+        forecasts = Forecasts.objects.filter(f_email=request.POST['mail'], f_isactive=1).order_by('items_id')
+        player = Players.objects.get(p_email=request.POST['mail'])
+        items = Items.objects.filter(editions=33)
+        teams = Teams.objects.all()
+        teamsDB = Teamsdb.objects.all()
+        scores = Scores.objects.all
+        dates = Dates.objects.all
+        rounds = Rounds.objects.all
+        stages = Stages.objects.all
+#        mail = request.POST['mail']
+        formF = ForecastsForm
+        return render(request, 'oldforecasts.html', {
+            'forecasts': forecasts,
+            'form': formF,
+#            'email': mail,
+            'player': player,
+            'items': items,
+            'teams': teams,
+            'teamsDB': teamsDB,
+            'scores': scores,
+            'dates': dates,
+            'rounds': rounds,
+            'stages': stages,
+        })
+    
+def pointstable(request):
+
+    forecasts = Forecasts.objects.filter(f_isactive=1)
+    players = Players.objects.all()
+    p_list = list(players.values_list('p_email', flat=True))
+    names = []
+    initial_n = []
+    surnames = []
+    initial_s = []
+
+    for x in p_list:
+        names.append(list(players.filter(p_email=x).values_list('p_fname', flat=True)))
+        for y in names:
+            for z in y:
+                for w in z:
+                    break
+        initial_n.append(w)
+        surnames.append(list(players.filter(p_email=x).values_list('p_lname', flat=True)))
+        for y in surnames:
+            for z in y:
+                for w in z:
+                    break
+        initial_s.append(w)
+    initials_n_np = np.array(initial_n)
+    initials_n_np = [initials_n_np]
+    initials_s_np = np.array(initial_s)
+    initials_s_np = [initials_s_np]
+
+    nicks = np.char.add(initials_n_np, initials_s_np)
+    print ('nicks:', nicks)
+
+# review starting here
+
+    if request.method == 'GET':
+        return render(request, 'pointstable.html', {
+            'players': players,
+            'forecasts': forecasts,
+        })
+    else:
+        forecasts = Forecasts.objects.filter(f_isactive=1).order_by('items_id')
+        player = Players.objects.all
+        items = Items.objects.filter(editions=33)
+        teams = Teams.objects.all
+        teamsDB = Teamsdb.objects.all
+        scores = Scores.objects.all
+        dates = Dates.objects.all
+        rounds = Rounds.objects.all
+        stages = Stages.objects.all
+        return render(request, 'pointstable.html', {
+            'forecasts': forecasts,
+            'player': player,
+            'items': items,
+            'teams': teams,
+            'teamsDB': teamsDB,
+            'scores': scores,
+            'dates': dates,
+            'rounds': rounds,
+            'stages': stages,
         })
