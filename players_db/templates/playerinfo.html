@@ -78,7 +78,7 @@
                     <h3>Join edition</h3>
                     {% csrf_token %}
                     <div class="form-floating gx-2">
-                        <select name="e_id" id="e_id" class="form-select" placeholder="">
+                        <select name="e_id" id="e_id" class="form-select" placeholder="" required>
                             <option selected></option>
                             {% for editions in editions %}
                             <option value="{{ editions.id }}">{{editions.name}}</option>

@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect, HttpResponse
 from .models import Items, Fixtures, Teams, Teamsdb, Forecasts, Players, Scores, Dates, Rounds, Stages
+from .tables import ForecastsTable, UserTable, ItemsTable
 from .forms import ItemsForm, ForecastsForm, PlayersForm
 from django.contrib.auth import login, logout, authenticate
 from django.utils import timezone
@@ -9,6 +10,8 @@ import numpy as np
 
 import requests
 import json
+import django_tables2 as tables
+
 
 # Create your views here.
 
@@ -189,7 +192,8 @@ def standings(request):
     if request.method == 'GET':
         print('enviando formulario forecast')
         return render(request, 'standings.html', {
-            'roig': stndings_np
+            'roig': stndings_np,
+            'ppoints': ppoints,
         })
     
 def footballdata(request):
@@ -246,60 +250,31 @@ def oldforecasts(request):
     
 def pointstable(request):
 
+    items = Items.objects.filter(editions=33,open__lte=timezone.now())
+    items_len = Items.objects.filter(editions=33,open__lte=timezone.now()).count()
     forecasts = Forecasts.objects.filter(f_isactive=1)
-    players = Players.objects.all()
-    p_list = list(players.values_list('p_email', flat=True))
-    names = []
-    initial_n = []
-    surnames = []
-    initial_s = []
+    players = Players.objects.all().order_by('p_email')
+    players_len = Players.objects.all().count()
+    i=0
+    j=0
+    valuexy = np.empty((items_len,players_len), dtype=object)
 
-    for x in p_list:
-        names.append(list(players.filter(p_email=x).values_list('p_fname', flat=True)))
-        for y in names:
-            for z in y:
-                for w in z:
-                    break
-        initial_n.append(w)
-        surnames.append(list(players.filter(p_email=x).values_list('p_lname', flat=True)))
-        for y in surnames:
-            for z in y:
-                for w in z:
-                    break
-        initial_s.append(w)
-    initials_n_np = np.array(initial_n)
-    initials_n_np = [initials_n_np]
-    initials_s_np = np.array(initial_s)
-    initials_s_np = [initials_s_np]
+    for x in items:
+        for y in players:
+            valuexy[i,j] = Forecasts.objects.filter(items=x, f_email=y, f_isactive=1).order_by('items', 'f_email').first()
+            j += 1
+        i += 1
+        j = 0
 
-    nicks = np.char.add(initials_n_np, initials_s_np)
-    print ('nicks:', nicks)
-
+    print('done')
 # review starting here
 
     if request.method == 'GET':
         return render(request, 'pointstable.html', {
             'players': players,
-            'forecasts': forecasts,
+            'array': valuexy,
         })
     else:
-        forecasts = Forecasts.objects.filter(f_isactive=1).order_by('items_id')
-        player = Players.objects.all
-        items = Items.objects.filter(editions=33)
-        teams = Teams.objects.all
-        teamsDB = Teamsdb.objects.all
-        scores = Scores.objects.all
-        dates = Dates.objects.all
-        rounds = Rounds.objects.all
-        stages = Stages.objects.all
         return render(request, 'pointstable.html', {
-            'forecasts': forecasts,
-            'player': player,
-            'items': items,
-            'teams': teams,
-            'teamsDB': teamsDB,
-            'scores': scores,
-            'dates': dates,
-            'rounds': rounds,
-            'stages': stages,
+            'players': players,
         })
