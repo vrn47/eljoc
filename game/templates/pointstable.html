@@ -25,28 +25,26 @@
 <main class=" container">
     {% csrf_token %}
     <div class="row">
-        <div class="col-md-12 mt-2">
-            <table class="form-table">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Items</th>
-                            {% for players in players %}
-                            <th> {{ players.p_fname|slice:1 }}{{ players.p_lname|slice:1 }}</th>
-                            {% endfor %}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for row in array %}
-                        <tr>
-                            <td>{% if row.1.items.fields.id == 2 %} {{row.1.items.fixtures.localteam.teamsdb.short|slice:3}}-{{row.1.items.fixtures.awayteam.teamsdb.short|slice:3 }} {% else %} {{ row.1.items.description|slice:6 }} {% endif %}</td>
-                            {% for cell in row %}
-                            <td class="vert hori"> {% if cell.items.fields.id == 2 %} {{ cell.fvalue1 }}-{{cell.fvalue2 }} {% else %} {{ cell.fvalue1|slice:6 }} {% endif %}</td>
-                            {% endfor %}
-                        </tr>
+        <div class="col-md-12 mt-5">
+            <table class="table-bordered border-primary table-sm">
+                <thead>
+                    <tr>
+                        <th>Items</th>
+                        {% for players in players %}
+                        <th> {{ players.p_fname|slice:1 }}{{ players.p_lname|slice:1 }}</th>
                         {% endfor %}
-                    </tbody>
-                </table>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in array %}
+                    <tr>
+                        <td>{% if row.1.items.fields.id == 2 %} {{row.1.items.fixtures.localteam.teamsdb.short|slice:3}}-{{row.1.items.fixtures.awayteam.teamsdb.short|slice:3 }} {% else %} {{ row.1.items.description|slice:6 }} {% endif %}</td>
+                        {% for cell in row %}
+                        <td class="vert hori"> {% if cell.items.fields.id == 2 %} {{ cell.fvalue1 }}-{{cell.fvalue2 }} {% else %} {{ cell.fvalue1|slice:6 }} {% endif %}</td>
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
             </table>
         </div>
     </div>
