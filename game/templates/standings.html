@@ -27,20 +27,27 @@
     <thead>
       <tr>
         <th scope="col">#</th>
+        <th scope="col"></th>
         <th scope="col">Player</th>
         <th scope="col">Points</th>
+        <th scope="col">∆</th>
+        <th scope="col">Prize</th>
       </tr>
     </thead>
     <tbody>
-      {% for xy in roig %}
+      {% for standings in standings %}
         <tr>
           <td scope="row">{{forloop.counter}}</td>
-          <th scope="row">{{ xy.2 }}</th>
-          <td scope="row">{{ xy.1 }}</td>
+          <td scope="row"><img src="http://imatges.vrn47.cat/Honours/Stars/v2/{{ standings.stars }}.png" width="20" height="20"></td>
+          {% if standings.w == 0 %} <td scope="row"><s>{{ standings.fn|slice:1 }}{{ standings.ln }}</s></td> {% else %} <th scope="row">{{ standings.fn|slice:1 }}{{ standings.ln }} {% endif %}</th>
+          <th scope="row">{{ standings.pts }}</th>
+          <td scope="row">{% if standings.dlt == stats.maxdlt %} <b>{{ standings.dlt }}✨</b> {% elif standings.dlt == stats.mindlt %} <b><FONT COLOR="#ff0000">{{ standings.dlt }}⚠️</b> {% elif standings.dlt > stats.avgdlt %} <FONT COLOR="#008000">{{ standings.dlt }} {% elif standings.dlt < stats.avgdlt %} <FONT COLOR="#FFA500">{{ standings.dlt }} {% else %} {{ standings.dlt }} {% endif %} </td>
+          <td scope="row">{% if standings.p > 0 %} <img src="http://imatges.vrn47.cat/Logo/LogoElJocDEF50.png" width="20" height="20"> {% endif %}</td>
         </tr>
       {% endfor %}
     </tbody>
   </table>
+
 </main>
 
 {% endblock %}

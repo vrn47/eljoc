@@ -30,10 +30,14 @@ urlpatterns = [
     path('items/', views1.items, name = 'items'),
     path('forecasts/', views1.forecasts, name = 'forecasts'),
     path('standings/', views1.standings, name = 'standings'),
+    path('statistics/', views1.statistics, name = 'statistics'),
     path('footballdata/', views1.footballdata, name = 'footballdata'),
     path('game/', views1.game, name = 'game'),
     path('oldforecasts/', views1.oldforecasts, name = 'oldforecasts'),
     path('pointstable/', views1.pointstable, name = 'pointstable'),
+    path('apiresults/', views1.apiresults, name = 'apiresults'),
+    path('communities/', views1.communities, name = 'communities'),
+    path('proves/', views1.proves, name = 'proves'),
     path('casa/', views0.casa, name = 'casa')
 
 ]

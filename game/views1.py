@@ -1,22 +1,52 @@
 from django.shortcuts import render, redirect, HttpResponse
-from .models import Items, Fixtures, Teams, Teamsdb, Forecasts, Players, Scores, Dates, Rounds, Stages
+from .models import Items, Fixtures, Teams, Teamsdb, Forecasts, Players, Scores, Dates, Rounds, Stages, Communities, Editions, Dates
 from .tables import ForecastsTable, UserTable, ItemsTable
 from .forms import ItemsForm, ForecastsForm, PlayersForm
 from django.contrib.auth import login, logout, authenticate
 from django.utils import timezone
-from django.db.models import Sum, Count
+from django.db.models import Sum, Count, TextField, Q, F, Max, Min, Avg, Func
+from django.db.models.functions import Cast
 from array import *
 import numpy as np
 
 import requests
 import json
 import django_tables2 as tables
+import datetime
 
 
 # Create your views here.
 
 def game(request):
-        return render(request, 'game.html')
+        
+    print('Game')
+    
+    data = Items.objects.filter(editions=33, value1__isnull=False).order_by('-dates').values_list('dates', flat=True).first()
+    print('data', data-38)
+    items = Forecasts.objects.filter(items__editions=33, f_isactive=1, ts__lte=timezone.now())
+    stnd = items.values('f_email').annotate(
+        pts=Sum(('points'),filter=Q(items__dates__lte=data)),
+        dlt=Sum(('points'),filter=Q(items__dates=data)),
+        fn=F('f_email__p_fname'),
+        ln=F('f_email__p_lname'),
+        w=F('f_email__winnable'),
+        p=F('f_email__paid'),
+        stars=F('f_email__playerdb_id__stars'),
+    ).order_by('-pts', '-stars', 'fn')
+    stnd5 = stnd[:5]
+    stats = stnd.aggregate(
+        maxdlt=Max('dlt'),
+        mindlt=Min('dlt'),
+        avgdlt=Avg('dlt'),
+        sumdlt=Sum('dlt'),
+        cntdlt=Count('dlt'),
+    )
+    
+    return render(request, 'game.html', {
+            'standings': stnd5,
+            'stats': stats,
+            'data': data-38,
+        })
 
 def items(request):        
     item = Items.objects.all()
@@ -160,42 +190,67 @@ def forecasts(request):
 
 def standings(request):
 
-    print('Standings')
+    print('Standings')   
 
-    players = Players.objects.all()
-    ppoints = Forecasts.objects.values('f_email').annotate(pts=Sum('points')).order_by('-pts')
-    standings = list(ppoints.values_list('f_email', flat=True))
-    print(standings, ppoints, players)
-    names = []
-    initial = []
-    surnames = []
-    for x in standings:
-        names.append(list(players.filter(p_email=x).values_list('p_fname', flat=True)))
-        for y in names:
-            for z in y:
-                for w in z:
-                    break
-        initial.append(w)
-        surnames.append(list(players.filter(p_email=x).values_list('p_lname', flat=True)))
-    surnames_np = np.array(surnames)
-    surnames_np = surnames_np.transpose()
-    initials_np = np.array(initial)
-    initials_np = [initials_np]
-    nicks = np.char.add(initials_np, surnames_np)
-    standings = [standings]
-    standings.append(list(ppoints.values_list('pts', flat=True)))
-    stndings_np = np.array(standings)
-    stndings_np = np.concatenate((stndings_np, nicks), axis=0)
-   
-    stndings_np = stndings_np.transpose()
-    print (stndings_np)
+    data = Items.objects.filter(editions=33, value1__isnull=False).order_by('-dates').values_list('dates', flat=True).first()
+    print('data', data-38)
+    items = Forecasts.objects.filter(items__editions=33, f_isactive=1, ts__lte=timezone.now())
+    stnd = items.values('f_email').annotate(
+        pts=Sum(('points'),filter=Q(items__dates__lte=data)),
+        dlt=Sum(('points'),filter=Q(items__dates=data)),
+        fn=F('f_email__p_fname'),
+        ln=F('f_email__p_lname'),
+        w=F('f_email__winnable'),
+        p=F('f_email__paid'),
+        stars=F('f_email__playerdb_id__stars'),
+    ).order_by('-pts', '-stars', 'fn')
+    print('test0', stnd)
+    stats = stnd.aggregate(
+        maxdlt=Max('dlt'),
+        mindlt=Min('dlt'),
+        avgdlt=Avg('dlt'),
+        sumdlt=Sum('dlt'),
+        cntdlt=Count('dlt'),
+    )
+    print('stats', stats)
+
     if request.method == 'GET':
-        print('enviando formulario forecast')
         return render(request, 'standings.html', {
-            'roig': stndings_np,
-            'ppoints': ppoints,
+            'standings': stnd,
+            'stats': stats,
         })
+
+def statistics(request):
+        
+    print('Statistics')
     
+    data = Items.objects.filter(editions=33, value1__isnull=False).order_by('-dates').values_list('dates', flat=True).first()
+    print('data', data-38)
+    items = Forecasts.objects.filter(items__editions=33, f_isactive=1, ts__lte=timezone.now())
+    stnd = items.values('f_email').annotate(
+        pts=Sum(('points'),filter=Q(items__dates__lte=data)),
+        dlt=Sum(('points'),filter=Q(items__dates=data)),
+        fn=F('f_email__p_fname'),
+        ln=F('f_email__p_lname'),
+        w=F('f_email__winnable'),
+        p=F('f_email__paid'),
+        stars=F('f_email__playerdb_id__stars'),
+    ).order_by('-pts', '-stars', 'fn')
+    stnd5 = stnd[:5]
+    stats = stnd.aggregate(
+        maxdlt=Max('dlt'),
+        mindlt=Min('dlt'),
+        avgdlt=Avg('dlt'),
+        sumdlt=Sum('dlt'),
+        cntdlt=Count('dlt'),
+    )
+    
+    return render(request, 'statistics.html', {
+            'standings': stnd5,
+            'stats': stats,
+            'data': data-38,
+        })
+
 def footballdata(request):
     uri = 'https://api.football-data.org/v2/competitions/2001/teams/'
     headers = { 'X-Auth-Token': '3d6936d5fb044a3b925f7a9383b7d4d6' }
@@ -277,4 +332,174 @@ def pointstable(request):
     else:
         return render(request, 'pointstable.html', {
             'players': players,
+        })
+
+def apiresults(request):
+    uri = 'https://api.football-data.org/v2/competitions/2001/matches/'
+    headers = { 'X-Auth-Token': '3d6936d5fb044a3b925f7a9383b7d4d6' }
+
+    response = requests.get(uri, headers=headers)
+
+    print(response.json())
+    matches = response.json()['matches']
+    teams = Teams.objects.all()
+    teamsdb = Teamsdb.objects.all()
+
+#    matches = response.json()['teams']
+#    print(json.dumps(matches, indent=4, sort_keys=True))
+    print(matches)
+
+    if request.method == 'GET':
+        return render(request, 'apiresults.html', {
+            'match': matches,
+            'teams':teams,
+            'teamsdb':teamsdb,
+        })
+    
+def communities(request):
+
+    print('Communities')
+
+    data = Items.objects.filter(editions=33, value1__isnull=False).order_by('-dates').values_list('dates', flat=True).first()
+    print('data', data-38)
+    items0 = Forecasts.objects.filter(items__editions=33, f_isactive=1, ts__lte=timezone.now())
+    test0 = items0.values('f_email').annotate(
+        pts=Sum(('points'),filter=Q(items__dates__lte=data)),
+        dlt=Sum(('points'),filter=Q(items__dates=data)),
+        fn=F('f_email__p_fname'),
+        ln=F('f_email__p_lname'),
+        w=F('f_email__winnable'),
+        p=F('f_email__paid'),
+        stars=F('f_email__playerdb_id__stars'),
+    ).order_by('-pts', '-stars', 'fn')
+ 
+    if request.method == 'GET':
+        return render(request, 'communities.html', {
+            'test': test0,
+        })
+
+def proves(request):
+
+    print('Proves')
+
+    data = Items.objects.filter(editions=33, value1__isnull=False).order_by('-dates').values_list('dates', flat=True).first()
+    print('data', data-38)
+    items = Forecasts.objects.filter(items__editions=33, f_isactive=1, ts__lte=timezone.now(),items__dates__lte=data)
+    stnd = items.values('items__dates', 'f_email').annotate(
+        dlt=Sum('points'),
+        fn=F('f_email__p_fname'),
+        ln=F('f_email__p_lname'),
+        stars=F('f_email__playerdb_id__stars'),
+    ).order_by('-items__dates', '-dlt', 'fn')
+    print('stnd', stnd)
+
+    stnd2 = items.values('items__dates').annotate(
+        tot=Sum('points'),
+        avgdlt=Avg('points'),
+    ).order_by('-items__dates', '-tot')
+    print('stnd2', stnd2)
+
+    stats = stnd.aggregate(
+        maxdlt=Max('dlt'),
+        mindlt=Min('dlt'),
+        avgdlt=Avg('dlt'),
+        sumdlt=Sum('dlt'),
+        cntdlt=Count('dlt'),
+    )
+    print('stats', stats)
+
+    stnd3 = items.values('f_email').annotate(
+        tot=Sum('points'),
+        fn=F('f_email__p_fname'),
+        ln=F('f_email__p_lname'),
+        stars=F('f_email__playerdb_id__stars'),
+        dlt1=Sum(('points'),filter=Q(items__dates=39)),
+        dlt2=Sum(('points'),filter=Q(items__dates=40)),
+        dlt3=Sum(('points'),filter=Q(items__dates=41)),
+        dlt4=Sum(('points'),filter=Q(items__dates=42)),
+        dlt5=Sum(('points'),filter=Q(items__dates=43)),
+    ).order_by('-tot', '-fn')
+    print('stnd3', stnd3)
+
+    stats3 = stnd3.aggregate(
+        maxdlt1=Max('dlt1'),
+        mindlt1=Min('dlt1'),
+        avgdlt1=Avg('dlt1'),
+        sumdlt1=Sum('dlt1'),
+        cntdlt1=Count('dlt1'),
+        maxdlt2=Max('dlt2'),
+        mindlt2=Min('dlt2'),
+        avgdlt2=Avg('dlt2'),
+        sumdlt2=Sum('dlt2'),
+        cntdlt2=Count('dlt2'),
+        maxdlt3=Max('dlt3'),
+        mindlt3=Min('dlt3'),
+        avgdlt3=Avg('dlt3'),
+        sumdlt3=Sum('dlt3'),
+        cntdlt3=Count('dlt3'),
+        maxdlt4=Max('dlt4'),
+        mindlt4=Min('dlt4'),
+        avgdlt4=Avg('dlt4'),
+        sumdlt4=Sum('dlt4'),
+        cntdlt4=Count('dlt4'),
+        maxdlt5=Max('dlt5'),
+        mindlt5=Min('dlt5'),
+        avgdlt5=Avg('dlt5'),
+        sumdlt5=Sum('dlt5'),
+        cntdlt5=Count('dlt5'),
+    )
+    print('stats3', stats3)
+
+    stnd4 = items.values('f_email').annotate(
+        tot=Sum('points'),
+        fn=F('f_email__p_fname'),
+        ln=F('f_email__p_lname'),
+        stars=F('f_email__playerdb_id__stars'),
+        dlt1=Sum(('points'),filter=Q(items__dates__lte=39)),
+        dlt2=Sum(('points'),filter=Q(items__dates__lte=40)),
+        dlt3=Sum(('points'),filter=Q(items__dates__lte=41)),
+        dlt4=Sum(('points'),filter=Q(items__dates__lte=42)),
+        dlt5=Sum(('points'),filter=Q(items__dates__lte=43)),
+    ).order_by('-tot', '-fn')
+    print('stnd4', stnd4)
+
+    stats4 = stnd4.aggregate(
+        maxdlt1=Max('dlt1'),
+        mindlt1=Min('dlt1'),
+        avgdlt1=Avg('dlt1'),
+        sumdlt1=Sum('dlt1'),
+        cntdlt1=Count('dlt1'),
+        maxdlt2=Max('dlt2'),
+        mindlt2=Min('dlt2'),
+        avgdlt2=Avg('dlt2'),
+        sumdlt2=Sum('dlt2'),
+        cntdlt2=Count('dlt2'),
+        maxdlt3=Max('dlt3'),
+        mindlt3=Min('dlt3'),
+        avgdlt3=Avg('dlt3'),
+        sumdlt3=Sum('dlt3'),
+        cntdlt3=Count('dlt3'),
+        maxdlt4=Max('dlt4'),
+        mindlt4=Min('dlt4'),
+        avgdlt4=Avg('dlt4'),
+        sumdlt4=Sum('dlt4'),
+        cntdlt4=Count('dlt4'),
+        maxdlt5=Max('dlt5'),
+        mindlt5=Min('dlt5'),
+        avgdlt5=Avg('dlt5'),
+        sumdlt5=Sum('dlt5'),
+        cntdlt5=Count('dlt5'),
+    )
+    print('stats4', stats4)
+
+
+    if request.method == 'GET':
+        return render(request, 'proves.html', {
+            'standings': stnd,
+            'stats': stats,
+            'data': data,
+            'standings3': stnd3,
+            'stats3': stats3,
+            'standings4': stnd4,
+            'stats4': stats4,
         })

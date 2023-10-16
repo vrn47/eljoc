@@ -153,6 +153,7 @@ class Editions(models.Model):
     code = models.CharField(max_length=4)
     short = models.CharField(max_length=10)
     is_active = models.IntegerField(blank=True, null=True)
+    kickoff = models.DateField(blank=True, null=True)
 
     class Meta:
         managed = False
@@ -191,6 +192,10 @@ class Forecasts(models.Model):
     class Meta:
         managed = False
         db_table = 'forecasts'
+
+#    def __str__(self):
+#        return "<<" + self.f_email + "> " + self.items + ">"
+
 
 
 class Items(models.Model):

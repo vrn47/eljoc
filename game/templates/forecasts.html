@@ -43,9 +43,9 @@
         <div class="card card-body">
           <div class="row gx-2">
             {% if item.fields.id == 2 %}
-            {{ item.close }} ({{ item.fixtures.localteam.teamsdb.name}} vs.{{ item.fixtures.awayteam.teamsdb.name }})
+            {{ item.close|date:"Y/m/d H:i" }} ({{ item.fixtures.localteam.teamsdb.name}} vs.{{ item.fixtures.awayteam.teamsdb.name }})
             {% else %}
-            {{ item.close }}
+            {{ item.close|date:"Y/m/d H:i" }}
             {% endif %}
           </div>
           <div class="row mt-1">

@@ -1,0 +1,107 @@
+{% extends 'base_g.html' %}
+
+{% block content %}
+
+<style>
+    .container2 {
+        position: relative;
+        text-align: center;
+        color: white;
+    }
+    
+    .centered {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+
+    #my-chart {
+        width: 100%;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+    
+    #my-chart .line {
+        
+    }
+    
+    #my-chart .legend {
+        
+    }
+
+</style>
+
+<div class="container2">
+    <img src="http://imatges.vrn47.cat/Logo/UCL-FormBanner2.jpg" style="width:100%;"">
+    <h1 class='centered'>Proves</h1>
+</div>
+
+<main class="container mt-5">
+    <table class="table table-striped table-hover">
+        <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col"></th>
+                <th scope="col">Player</th>
+                <th scope="col">Day</th>
+                <th scope="col">∆</th>
+                <th scope="col">Max</th>
+                <th scope="col">Avg</th>
+                <th scope="col">Min</th>
+                <th scope="col">Tot</th>
+                <th scope="col">Count</th>
+                <th scope="col">Prize</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for standings in standings %}
+                <tr>
+                    <td scope="row">{{forloop.counter}}</td>
+                    <td scope="row"><img src="http://imatges.vrn47.cat/Honours/Stars/v2/{{ standings.stars }}.png" width="20" height="20"></td>
+                    {% if standings.w == 0 %} <td scope="row"><s>{{ standings.fn|slice:1 }}{{ standings.ln }}</s></td> {% else %} <th scope="row">{{ standings.fn|slice:1 }}{{ standings.ln }} {% endif %}</th>
+                    <th scope="row">{{ standings.items__dates }}</th>
+                    <td scope="row">{% if standings.dlt == stats.maxdlt %} <b>{{ standings.dlt }}🔥✨</b> {% elif standings.dlt == stats.mindlt %} <b><FONT COLOR="#ff0000">{{ standings.dlt }}🧊⚠️</b> {% elif standings.dlt > stats.avgdlt %} <FONT COLOR="#008000">{{ standings.dlt }} {% elif standings.dlt < stats.avgdlt %} <FONT COLOR="#FFA500">{{ standings.dlt }} {% else %} {{ standings.dlt }} {% endif %} </td>
+                    <td scope="row">{{ stats.maxdlt }}</td>
+                    <td scope="row">{{ stats.avgdlt }}</td>
+                    <td scope="row">{{ stats.mindlt }}</td>
+                    <td scope="row">{{ stats.sumdlt }}</td>
+                    <td scope="row">{{ stats.cntdlt }}</td>
+                    <td scope="row">{% if standings.p > 0 %} <img src="http://imatges.vrn47.cat/Logo/LogoElJocDEF50.png" width="20" height="20"> {% endif %}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <table class="table table-striped table-hover">
+        <thead>
+            <tr>
+                <th scope="col">Player</th>
+                <th scope="col"></th>
+                <th scope="col">Total</th>
+                <th scope="col">Day 1</th>
+                <th scope="col">Day 2</th>
+                <th scope="col">Day 3</th>
+                <th scope="col">Day 4</th>
+                <th scope="col">Day 5</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for standings3 in standings3 %}
+                <tr>
+                    <td scope="row"><img src="http://imatges.vrn47.cat/Honours/Stars/v2/{{ standings3.stars }}.png" width="20" height="20"></td>
+                    <th scope="row">{{ standings3.fn|slice:1 }}{{ standings3.ln }}</th>
+                    <th scope="row">{{ standings3.tot }}</th>
+                    <td scope="row">{% if standings3.dlt1 == stats3.maxdlt1 %} <b>{{ standings3.dlt1 }}✨</b> {% elif standings3.dlt1 == stats3.mindlt1 %} <b><FONT COLOR="#ff0000">{{ standings3.dlt1 }}⚠️</b> {% elif standings3.dlt1 > stats3.avgdlt1 %} <FONT COLOR="#008000">{{ standings3.dlt1 }} {% elif standings3.dlt1 < stats3.avgdlt1 %} <FONT COLOR="#FFA500">{{ standings3.dlt1 }} {% else %} {{ standings3.dlt1 }} {% endif %} </td>
+                    <td scope="row">{% if standings3.dlt2 == stats3.maxdlt2 %} <b>{{ standings3.dlt2 }}✨</b> {% elif standings3.dlt2 == stats3.mindlt2 %} <b><FONT COLOR="#ff0000">{{ standings3.dlt2 }}⚠️</b> {% elif standings3.dlt2 > stats3.avgdlt2 %} <FONT COLOR="#008000">{{ standings3.dlt2 }} {% elif standings3.dlt2 < stats3.avgdlt2 %} <FONT COLOR="#FFA500">{{ standings3.dlt2 }} {% else %} {{ standings3.dlt2 }} {% endif %} </td>
+                    <td scope="row">{% if standings3.dlt3 == stats3.maxdlt3 %} <b>{{ standings3.dlt3 }}✨</b> {% elif standings3.dlt3 == stats3.mindlt3 %} <b><FONT COLOR="#ff0000">{{ standings3.dlt3 }}⚠️</b> {% elif standings3.dlt3 > stats3.avgdlt3 %} <FONT COLOR="#008000">{{ standings3.dlt3 }} {% elif standings3.dlt3 < stats3.avgdlt3 %} <FONT COLOR="#FFA500">{{ standings3.dlt3 }} {% else %} {{ standings3.dlt3 }} {% endif %} </td>
+                    <td scope="row">{% if standings3.dlt4 == stats3.maxdlt4 %} <b>{{ standings3.dlt4 }}✨</b> {% elif standings3.dlt4 == stats3.mindlt4 %} <b><FONT COLOR="#ff0000">{{ standings3.dlt4 }}⚠️</b> {% elif standings3.dlt4 > stats3.avgdlt4 %} <FONT COLOR="#008000">{{ standings3.dlt4 }} {% elif standings3.dlt4 < stats3.avgdlt4 %} <FONT COLOR="#FFA500">{{ standings3.dlt4 }} {% else %} {{ standings3.dlt4 }} {% endif %} </td>
+                    <td scope="row">{% if standings3.dlt5 == stats3.maxdlt5 %} <b>{{ standings3.dlt5 }}✨</b> {% elif standings3.dlt5 == stats3.mindlt5 %} <b><FONT COLOR="#ff0000">{{ standings3.dlt5 }}⚠️</b> {% elif standings3.dlt5 > stats3.avgdlt5 %} <FONT COLOR="#008000">{{ standings3.dlt5 }} {% elif standings3.dlt5 < stats3.avgdlt5 %} <FONT COLOR="#FFA500">{{ standings3.dlt5 }} {% else %} {{ standings3.dlt5 }} {% endif %} </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+</main>
+
+{% endblock %}

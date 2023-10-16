@@ -1,0 +1,52 @@
+{% extends 'base_g.html' %}
+
+{% block content %}
+
+<style>
+    .container2 {
+      position: relative;
+      text-align: center;
+      color: white;
+    }
+    
+    .centered {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+    </style>
+
+<div class="container2">
+    <img src="http://imatges.vrn47.cat/Logo/UCL-FormBanner2.jpg" style="width:100%;"">
+    <h1 class='centered'>Communities</h1>
+</div>
+
+<main class="container mt-5">
+  <table class="table table-striped table-hover">
+    <thead>
+      <tr>
+        <th scope="col">#</th>
+        <th scope="col"></th>
+        <th scope="col">Player</th>
+        <th scope="col">Points</th>
+        <th scope="col">∆</th>
+        <th scope="col">Prize</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for test in test %}
+        <tr>
+          <td scope="row">{{forloop.counter}}</td>
+          <td scope="row"><img src="http://imatges.vrn47.cat/Honours/Stars/v2/{{ test.stars }}.png" width="20" height="20"></td>
+          {% if test.w == 0 %} <td scope="row"><s>{{ test.fn|slice:1 }}{{ test.ln }}</s></td> {% else %} <th scope="row">{{ test.fn|slice:1 }}{{ test.ln }} {% endif %}</th>
+          <th scope="row">{{ test.pts }}</th>
+          <td scope="row">{{ test.dlt }}</td>
+          <td scope="row">{% if test.p > 0 %} <img src="http://imatges.vrn47.cat/Logo/LogoElJocDEF50.png" width="20" height="20"> {% endif %}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</main>
+
+{% endblock %}
