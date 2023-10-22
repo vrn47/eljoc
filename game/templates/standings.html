@@ -26,7 +26,7 @@
   <table class="table table-striped table-hover">
     <thead>
       <tr>
-        <th scope="col">#</th>
+        <th scope="col">△▽</th>
         <th scope="col"></th>
         <th scope="col">Player</th>
         <th scope="col">Points</th>
@@ -37,11 +37,11 @@
     <tbody>
       {% for standings in standings %}
         <tr>
-          <td scope="row">{{forloop.counter}}</td>
+          <td scope="row">{{forloop.counter}} {% if standings.rank0 == standings.rank1 %} ≡ {% elif standings.rank1 > standings.rank0 %} ▲ {% elif standings.rank0 > standings.rank1 %} ▼ {% else %} . {% endif %} </td>
           <td scope="row"><img src="http://imatges.vrn47.cat/Honours/Stars/v2/{{ standings.stars }}.png" width="20" height="20"></td>
           {% if standings.w == 0 %} <td scope="row"><s>{{ standings.fn|slice:1 }}{{ standings.ln }}</s></td> {% else %} <th scope="row">{{ standings.fn|slice:1 }}{{ standings.ln }} {% endif %}</th>
-          <th scope="row">{{ standings.pts }}</th>
-          <td scope="row">{% if standings.dlt == stats.maxdlt %} <b>{{ standings.dlt }}✨</b> {% elif standings.dlt == stats.mindlt %} <b><FONT COLOR="#ff0000">{{ standings.dlt }}⚠️</b> {% elif standings.dlt > stats.avgdlt %} <FONT COLOR="#008000">{{ standings.dlt }} {% elif standings.dlt < stats.avgdlt %} <FONT COLOR="#FFA500">{{ standings.dlt }} {% else %} {{ standings.dlt }} {% endif %} </td>
+          <th scope="row">{{ standings.tot }}</th>
+          <td scope="row">{% if standings.dlt1 == stats.maxdlt1 %} <b>{{ standings.dlt1 }}✨</b> {% elif standings.dlt1 == stats.mindlt1 %} <b><FONT COLOR="#ff0000">{{ standings.dlt1 }}⚠️</b> {% elif standings.dlt1 > stats.avgdlt1 %} <FONT COLOR="#008000">{{ standings.dlt1 }} {% elif standings.dlt1 < stats.avgdlt1 %} <FONT COLOR="#FFA500">{{ standings.dlt1 }} {% else %} {{ standings.dlt1 }} {% endif %} </td>
           <td scope="row">{% if standings.p > 0 %} <img src="http://imatges.vrn47.cat/Logo/LogoElJocDEF50.png" width="20" height="20"> {% endif %}</td>
         </tr>
       {% endfor %}
