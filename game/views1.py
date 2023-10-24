@@ -4,15 +4,16 @@ from .tables import ForecastsTable, UserTable, ItemsTable
 from .forms import ItemsForm, ForecastsForm, PlayersForm
 from django.contrib.auth import login, logout, authenticate
 from django.utils import timezone
-from django.db.models import Sum, Count, TextField, Q, F, Max, Min, Avg, Func, Window
-from django.db.models.functions import Cast, Rank, DenseRank, ExtractYear
+from django.db.models import Sum, Count, TextField, Q, F, Max, Min, Avg, Func, Window, ExpressionWrapper, Value as V, CharField
+from django.db.models.functions import Cast, Rank, DenseRank, ExtractYear, Concat, Substr, ConcatPair
 from array import *
+from django_pivot.pivot import pivot
 import numpy as np
-
 import requests
 import json
 import django_tables2 as tables
 import datetime
+import pandas as pd
 
 
 # Create your views here.
@@ -390,33 +391,50 @@ def oldforecasts(request):
     
 def pointstable(request):
 
-    items = Items.objects.filter(editions=33,open__lte=timezone.now())
-    items_len = Items.objects.filter(editions=33,open__lte=timezone.now()).count()
-    forecasts = Forecasts.objects.filter(f_isactive=1, items__editions=33, items__open__lte=timezone.now())
-    players = Players.objects.all().order_by('p_email')
-    players_len = Players.objects.all().count()
-    i=0
-    j=0
-    valuexy = np.empty((items_len,players_len), dtype=object)
+#   old code points table
 
-    for x in items:
-        for y in players:
-            valuexy[i,j] = forecasts.filter(items=x, f_email=y).order_by('items', 'f_email').first()
-            j += 1
-        i += 1
-        j = 0
+#    items = Items.objects.filter(editions=33,open__lte=timezone.now())
+#    items_len = Items.objects.filter(editions=33,open__lte=timezone.now()).count()
+#    forecasts = Forecasts.objects.filter(f_isactive=1, items__editions=33, items__open__lte=timezone.now())
+#    players = Players.objects.all().order_by('p_email')
+#    players_len = Players.objects.all().count()
+#    i=0
+#    j=0
+#    valuexy = np.empty((items_len,players_len), dtype=object)
 
-    print('done')
+#    for x in items:
+#        for y in players:
+#            valuexy[i,j] = forecasts.filter(items=x, f_email=y).order_by('items', 'f_email').first()
+#            j += 1
+#        i += 1
+#        j = 0
+#    print('done')
+
 # review starting here
+
+    forecasts = Forecasts.objects.filter(f_isactive=1, items__editions=33, items__open__lte=timezone.now()).values('items', 'f_email', 'fvalue1', 'fvalue2').annotate(
+        itm=Concat('items__id', V('  '), Substr('items__description', 1, 5), V(' '), Substr('items__fixtures__localteam__teamsdb__short', 1, 3), Substr('items__fixtures__awayteam__teamsdb__short', 1, 3), output_field=CharField()),
+        name=Concat(Substr('f_email__p_fname', 1, 1), Substr('f_email__p_lname', 1, 8), output_field=CharField()),
+        day=F('items__dates'),
+        result=Concat('items__value1','items__value2', output_field=TextField()),
+        forec=Concat(Substr('fvalue1', 1, 6), V('..'),'fvalue2', output_field=TextField()),
+        field=F('items__fields__id'),
+    ).order_by('items', 'f_email')
+    forecasts_df = pd.DataFrame(forecasts)
+    forecasts_pt = forecasts_df.pivot_table(index='itm', columns='name', values='forec', aggfunc='first')
+    forecasts_html = forecasts_pt.to_html(header=True, border=1, table_id='pointstable')
+    print('forecasts_html', forecasts_html)
 
     if request.method == 'GET':
         return render(request, 'pointstable.html', {
-            'players': players,
-            'array': valuexy,
+#            'players': players,
+#            'array': valuexy,
+            'forecasts_html': forecasts_html,
         })
     else:
         return render(request, 'pointstable.html', {
-            'players': players,
+#            'players': players,
+            'forecasts_html': forecasts_html,
         })
 
 def apiresults(request):
@@ -595,24 +613,37 @@ def proves(request):
 
 # proves de points table alternatiu
 
-    itemsx = Items.objects.filter(editions=33,open__lte=timezone.now())
-    itemsx_len = Items.objects.filter(editions=33,open__lte=timezone.now()).count()
-    forecastsx = Forecasts.objects.filter(f_isactive=1, items__editions=33, items__open__lte=timezone.now()).annotate(
-        itm=F('items__id'),
-        emk=F('f_email__p_email'),
-        fn=F('f_email__p_fname'),
-        ln=F('f_email__p_lname'),
+    forecasts = Forecasts.objects.filter(f_isactive=1, items__editions=33, items__open__lte=timezone.now()).values('items', 'f_email', 'fvalue1', 'fvalue2').annotate(
+        itm=Concat('items__id', V('  '), Substr('items__description', 1, 5), V(' '), Substr('items__fixtures__localteam__teamsdb__short', 1, 3), Substr('items__fixtures__awayteam__teamsdb__short', 1, 3), output_field=CharField()),
+        name=Concat(Substr('f_email__p_fname', 1, 1), Substr('f_email__p_lname', 1, 8), output_field=CharField()),
         day=F('items__dates'),
-        v1=F('items__value1'),
-        v2=F('items__value2'),
+        result=Concat('items__value1','items__value2', output_field=TextField()),
+        forec=Concat(Substr('fvalue1', 1, 6), V('..'),'fvalue2', output_field=TextField()),
         field=F('items__fields__id'),
-        desc=F('items__description'),
-        local=F('items__fixtures__localteam__teamsdb__short'),
-        away=F('items__fixtures__awayteam__teamsdb__short'),
-    )
-    playersx = Players.objects.all().order_by('p_email')
-    playersx_len = Players.objects.all().count()
-    print('forecastsx', forecastsx)
+    ).order_by('items', 'f_email')
+    forecasts_df = pd.DataFrame(forecasts)
+    
+    forecasts_pt = forecasts_df.pivot_table(index='itm', columns='name', values='forec', aggfunc='first')
+    forecasts_html = forecasts_pt.to_html(header=True, border=1, table_id='pointstable')
+    print('forecasts_html', forecasts_html)
+
+# proves de detecció manca resuultats
+
+    forecastsx2 = Forecasts.objects.filter(f_isactive=1, items__editions=33, items__open__lte=timezone.now()).values_list('items__dates').annotate(
+        name=Concat(Substr('f_email__p_fname', 1, 1), Substr('f_email__p_lname', 1, 2), output_field=CharField()),
+        emk=F('f_email'),
+        cnt=Count('pk')
+        ).order_by('f_email', 'items__dates')
+    print('forecastsx2', forecastsx2)
+    emails = Forecasts.objects.filter(f_isactive=1, items__editions=33, items__open__lte=timezone.now()).values('f_email').distinct().order_by('f_email')
+    print('emails', emails)
+
+
+    pivot2_old = pivot(Forecasts, 'items__dates', 'f_email', 'pk', aggregation=Count)
+    pivot2 = list(pivot(forecastsx2, 'items__dates', 'name', 'pk', aggregation=Count))
+    print('pivot2', pivot2)
+
+# fi proves
 
     if request.method == 'GET':
         return render(request, 'proves.html', {
@@ -629,7 +660,8 @@ def proves(request):
             'standings4': stnd4,
             'stats4': stats4,
             'chart': chartx4,
-            'forecastsx': forecastsx,
-            'playersx': playersx,
-            'itemsx': itemsx
+            'forecasts': forecasts,
+            'forecastsx2': forecastsx2,
+            'emails': emails,
+            'pivot2': pivot2,
         })

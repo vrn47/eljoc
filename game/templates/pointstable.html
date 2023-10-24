@@ -15,6 +15,12 @@
         left: 50%;
         transform: translate(-50%, -50%);
     }
+
+    table, td, th {
+        border: blue 1px solid;
+        
+    }
+
 </style>
 
 <div class="container2">
@@ -25,26 +31,7 @@
 <main class="container">
     {% csrf_token %}
     <div class="row mt-5">
-        <table class="table-bordered border-primary table-sm">
-            <thead>
-                <tr>
-                    <th>Items</th>
-                    {% for players in players %}
-                    <th> {{ players.p_fname|slice:1 }}{{ players.p_lname|slice:1 }}</th>
-                    {% endfor %}
-                </tr>
-            </thead>
-            <tbody>
-                {% for row in array %}
-                <tr>
-                    <td>{% if row.1.items.fields.id == 2 %} {{row.0.items.fixtures.localteam.teamsdb.short|slice:3}}-{{row.0.items.fixtures.awayteam.teamsdb.short|slice:3 }} {% else %} {{ row.0.items.description|slice:6 }} {% endif %}</td>
-                    {% for cell in row %}
-                    <td class="vert hori"> {% if cell.items.fields.id == 2 %} {{ cell.fvalue1 }}-{{cell.fvalue2 }} {% else %} {{ cell.fvalue1|slice:6 }} {% endif %}</td>
-                    {% endfor %}
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+        {{ forecasts_html|safe }}
     </div>
 </main>
 

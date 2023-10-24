@@ -30,6 +30,11 @@
         
     }
 
+    table, td, th {
+        border: blue 1px solid;
+        
+    }
+
 </style>
 
 <div class="container2">
@@ -211,42 +216,45 @@
             </script>
     </div>
 
-<!-- Test points table -->
+<!-- Proves de detecció manca resuultats -->
 
-    <div class="row mt-5">
-        <table class="table-bordered border-primary table-sm">
-            <thead>
-                <tr>
-                    <th>Items</th>
-                    <th>Description</th>
-                    {% for playersx in playersx %}
-                    <th> {{ playersx.p_fname|slice:1 }}{{ playersx.p_lname|slice:1 }}</th>
+<div class="row mt-5">
+    <table class="table-bordered border-primary table-sm">
+        <thead>
+            <tr>
+                {% for element in pivot2 %}
+                {% if forloop.counter < 2 %}
+                    {% for key,value in element.items %}
+                        <th>{{ key }}</th>
                     {% endfor %}
+                    {% endif %}
+                {% endfor %}
                 </tr>
             </thead>
             <tbody>
-                {% for forecastsx in forecastsx %}
-                <tr>
-                    {% if forecastsx.emk == playersx.0.p_email %}
-                    <td>{{forloop.counter}}</td>
-                    <td> {% if forecastsx.field == 2 %} {{forecastsx.local|slice:3}}-{{forecastsx.away|slice:3 }} {% else %} {{ forecastsx.desc|slice:6 }} {% endif %}</td>
-                    {% endif %}
-                    {% if forecastsx.emk == playersx.0.p_email %}
-                    <td class="vert hori"> {% if forecastsx.field == 2 %} {{ forecastsx.fvalue1 }}-{{forecastsx.fvalue2 }} {% else %} {{ forecastsx.fvalue1|slice:6 }} {% endif %}</td>
-                    <td></td>
-                    {% endif %}
-                    {% if forecastsx.emk == playersx.1.p_email %}
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td class="vert hori"> {% if forecastsx.field == 2 %} {{ forecastsx.fvalue1 }}-{{forecastsx.fvalue2 }} {% else %} {{ forecastsx.fvalue1|slice:6 }} {% endif %}</td>
-                    {% endif %}
-                </tr>
+                {% for element in pivot2 %}
+                    <tr>{% for key,value in element.items %}
+                        {% if value == 0 %}<td style="color: darkred"><strong> {{ value }} </strong></td> {% else %} <td style="color: black">{{ value }} {% endif %}</td>
+                    {% endfor %}
+                    </tr>
                 {% endfor %}
             </tbody>
-        </table>
-    </div>
+    </table>
+</div>
+<div class="row mt-5">
 
+    <table class="table-bordered border-primary table-sm">
+            <tbody>
+                {% for element in pivot2 %}
+                    <tr>
+                        {% for key,value in element.items %}
+                            {% if element.items__dates > data %}{% if value == 0 %}<td style="color: darkred"><strong> {{ key }} </strong></td> {% endif %} {% endif %}
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+    </table>
+</div>
 </main>
 
 {% endblock %}
