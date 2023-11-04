@@ -38,6 +38,7 @@ urlpatterns = [
     path('apiresults/', views1.apiresults, name = 'apiresults'),
     path('communities/', views1.communities, name = 'communities'),
     path('proves/', views1.proves, name = 'proves'),
+    path('proves2/', views1.proves2, name = 'proves2'),
     path('casa/', views0.casa, name = 'casa')
 
 ]

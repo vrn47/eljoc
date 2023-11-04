@@ -58,7 +58,7 @@
             </div>
             <div class="row mt-5">
                 <div class="col d-grid gap-2">
-                    <a class="btn btn-secondary text-body-secondary" href="/communities/">Communities</a>
+                    <a class="btn btn-outline-primary text-body-secondary" href="/communities/">Communities</a>
                 </div>
                 <div class="col d-grid gap-2">
                     <a class="text-body-secondary btn btn-secondary" href="/items/">Other</a>
@@ -104,7 +104,7 @@
         <tbody>
             {% for standings in standings %}
             <tr>
-              <td scope="row">{{forloop.counter}} {% if standings.rank0 == standings.rank1 %} ≡ {% elif standings.rank1 > standings.rank0 %} ▲ {% elif standings.rank0 > standings.rank1 %} ▼ {% else %} . {% endif %} </td>
+              <td scope="row">{{ standings.rank0 }} {% if standings.rank0 == standings.rank1 %} ≡ {% elif standings.rank1 > standings.rank0 %} ▲ {% elif standings.rank0 > standings.rank1 %} ▼ {% else %} . {% endif %} </td>
               <td scope="row"><img src="http://imatges.vrn47.cat/Honours/Stars/v2/{{ standings.stars }}.png" width="20" height="20"></td>
               {% if standings.w == 0 %} <td scope="row"><s>{{ standings.fn|slice:1 }}{{ standings.ln }}</s></td> {% else %} <th scope="row">{{ standings.fn|slice:1 }}{{ standings.ln }} {% endif %}</th>
               <th scope="row">{{ standings.tot }}</th>
@@ -114,6 +114,161 @@
           {% endfor %}
         </tbody>
     </table>
+
+    <!-- test chart.js via tutorial -->
+
+    <div id="container" style="width: 100%;" class="mt-5">
+        <div style="text-align: center"><strong>EVOLUTION LAST 5 DAYS</strong></div>
+        <canvas id="pie-chart"></canvas>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        var config = {
+            type: 'line',
+            data: {
+                datasets: [{
+                    data: {{datax0|safe}},
+                    label: '{{label0|safe}}'
+                },{
+                    data: {{datax1|safe}},
+                    label: '{{label1|safe}}'
+                },{
+                    data: {{datax2|safe}},
+                    label: '{{label2|safe}}'
+                },{
+                    data: {{datax3|safe}},
+                    label: '{{label3|safe}}'
+                },{
+                    data: {{datax4|safe}},
+                    label: '{{label4|safe}}'
+                },{
+                    data: {{datax5|safe}},
+                    label: '{{label5|safe}}'
+                },{
+                    data: {{datax6|safe}},
+                    label: '{{label6|safe}}'
+                },{
+                    data: {{datax7|safe}},
+                    label: '{{label7|safe}}'
+                },{
+                    data: {{datax8|safe}},
+                    label: '{{label8|safe}}'
+                },{
+                    data: {{datax9|safe}},
+                    label: '{{label9|safe}}'
+                },{
+                    data: {{datax10|safe}},
+                    label: '{{label10|safe}}'
+                },{
+                    data: {{datax11|safe}},
+                    label: '{{label11|safe}}'
+                },{
+                    data: {{datax12|safe}},
+                    label: '{{label12|safe}}'
+                },{
+                    data: {{datax13|safe}},
+                    label: '{{label13|safe}}'
+                },{
+                    data: {{datax14|safe}},
+                    label: '{{label14|safe}}'
+                },{
+                    data: {{datax15|safe}},
+                    label: '{{label15|safe}}'
+                },{
+                    data: {{datax16|safe}},
+                    label: '{{label16|safe}}'
+                },{
+                    data: {{datax17|safe}},
+                    label: '{{label17|safe}}'
+                },{
+                    data: {{datax18|safe}},
+                    label: '{{label18|safe}}'
+                },{
+                    data: {{datax19|safe}},
+                    label: '{{label19|safe}}'
+                },{
+                    data: {{datax20|safe}},
+                    label: '{{label20|safe}}'
+                },{
+                    data: {{datax21|safe}},
+                    label: '{{label21|safe}}'
+                },{
+                    data: {{datax22|safe}},
+                    label: '{{label22|safe}}'
+                },{
+                    data: {{datax23|safe}},
+                    label: '{{label23|safe}}'
+                },{
+                    data: {{datax24|safe}},
+                    label: '{{label24|safe}}'
+                },{
+                    data: {{datax25|safe}},
+                    label: '{{label25|safe}}'
+                },{
+                    data: {{datax26|safe}},
+                    label: '{{label26|safe}}'
+                },{
+                    data: {{datax27|safe}},
+                    label: '{{label27|safe}}'
+                },{
+                    data: {{datax28|safe}},
+                    label: '{{label28|safe}}'
+                },{
+                    data: {{datax29|safe}},
+                    label: '{{label29|safe}}'
+                },{
+                    data: {{datax30|safe}},
+                    label: '{{label30|safe}}'
+                },{
+                    data: {{datax31|safe}},
+                    label: '{{label31|safe}}'
+                },{
+                    data: {{datax32|safe}},
+                    label: '{{label32|safe}}'
+                },{
+                    data: {{datax33|safe}},
+                    label: '{{label33|safe}}'
+                },{
+                    data: {{datax34|safe}},
+                    label: '{{label34|safe}}'
+                },{
+                    data: {{datax35|safe}},
+                    label: '{{label35|safe}}'
+                },{
+                    data: {{datax36|safe}},
+                    label: '{{label36|safe}}'
+                },{
+                    data: {{datax37|safe}},
+                    label: '{{label37|safe}}'
+                },{
+                    data: {{datax38|safe}},
+                    label: '{{label38|safe}}'
+                },{
+                    data: {{datax39|safe}},
+                    label: '{{label39|safe}}'
+                },{
+                    data: {{datax40|safe}},
+                    label: '{{label40|safe}}'
+                },{
+                    data: {{datax41|safe}},
+                    label: '{{label41|safe}}'
+                }],
+                labels: {{labels|safe}}
+            },
+            options: {
+                responsive: true
+                }
+            };
+
+            window.onload = function() {
+                var ctx = document.getElementById('pie-chart').getContext('2d');
+                window.myPie = new Chart(ctx, config);
+            };
+
+    </script>
+
 
 </main>
 {% endblock %}

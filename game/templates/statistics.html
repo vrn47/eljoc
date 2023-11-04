@@ -74,7 +74,7 @@
         <tbody>
             {% for standings4 in standings4 %}
                 <tr>
-                    <td scope="row">{{forloop.counter}} {% if standings4.rank0 == standings4.rank1 %} ≡ {% elif standings4.rank1 > standings4.rank0 %} ▲ {% elif standings4.rank0 > standings4.rank1 %} ▼ {% else %} . {% endif %}</td>
+                    <td scope="row">{{standings4.rank0}} {% if standings4.rank0 == standings4.rank1 %} ≡ {% elif standings4.rank1 > standings4.rank0 %} ▲ {% elif standings4.rank0 > standings4.rank1 %} ▼ {% else %} . {% endif %}</td>
                     <td scope="row"><img src="http://imatges.vrn47.cat/Honours/Stars/v2/{{ standings4.stars }}.png" width="20" height="20"></td>
                     <th scope="row">{{ standings4.fn|slice:1 }}{{ standings4.ln }}</th>
                     <td scope="row">{% if standings4.dlt1 == stats4.maxdlt1 %} <b>{{ standings4.dlt1 }}✨</b> {% elif standings4.dlt1 == stats4.mindlt1 %} <b><FONT COLOR="#ff0000">{{ standings4.dlt1 }}⚠️</b> {% elif standings4.dlt1 > stats4.avgdlt1 %} <FONT COLOR="#008000">{{ standings4.dlt1 }} {% elif standings4.dlt1 < stats4.avgdlt1 %} <FONT COLOR="#FFA500">{{ standings4.dlt1 }} {% else %} {{ standings4.dlt1 }} {% endif %} </td>

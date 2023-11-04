@@ -37,7 +37,7 @@
     <tbody>
       {% for standings in standings %}
         <tr>
-          <td scope="row">{{forloop.counter}} {% if standings.rank0 == standings.rank1 %} ≡ {% elif standings.rank1 > standings.rank0 %} ▲ {% elif standings.rank0 > standings.rank1 %} ▼ {% else %} . {% endif %} </td>
+          <td scope="row">{{standings.rank0}} {% if standings.rank0 == standings.rank1 %} ≡ {% elif standings.rank1 > standings.rank0 %} ▲ {% elif standings.rank0 > standings.rank1 %} ▼ {% else %} . {% endif %} </td>
           <td scope="row"><img src="http://imatges.vrn47.cat/Honours/Stars/v2/{{ standings.stars }}.png" width="20" height="20"></td>
           {% if standings.w == 0 %} <td scope="row"><s>{{ standings.fn|slice:1 }}{{ standings.ln }}</s></td> {% else %} <th scope="row">{{ standings.fn|slice:1 }}{{ standings.ln }} {% endif %}</th>
           <th scope="row">{{ standings.tot }}</th>
