@@ -18,19 +18,18 @@
 
     table, td, th {
         border: blue 1px solid;
-        
+        font-size: xx-small;        
     }
 
 </style>
+<main>
+    <div class="container2">
+        <img src="http://imatges.vrn47.cat/Logo/UCL-FormBanner2.jpg" style="width:100%;"">
+        <h1 class='centered'>Points table</h1>
+    </div>
 
-<div class="container2">
-    <img src="http://imatges.vrn47.cat/Logo/UCL-FormBanner2.jpg" style="width:100%;"">
-    <h1 class='centered'>Points table</h1>
-</div>
-
-<main class="container">
-    {% csrf_token %}
-    <div class="row mt-5">
+    <div class="mt-5">
+        {% csrf_token %}
         {{ forecasts_html|safe }}
     </div>
 </main>

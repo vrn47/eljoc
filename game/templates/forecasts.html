@@ -78,7 +78,7 @@
             </div>
             {% elif item.fields.id == 7 %}
             <div class="form-floating col-md-9 gx-2">
-              <input type="text" name="fvalue1" id="fvalue1" class="form-control" placeholder="" value="{{team.teamsdb.name}}" readonly>
+              <input type="text" name="fvalue1" id="fvalue1" class="form-control" placeholder="" value="{%if item.description == 'Round of 16 away 1'%}{{teamdb_1stA.name}}{%elif item.description == 'Round of 16 away 2'%}{{teamdb_1stB.name}}{%elif item.description == 'Round of 16 away 3'%}{{teamdb_1stC.name}}{%elif item.description == 'Round of 16 away 4'%}{{teamdb_1stD.name}}{%elif item.description == 'Round of 16 away 5'%}{{teamdb_1stE.name}}{%elif item.description == 'Round of 16 away 6'%}{{teamdb_1stF.name}}{%elif item.description == 'Round of 16 away 7'%}{{teamdb_1stG.name}}{%elif item.description == 'Round of 16 away 8'%}{{teamdb_1stH.name}}{% endif %}" readonly>
               <label for="fvalue1">{{ item.description }}</label>
               <div class="helptext"></div>
             </div>
@@ -147,8 +147,8 @@
                   {% endfor %}
                 {% endif %}
                 {% if item.list == 20 %}
-                  {% for teamdb_EN in teamdb_EN %}
-                  <option value="{{teamdb_EN.name}}">{{teamdb_EN.name}}</option>
+                  {% for teamdb_WC in teamdb_WC %}
+                  <option value="{{teamdb_WC.name}}">{{teamdb_WC.name}}</option>
                   {% endfor %}
                 {% endif %}
                 {% if item.list == 21 %}
@@ -184,6 +184,46 @@
                 {% if item.list == 27 %}
                   {% for teamdb_ND in teamdb_ND %}
                   <option value="{{teamdb_ND.name}}">{{teamdb_ND.name}}</option>
+                  {% endfor %}
+                {% endif %}
+                {% if item.list == 30 %}
+                  {% for teamdb_2ndA in teamdb_2ndA %}
+                  <option value="{{teamdb_2ndA.name}}">{{teamdb_2ndA.name}}</option>
+                  {% endfor %}
+                {% endif %}
+                {% if item.list == 31 %}
+                  {% for teamdb_2ndB in teamdb_2ndB %}
+                  <option value="{{teamdb_2ndB.name}}">{{teamdb_2ndB.name}}</option>
+                  {% endfor %}
+                {% endif %}
+                {% if item.list == 32 %}
+                  {% for teamdb_2ndC in teamdb_2ndC %}
+                  <option value="{{teamdb_2ndC.name}}">{{teamdb_2ndC.name}}</option>
+                  {% endfor %}
+                {% endif %}
+                {% if item.list == 33 %}
+                  {% for teamdb_2ndD in teamdb_2ndD %}
+                  <option value="{{teamdb_2ndD.name}}">{{teamdb_2ndD.name}}</option>
+                  {% endfor %}
+                {% endif %}
+                {% if item.list == 34 %}
+                  {% for teamdb_2ndE in teamdb_2ndE %}
+                  <option value="{{teamdb_2ndE.name}}">{{teamdb_2ndE.name}}</option>
+                  {% endfor %}
+                {% endif %}
+                {% if item.list == 35 %}
+                  {% for teamdb_2ndF in teamdb_2ndF %}
+                  <option value="{{teamdb_2ndF.name}}">{{teamdb_2ndF.name}}</option>
+                  {% endfor %}
+                {% endif %}
+                {% if item.list == 36 %}
+                  {% for teamdb_2ndG in teamdb_2ndG %}
+                  <option value="{{teamdb_2ndG.name}}">{{teamdb_2ndG.name}}</option>
+                  {% endfor %}
+                {% endif %}
+                {% if item.list == 37 %}
+                  {% for teamdb_2ndH in teamdb_2ndH %}
+                  <option value="{{teamdb_2ndH.name}}">{{teamdb_2ndH.name}}</option>
                   {% endfor %}
                 {% endif %}
               </select>

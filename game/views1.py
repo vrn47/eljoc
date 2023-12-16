@@ -111,7 +111,8 @@ def game(request):
     delta3 = list(stnd4.values_list('dlt3', flat=True))
     delta4 = list(stnd4.values_list('dlt4', flat=True))
     delta5 = list(stnd4.values_list('dlt5', flat=True))
-    print('delta1', delta1)
+#    print('delta1', delta1)
+
 
     listdelta = np.array(nicks)
     listdelta = np.append(listdelta, delta1)
@@ -119,7 +120,8 @@ def game(request):
     listdelta = np.append(listdelta, delta3)
     listdelta = np.append(listdelta, delta4)
     listdelta = np.append(listdelta, delta5)
-    listdelta = np.reshape(listdelta, (6, 42))
+# compte que el 44 d'aquí sota és el nombre de jugadors actius
+    listdelta = np.reshape(listdelta, (6, 44))
     listdelta = np.transpose(listdelta)
 
     return render(request, 'game.html', {
@@ -247,7 +249,7 @@ def forecasts(request):
     team_H = Teams.objects.filter(editions=33, grp='H').order_by('pos')
     team_rev = Teams.objects.filter(editions=33, rev=1).order_by('-coef')
     teamdb = Teamsdb.objects.all()
-    teamdb_20 = Teamsdb.objects.filter()
+    teamdb_WC = Teamsdb.objects.filter(world_id=1, is_club=1)
     teamdb_EN = Teamsdb.objects.filter(fed='ENG').order_by('id')
     teamdb_ES = Teamsdb.objects.filter(fed='ESP').order_by('id')
     teamdb_IT = Teamsdb.objects.filter(fed='ITA').order_by('id')
@@ -255,6 +257,24 @@ def forecasts(request):
     teamdb_FR = Teamsdb.objects.filter(fed='FRA').order_by('id')
     teamdb_PT = Teamsdb.objects.filter(fed='POR').order_by('id')
     teamdb_ND = Teamsdb.objects.filter(fed='NED').order_by('id')
+    teamdb_1st = Teamsdb.objects.filter(teams__editions=33,teams__pos=1).order_by('teams__grp')
+    teamdb_1stA = Teamsdb.objects.get(teams__editions=33,teams__pos=1,teams__grp='A')
+    teamdb_1stB = Teamsdb.objects.get(teams__editions=33,teams__pos=1,teams__grp='B')
+    teamdb_1stC = Teamsdb.objects.get(teams__editions=33,teams__pos=1,teams__grp='C')
+    teamdb_1stD = Teamsdb.objects.get(teams__editions=33,teams__pos=1,teams__grp='D')
+    teamdb_1stE = Teamsdb.objects.get(teams__editions=33,teams__pos=1,teams__grp='E')
+    teamdb_1stF = Teamsdb.objects.get(teams__editions=33,teams__pos=1,teams__grp='F')
+    teamdb_1stG = Teamsdb.objects.get(teams__editions=33,teams__pos=1,teams__grp='G')
+    teamdb_1stH = Teamsdb.objects.get(teams__editions=33,teams__pos=1,teams__grp='H')
+    teamdb_2nd = Teamsdb.objects.filter(teams__editions=33,teams__pos=2).order_by('teams__grp')
+    teamdb_2ndA = Teamsdb.objects.filter(teams__editions=33,teams__pos=2).order_by('teams__grp').exclude(teams__grp='A').exclude(fed=teamdb_1stA.fed)
+    teamdb_2ndB = Teamsdb.objects.filter(teams__editions=33,teams__pos=2).order_by('teams__grp').exclude(teams__grp='B').exclude(fed=teamdb_1stB.fed)
+    teamdb_2ndC = Teamsdb.objects.filter(teams__editions=33,teams__pos=2).order_by('teams__grp').exclude(teams__grp='C').exclude(fed=teamdb_1stC.fed)
+    teamdb_2ndD = Teamsdb.objects.filter(teams__editions=33,teams__pos=2).order_by('teams__grp').exclude(teams__grp='D').exclude(fed=teamdb_1stD.fed)
+    teamdb_2ndE = Teamsdb.objects.filter(teams__editions=33,teams__pos=2).order_by('teams__grp').exclude(fed=teamdb_1stE.fed).exclude(id=278)
+    teamdb_2ndF = Teamsdb.objects.filter(teams__editions=33,teams__pos=2).order_by('teams__grp').exclude(teams__grp='F').exclude(fed=teamdb_1stF.fed)
+    teamdb_2ndG = Teamsdb.objects.filter(teams__editions=33,teams__pos=2).order_by('teams__grp').exclude(teams__grp='G').exclude(fed=teamdb_1stG.fed)
+    teamdb_2ndH = Teamsdb.objects.filter(teams__editions=33,teams__pos=2).order_by('teams__grp').exclude(teams__grp='H').exclude(fed=teamdb_1stH.fed)
 
     forecast = Forecasts.objects.all()
     form = ForecastsForm
@@ -276,6 +296,7 @@ def forecasts(request):
             'team_F': team_F,
             'team_G': team_G,
             'team_H': team_H,
+            'teamdb_WC': teamdb_WC,
             'teamdb_EN': teamdb_EN,
             'teamdb_ES': teamdb_ES,
             'teamdb_IT': teamdb_IT,
@@ -283,6 +304,24 @@ def forecasts(request):
             'teamdb_FR': teamdb_FR,
             'teamdb_PT': teamdb_PT,
             'teamdb_ND': teamdb_ND,
+            'teamdb_1st': teamdb_1st,
+            'teamdb_1stA': teamdb_1stA,
+            'teamdb_1stB': teamdb_1stB,
+            'teamdb_1stC': teamdb_1stC,
+            'teamdb_1stD': teamdb_1stD,
+            'teamdb_1stE': teamdb_1stE,
+            'teamdb_1stF': teamdb_1stF,
+            'teamdb_1stG': teamdb_1stG,
+            'teamdb_1stH': teamdb_1stH,
+            'teamdb_2nd': teamdb_2nd,
+            'teamdb_2ndA': teamdb_2ndA,
+            'teamdb_2ndB': teamdb_2ndB,
+            'teamdb_2ndC': teamdb_2ndC,
+            'teamdb_2ndD': teamdb_2ndD,
+            'teamdb_2ndE': teamdb_2ndE,
+            'teamdb_2ndF': teamdb_2ndF,
+            'teamdb_2ndG': teamdb_2ndG,
+            'teamdb_2ndH': teamdb_2ndH,
             'team_rev': team_rev,
             'teamdb': teamdb,
             'form': form,
@@ -593,7 +632,7 @@ def pointstable(request):
         })
 
 def apiresults(request):
-    uri = 'https://api.football-data.org/v2/competitions/2001/matches/'
+    uri = 'https://api.football-data.org/v4/competitions/2001/matches/'
     headers = { 'X-Auth-Token': '3d6936d5fb044a3b925f7a9383b7d4d6' }
 
     response = requests.get(uri, headers=headers)
@@ -602,6 +641,7 @@ def apiresults(request):
     matches = response.json()['matches']
     teams = Teams.objects.all()
     teamsdb = Teamsdb.objects.all()
+    fixtures = Fixtures.objects.all()
 
 #    matches = response.json()['teams']
 #    print(json.dumps(matches, indent=4, sort_keys=True))
@@ -612,6 +652,7 @@ def apiresults(request):
             'match': matches,
             'teams':teams,
             'teamsdb':teamsdb,
+            'fictures': fixtures,
         })
     
 def communities(request):
@@ -695,8 +736,6 @@ def communities(request):
             'communities': communities,
             'name': name,
         })
-
-
 
 def proves(request):
 
@@ -878,7 +917,7 @@ def proves(request):
     listdelta = np.append(listdelta, delta3)
     listdelta = np.append(listdelta, delta4)
     listdelta = np.append(listdelta, delta5)
-    listdelta = np.reshape(listdelta, (6, 42))
+    listdelta = np.reshape(listdelta, (6, 43))
     listdelta = np.transpose(listdelta)
 
 #    print('listdelta', (listdelta[2][0]))
@@ -995,27 +1034,43 @@ def proves2(request):
         
     print('Proves2')
 
-    labels = []
-    datax = []
-    dataxx = []
-    dataxxx = []
+    uri = 'https://api.football-data.org/v4/competitions/2001/matches/'
+    headers = { 'X-Auth-Token': '3d6936d5fb044a3b925f7a9383b7d4d6' }
+    response_matches = requests.get(uri, headers=headers)
+    print('rsp matches', response_matches.json())
+    partits = response_matches.json()['matches']
+    print('partits', partits[:10])
+#    partit = partits['area'].get('name')
+#    print('partit', partit[:10])
 
+    uri = 'https://api.football-data.org/v4/competitions/2001/teams/'
+    headers = { 'X-Auth-Token': '3d6936d5fb044a3b925f7a9383b7d4d6' }
+    response_teams = requests.get(uri, headers=headers)
+#    print('rsp teams', response_teams.json())
+    equips = response_teams.json()['teams']
+#    print('equips', equips)
 
-    queryset = Playerdb.objects.all()[:5]
-    print(queryset)
-    for player in queryset:
-        labels.append(player.lname)
-        datax.append(player.pk)
-        dataxx.append(player.pk * 3)
-        dataxxx.append(player.pk + 5)
-    print ('datax', datax)
-    print ('dataxx', dataxx)
-    print ('dataxxx', dataxxx)
-    print ('labels', labels)
-    
-    return render(request, 'proves2.html', {
-        'data': datax,
-        'data2': dataxx,
-        'data3': dataxxx,
-        'labels': labels,
+    uri = 'https://api.football-data.org/v4/competitions/2001/standings?standingType=TOTAL'
+    headers = { 'X-Auth-Token': '3d6936d5fb044a3b925f7a9383b7d4d6' }
+    response_groups = requests.get(uri, headers=headers)
+#    print('rsp groups', response_groups.json())
+    grups = response_groups.json()['standings']
+#    print('grups', grups)
+
+    teams = Teams.objects.all()
+#    .annotate(grp=(('points'),filter=Q(items__dates__lt=data)),grp=F('grupsf_email__p_fname'),)
+    teamsdb = Teamsdb.objects.all()
+    fixtures = Fixtures.objects.all()
+
+#    matches = response.json()['teams']
+#    print(json.dumps(matches, indent=4, sort_keys=True))
+
+    if request.method == 'GET':
+        return render(request, 'proves2.html', {
+            'match': partits,
+            'teams':teams,
+            'teamsdb':teamsdb,
+            'fictures': fixtures,
+            'equips': equips,
+            'grups': grups,
         })

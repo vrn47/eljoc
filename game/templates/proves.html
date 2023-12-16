@@ -76,16 +76,27 @@
                         {% endfor %}
                         {% endif %}
                     {% endfor %}
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for element in pivot2 %}
-                        <tr>{% for key,value in element.items %}
-                            {% if value == 0 %}<td style="color: darkred"><strong> {{ value }} </strong></td> {% else %} <td style="color: black">{{ value }} {% endif %}</td>
-                        {% endfor %}
-                        </tr>
+                </tr>
+            </thead>
+            <tbody>
+                {% for element in pivot2 %}
+                    <tr>{% for key,value in element.items %}
+                        {% if value == 0 %}<td style="color: darkred"><strong> {{ value }} </strong></td> {% else %} <td style="color: black">{{ value }} {% endif %}</td>
                     {% endfor %}
-                </tbody>
+                    </tr>
+                {% endfor %}
+            </tbody>
+            <tfoot>
+                <tr>
+                    {% for element in pivot2 %}
+                    {% if forloop.counter < 2 %}
+                        {% for key,value in element.items %}
+                            <th>{{ key }}</th>
+                        {% endfor %}
+                        {% endif %}
+                    {% endfor %}
+                </tr>
+            </tfoot>
         </table>
     </div>
     <div class="row mt-5">
