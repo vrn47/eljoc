@@ -4,7 +4,7 @@ from .tables import ForecastsTable, UserTable, ItemsTable
 from .forms import ItemsForm, ForecastsForm, PlayersForm
 from django.contrib.auth import login, logout, authenticate
 from django.utils import timezone
-from django.db.models import Sum, Count, TextField, Q, F, Max, Min, Avg, Func, Window, ExpressionWrapper, Value as V, CharField
+from django.db.models import Sum, Count, TextField, Q, F, Max, Min, Avg, Func, Window, ExpressionWrapper, Value as V, CharField, Value
 from django.db.models.functions import Cast, Rank, DenseRank, ExtractYear, Concat, Substr, ConcatPair
 from array import *
 from django_pivot.pivot import pivot
@@ -275,6 +275,14 @@ def forecasts(request):
     teamdb_2ndF = Teamsdb.objects.filter(teams__editions=33,teams__pos=2).order_by('teams__grp').exclude(teams__grp='F').exclude(fed=teamdb_1stF.fed)
     teamdb_2ndG = Teamsdb.objects.filter(teams__editions=33,teams__pos=2).order_by('teams__grp').exclude(teams__grp='G').exclude(fed=teamdb_1stG.fed)
     teamdb_2ndH = Teamsdb.objects.filter(teams__editions=33,teams__pos=2).order_by('teams__grp').exclude(teams__grp='H').exclude(fed=teamdb_1stH.fed)
+    teamRo16_1 = Teamsdb.objects.filter(teams__id=58) | Teamsdb.objects.filter(teams__id=37).order_by('teams__pos')
+    teamRo16_2 = Teamsdb.objects.filter(teams__id=51) | Teamsdb.objects.filter(teams__id=56).order_by('teams__pos')
+    teamRo16_3 = Teamsdb.objects.filter(teams__id=57) | Teamsdb.objects.filter(teams__id=35).order_by('teams__pos')
+    teamRo16_4 = Teamsdb.objects.filter(teams__id=53) | Teamsdb.objects.filter(teams__id=60).order_by('teams__pos')
+    teamRo16_5 = Teamsdb.objects.filter(teams__id=46) | Teamsdb.objects.filter(teams__id=44).order_by('teams__pos')
+    teamRo16_6 = Teamsdb.objects.filter(teams__id=39) | Teamsdb.objects.filter(teams__id=55).order_by('teams__pos')
+    teamRo16_7 = Teamsdb.objects.filter(teams__id=48) | Teamsdb.objects.filter(teams__id=40).order_by('teams__pos')
+    teamRo16_8 = Teamsdb.objects.filter(teams__id=45) | Teamsdb.objects.filter(teams__id=43).order_by('teams__pos')
 
     forecast = Forecasts.objects.all()
     form = ForecastsForm
@@ -322,6 +330,14 @@ def forecasts(request):
             'teamdb_2ndF': teamdb_2ndF,
             'teamdb_2ndG': teamdb_2ndG,
             'teamdb_2ndH': teamdb_2ndH,
+            'teamRo16_1': teamRo16_1,
+            'teamRo16_2': teamRo16_2,
+            'teamRo16_3': teamRo16_3,
+            'teamRo16_4': teamRo16_4,
+            'teamRo16_5': teamRo16_5,
+            'teamRo16_6': teamRo16_6,
+            'teamRo16_7': teamRo16_7,
+            'teamRo16_8': teamRo16_8,
             'team_rev': team_rev,
             'teamdb': teamdb,
             'form': form,
@@ -868,6 +884,22 @@ def proves(request):
 
     print('chartx4', chartx4)
 
+# Proves de bonus
+    
+    itemsB = Forecasts.objects.filter(items__editions=33, f_isactive=1, items__dates__round=2).exclude(items__dates=52)
+    print('itemsB', itemsB)
+    stndB = itemsB.values('f_email').annotate(
+        Tot=Sum('points'),
+        fn=F('f_email__p_fname'),
+        ln=F('f_email__p_lname'),
+        stars=F('f_email__playerdb_id__stars'),
+        Rank=Window(expression=Rank(),order_by=F('Tot').desc()),
+        bon=Value(26),
+        Pts=F('Rank')
+    ).order_by('-Tot', 'fn')
+    print('stndB', stndB)
+
+
 # proves de points table alternatiu
 
     forecasts = Forecasts.objects.filter(f_isactive=1, items__editions=33, items__open__lte=timezone.now()).values('items', 'f_email', 'fvalue1', 'fvalue2').annotate(
@@ -917,7 +949,7 @@ def proves(request):
     listdelta = np.append(listdelta, delta3)
     listdelta = np.append(listdelta, delta4)
     listdelta = np.append(listdelta, delta5)
-    listdelta = np.reshape(listdelta, (6, 43))
+    listdelta = np.reshape(listdelta, (6, 44))
     listdelta = np.transpose(listdelta)
 
 #    print('listdelta', (listdelta[2][0]))
@@ -926,6 +958,7 @@ def proves(request):
 
     if request.method == 'GET':
         return render(request, 'proves.html', {
+            'standingsB': stndB,
             'standings': stnd,
             'stats': stats,
             'data': data,

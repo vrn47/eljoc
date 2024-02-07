@@ -113,7 +113,38 @@
         </table>
     </div>
 
-    <table class="table table-striped table-hover mt-5">
+<!-- Test table points GroupStage -->
+
+<table class="table table-striped table-hover mt-5">
+    <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col"></th>
+            <th scope="col">Player</th>
+            <th scope="col">Tot</th>
+            <th scope="col">Rank</th>
+            <th scope="col">Pts</th>
+            <th scope="col">mail</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for standingsB in standingsB %}
+            <tr>
+                <td scope="row">{{forloop.counter}}</td>
+                <td scope="row"><img src="http://imatges.vrn47.cat/Honours/Stars/v2/{{ standingsB.stars }}.png" width="20" height="20"></td>
+                <td scope="row">{{ standingsB.fn|slice:1 }}{{ standingsB.ln }}</td>
+                <td scope="row">{{ standingsB.Tot }}</td>
+                <td scope="row">{{ standingsB.Rank }}</td>
+                <td scope="row">{{ standingsB.Rank|add:"-26" }}</td>
+                <td scope="row">{{ standingsB.f_email }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<!-- Test table -->
+
+<table class="table table-striped table-hover mt-5">
         <thead>
             <tr>
                 <th scope="col">#</th>
