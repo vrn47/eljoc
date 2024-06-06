@@ -61,6 +61,13 @@ def register(request):
 
 def playerinfo(request, pid):
 
+    activeeditions = Editions.objects.filter(is_active=1)
+    activeeditions2 = activeeditions.values()
+    activeeditions3 = activeeditions.values_list()
+    print('activeeditions', activeeditions[0])
+    print('activeeditions2', activeeditions2[0])
+    print('activeeditions3', activeeditions3[0])
+
     if request.method == 'GET':
         print('GET', 'player', pid)
         playerDBinfo = PlayerDB.objects.get(id=pid)
@@ -68,7 +75,8 @@ def playerinfo(request, pid):
         #        form = PlayerInfoForm(instance=playerinfo)    ----> move to under playerinfo
 
         try:
-            playerinfo = Players.objects.get(playerdb=pid)
+            playerinfo = Players.objects.get(playerdb=pid, editions__gt=33)
+            print('playerinfo', playerinfo)
         except ValueError as error:
             print('Value error', error)
             playerinfo = None
@@ -110,7 +118,7 @@ def playerinfo(request, pid):
 
         except:
             print('new player joined')
-            newuser = Players.objects.create(playerdb=userDB, p_fname=userDB.fname, p_lname=userDB.lname, p_email=userDB.email, ppsw="void", winnable=1)
+            newuser = Players.objects.create(playerdb=userDB, p_fname=userDB.fname, p_lname=userDB.lname, p_email=userDB.email, ppsw="void", winnable=1, editions=newedition)
             newuser.save()
             playerid = newuser.id
             return redirect('game')

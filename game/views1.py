@@ -22,22 +22,24 @@ def game(request):
         
     print('Game')
     
-    data = Items.objects.filter(editions=33, value1__isnull=False).order_by('-dates').values_list('dates', flat=True).first()
-    data0 = data - 38
-    data1 = data - 39
-    data2 = data - 40
-    data3 = data - 41
-    data4 = data - 42
-#    print('data', data-38)
-    items = Forecasts.objects.filter(items__editions=33, f_isactive=1, ts__lte=timezone.now(),items__dates__lte=data)
-    stnd = items.values('f_email').annotate(
+    data = Items.objects.filter(editions__gte=1, value1__isnull=False).order_by('-dates').values_list('dates', flat=True).first()
+    print('data', data)
+    data0 = data - 83
+    data1 = data - 84
+    data2 = data - 85
+    data3 = data - 86
+    data4 = data - 87
+    print('data', data-83)
+    items = Forecasts.objects.filter(items__editions__gte=1, f_isactive=1, ts__lte=timezone.now(),items__dates__lte=data)
+    print('items', items)
+    stnd = items.values('f_player').annotate(
         tot=Sum('points'),
         tot2=Sum(('points'),filter=Q(items__dates__lt=data)),
-        fn=F('f_email__p_fname'),
-        ln=F('f_email__p_lname'),
-        w=F('f_email__winnable'),
-        p=F('f_email__paid'),
-        stars=F('f_email__playerdb_id__stars'),
+        fn=F('f_player__p_fname'),
+        ln=F('f_player__p_lname'),
+        w=F('f_player__winnable'),
+        p=F('f_player__paid'),
+        stars=F('f_player__playerdb_id__stars'),
         dlt1=Sum(('points'),filter=Q(items__dates=data)),
         dlt2=Sum(('points'),filter=Q(items__dates=data-1)),
         dlt3=Sum(('points'),filter=Q(items__dates=data-2)),
@@ -46,7 +48,7 @@ def game(request):
         rank0=Window(expression=Rank(),order_by=F('tot').desc()),
         rank1=Window(expression=Rank(),order_by=F('tot2').desc()),
     ).order_by('-tot', '-tot2', '-stars', 'fn')
-#    print('stnd', stnd)
+    print('stnd', stnd)
     stnd5 = stnd[:5]
     stats = stnd.aggregate(
         maxdlt1=Max('dlt1'),
@@ -59,13 +61,13 @@ def game(request):
 
 # codi char.jss
 
-    stnd4 = items.values('f_email').annotate(
+    stnd4 = items.values('f_player').annotate(
         tot=Sum('points'),
         tot2=Sum(('points'),filter=Q(items__dates__lt=data)),
-        fn=F('f_email__p_fname'),
-        ln=F('f_email__p_lname'),
-        name=Concat(Substr('f_email__p_fname', 1, 1), F('f_email__p_lname'), output_field=CharField()),
-        stars=F('f_email__playerdb_id__stars'),
+        fn=F('f_player__p_fname'),
+        ln=F('f_player__p_lname'),
+        name=Concat(Substr('f_player__p_fname', 1, 1), F('f_player__p_lname'), output_field=CharField()),
+        stars=F('f_player__playerdb_id__stars'),
         dlt1=Sum(('points'),filter=Q(items__dates__lte=data)),
         dlt2=Sum(('points'),filter=Q(items__dates__lte=data-1)),
         dlt3=Sum(('points'),filter=Q(items__dates__lte=data-2)),
@@ -233,21 +235,22 @@ def items(request):
     })
 
 def forecasts(request):
+    currentedition = 34
     time = timezone.now()
     print(time)    
     item = Items.objects.filter(open__lt=time,close__gt=time, ).exclude(fields_id=1).exclude(fields_id=6)
     fixture = Fixtures.objects.all()
-    team = Teams.objects.filter(editions=33).order_by('coef')
-    team_3 = Teams.objects.filter(editions=33).order_by('-coef')
-    team_A = Teams.objects.filter(editions=33, grp='A').order_by('pos')
-    team_B = Teams.objects.filter(editions=33, grp='B').order_by('pos')
-    team_C = Teams.objects.filter(editions=33, grp='C').order_by('pos')
-    team_D = Teams.objects.filter(editions=33, grp='D').order_by('pos')
-    team_E = Teams.objects.filter(editions=33, grp='E').order_by('pos')
-    team_F = Teams.objects.filter(editions=33, grp='F').order_by('pos')
-    team_G = Teams.objects.filter(editions=33, grp='G').order_by('pos')
-    team_H = Teams.objects.filter(editions=33, grp='H').order_by('pos')
-    team_rev = Teams.objects.filter(editions=33, rev=1).order_by('-coef')
+    team = Teams.objects.filter(editions=currentedition).order_by('coef')
+    team_3 = Teams.objects.filter(editions=currentedition).order_by('-coef')
+    team_A = Teams.objects.filter(editions=currentedition, grp='A').order_by('pos')
+    team_B = Teams.objects.filter(editions=currentedition, grp='B').order_by('pos')
+    team_C = Teams.objects.filter(editions=currentedition, grp='C').order_by('pos')
+    team_D = Teams.objects.filter(editions=currentedition, grp='D').order_by('pos')
+    team_E = Teams.objects.filter(editions=currentedition, grp='E').order_by('pos')
+    team_F = Teams.objects.filter(editions=currentedition, grp='F').order_by('pos')
+    team_G = Teams.objects.filter(editions=currentedition, grp='G').order_by('pos')
+    team_H = Teams.objects.filter(editions=currentedition, grp='H').order_by('pos')
+    team_rev = Teams.objects.filter(editions=currentedition, rev=1).order_by('-coef')
     teamdb = Teamsdb.objects.all()
     teamdb_WC = Teamsdb.objects.filter(world_id=1, is_club=1)
     teamdb_EN = Teamsdb.objects.filter(fed='ENG').order_by('id')
@@ -257,24 +260,24 @@ def forecasts(request):
     teamdb_FR = Teamsdb.objects.filter(fed='FRA').order_by('id')
     teamdb_PT = Teamsdb.objects.filter(fed='POR').order_by('id')
     teamdb_ND = Teamsdb.objects.filter(fed='NED').order_by('id')
-    teamdb_1st = Teamsdb.objects.filter(teams__editions=33,teams__pos=1).order_by('teams__grp')
-    teamdb_1stA = Teamsdb.objects.get(teams__editions=33,teams__pos=1,teams__grp='A')
-    teamdb_1stB = Teamsdb.objects.get(teams__editions=33,teams__pos=1,teams__grp='B')
-    teamdb_1stC = Teamsdb.objects.get(teams__editions=33,teams__pos=1,teams__grp='C')
-    teamdb_1stD = Teamsdb.objects.get(teams__editions=33,teams__pos=1,teams__grp='D')
-    teamdb_1stE = Teamsdb.objects.get(teams__editions=33,teams__pos=1,teams__grp='E')
-    teamdb_1stF = Teamsdb.objects.get(teams__editions=33,teams__pos=1,teams__grp='F')
-    teamdb_1stG = Teamsdb.objects.get(teams__editions=33,teams__pos=1,teams__grp='G')
-    teamdb_1stH = Teamsdb.objects.get(teams__editions=33,teams__pos=1,teams__grp='H')
-    teamdb_2nd = Teamsdb.objects.filter(teams__editions=33,teams__pos=2).order_by('teams__grp')
-    teamdb_2ndA = Teamsdb.objects.filter(teams__editions=33,teams__pos=2).order_by('teams__grp').exclude(teams__grp='A').exclude(fed=teamdb_1stA.fed)
-    teamdb_2ndB = Teamsdb.objects.filter(teams__editions=33,teams__pos=2).order_by('teams__grp').exclude(teams__grp='B').exclude(fed=teamdb_1stB.fed)
-    teamdb_2ndC = Teamsdb.objects.filter(teams__editions=33,teams__pos=2).order_by('teams__grp').exclude(teams__grp='C').exclude(fed=teamdb_1stC.fed)
-    teamdb_2ndD = Teamsdb.objects.filter(teams__editions=33,teams__pos=2).order_by('teams__grp').exclude(teams__grp='D').exclude(fed=teamdb_1stD.fed)
-    teamdb_2ndE = Teamsdb.objects.filter(teams__editions=33,teams__pos=2).order_by('teams__grp').exclude(fed=teamdb_1stE.fed).exclude(id=278)
-    teamdb_2ndF = Teamsdb.objects.filter(teams__editions=33,teams__pos=2).order_by('teams__grp').exclude(teams__grp='F').exclude(fed=teamdb_1stF.fed)
-    teamdb_2ndG = Teamsdb.objects.filter(teams__editions=33,teams__pos=2).order_by('teams__grp').exclude(teams__grp='G').exclude(fed=teamdb_1stG.fed)
-    teamdb_2ndH = Teamsdb.objects.filter(teams__editions=33,teams__pos=2).order_by('teams__grp').exclude(teams__grp='H').exclude(fed=teamdb_1stH.fed)
+    teamdb_1st = Teamsdb.objects.filter(teams__editions=currentedition,teams__pos=1).order_by('teams__grp')
+    teamdb_1stA = Teamsdb.objects.get(teams__editions=currentedition,teams__pos=1,teams__grp='A')
+    teamdb_1stB = Teamsdb.objects.get(teams__editions=currentedition,teams__pos=1,teams__grp='B')
+    teamdb_1stC = Teamsdb.objects.get(teams__editions=currentedition,teams__pos=1,teams__grp='C')
+    teamdb_1stD = Teamsdb.objects.get(teams__editions=currentedition,teams__pos=1,teams__grp='D')
+    teamdb_1stE = Teamsdb.objects.get(teams__editions=currentedition,teams__pos=1,teams__grp='E')
+    teamdb_1stF = Teamsdb.objects.get(teams__editions=currentedition,teams__pos=1,teams__grp='F')
+    teamdb_1stG = Teamsdb.objects.get(teams__editions=currentedition,teams__pos=1,teams__grp='G')
+    teamdb_1stH = Teamsdb.objects.get(teams__editions=currentedition,teams__pos=1,teams__grp='H')
+    teamdb_2nd = Teamsdb.objects.filter(teams__editions=currentedition,teams__pos=2).order_by('teams__grp')
+    teamdb_2ndA = Teamsdb.objects.filter(teams__editions=currentedition,teams__pos=2).order_by('teams__grp').exclude(teams__grp='A').exclude(fed=teamdb_1stA.fed)
+    teamdb_2ndB = Teamsdb.objects.filter(teams__editions=currentedition,teams__pos=2).order_by('teams__grp').exclude(teams__grp='B').exclude(fed=teamdb_1stB.fed)
+    teamdb_2ndC = Teamsdb.objects.filter(teams__editions=currentedition,teams__pos=2).order_by('teams__grp').exclude(teams__grp='C').exclude(fed=teamdb_1stC.fed)
+    teamdb_2ndD = Teamsdb.objects.filter(teams__editions=currentedition,teams__pos=2).order_by('teams__grp').exclude(teams__grp='D').exclude(fed=teamdb_1stD.fed)
+    teamdb_2ndE = Teamsdb.objects.filter(teams__editions=currentedition,teams__pos=2).order_by('teams__grp').exclude(fed=teamdb_1stE.fed).exclude(id=278)
+    teamdb_2ndF = Teamsdb.objects.filter(teams__editions=currentedition,teams__pos=2).order_by('teams__grp').exclude(teams__grp='F').exclude(fed=teamdb_1stF.fed)
+    teamdb_2ndG = Teamsdb.objects.filter(teams__editions=currentedition,teams__pos=2).order_by('teams__grp').exclude(teams__grp='G').exclude(fed=teamdb_1stG.fed)
+    teamdb_2ndH = Teamsdb.objects.filter(teams__editions=currentedition,teams__pos=2).order_by('teams__grp').exclude(teams__grp='H').exclude(fed=teamdb_1stH.fed)
     teamRo16_1 = Teamsdb.objects.filter(teams__id=58) | Teamsdb.objects.filter(teams__id=37).order_by('teams__pos')
     teamRo16_2 = Teamsdb.objects.filter(teams__id=51) | Teamsdb.objects.filter(teams__id=56).order_by('teams__pos')
     teamRo16_3 = Teamsdb.objects.filter(teams__id=57) | Teamsdb.objects.filter(teams__id=35).order_by('teams__pos')
@@ -283,6 +286,15 @@ def forecasts(request):
     teamRo16_6 = Teamsdb.objects.filter(teams__id=39) | Teamsdb.objects.filter(teams__id=55).order_by('teams__pos')
     teamRo16_7 = Teamsdb.objects.filter(teams__id=48) | Teamsdb.objects.filter(teams__id=40).order_by('teams__pos')
     teamRo16_8 = Teamsdb.objects.filter(teams__id=45) | Teamsdb.objects.filter(teams__id=43).order_by('teams__pos')
+    teamQF = Teamsdb.objects.filter(teams__editions=33,teams__round__id=4).order_by('id')
+    teamQF_1 = Teamsdb.objects.filter(teams__id=48) | Teamsdb.objects.filter(teams__id=35).order_by('teams__pos')
+    teamQF_2 = Teamsdb.objects.filter(teams__id=37) | Teamsdb.objects.filter(teams__id=56).order_by('teams__pos')
+    teamQF_3 = Teamsdb.objects.filter(teams__id=44) | Teamsdb.objects.filter(teams__id=55).order_by('teams__pos')
+    teamQF_4 = Teamsdb.objects.filter(teams__id=53) | Teamsdb.objects.filter(teams__id=43).order_by('teams__pos')
+    teamSF_1 = Teamsdb.objects.filter(teams__id=35) | Teamsdb.objects.filter(teams__id=37).order_by('teams__pos')
+    teamSF_2 = Teamsdb.objects.filter(teams__id=55) | Teamsdb.objects.filter(teams__id=53).order_by('teams__pos')
+    teamW = Teamsdb.objects.filter(teams__id=37) | Teamsdb.objects.filter(teams__id=55).order_by('teams__pos')
+    # print('TeamQF: ', teamQF)
 
     forecast = Forecasts.objects.all()
     form = ForecastsForm
@@ -338,6 +350,14 @@ def forecasts(request):
             'teamRo16_6': teamRo16_6,
             'teamRo16_7': teamRo16_7,
             'teamRo16_8': teamRo16_8,
+            'teamQF': teamQF,
+            'teamQF_1': teamQF_1,
+            'teamQF_2': teamQF_2,
+            'teamQF_3': teamQF_3,
+            'teamQF_4': teamQF_4,
+            'teamSF_1': teamSF_1,
+            'teamSF_2': teamSF_2,
+            'teamW': teamW,
             'team_rev': team_rev,
             'teamdb': teamdb,
             'form': form,
@@ -348,6 +368,10 @@ def forecasts(request):
         print('new forecast')
         try:
             print('try')
+            playersedition = Players.objects.filter(editions=33)
+            playeredition = playersedition.get(p_email=request.POST['p_email'])
+            playerid = getattr(playeredition, 'id')
+            edition = getattr(getattr(playeredition, 'editions'), 'id')
             players = Players.objects.get(p_email=request.POST['p_email'])
             i = 0
             v1 = request.POST.getlist('fvalue1')
@@ -363,7 +387,7 @@ def forecasts(request):
                 else:
                     itemi = Items.objects.get(id=v3[i])
                     print(itemi)
-                    newforecast=Forecasts.objects.create(f_email=players, fvalue1=v1[i], fvalue2=v2[i], items=itemi)
+                    newforecast=Forecasts.objects.create(f_email=xmail, fvalue1=v1[i], fvalue2=v2[i], items=itemi, f_player=playeredition)
                     newforecast.ts = timezone.now()
                     try:
                         print('inner try')
@@ -417,14 +441,14 @@ def standings(request):
 
     items = Forecasts.objects.filter(items__editions=33, f_isactive=1, ts__lte=timezone.now(),items__dates__lte=data)
 
-    stnd = items.values('f_email').annotate(
+    stnd = items.values('f_player').annotate(
         tot=Sum('points'),
         tot2=Sum(('points'),filter=Q(items__dates__lt=data)),
-        fn=F('f_email__p_fname'),
-        ln=F('f_email__p_lname'),
-        w=F('f_email__winnable'),
-        p=F('f_email__paid'),
-        stars=F('f_email__playerdb_id__stars'),
+        fn=F('f_player__p_fname'),
+        ln=F('f_player__p_lname'),
+        w=F('f_player__winnable'),
+        p=F('f_player__paid'),
+        stars=F('f_player__playerdb_id__stars'),
         dlt1=Sum(('points'),filter=Q(items__dates=data)),
         dlt2=Sum(('points'),filter=Q(items__dates=data-1)),
         dlt3=Sum(('points'),filter=Q(items__dates=data-2)),
@@ -462,14 +486,14 @@ def statistics(request):
     data4 = data - 42
     print('data', data-38)
     items = Forecasts.objects.filter(items__editions=33, f_isactive=1, ts__lte=timezone.now(),items__dates__lte=data)
-    stnd = items.values('f_email').annotate(
+    stnd = items.values('f_player').annotate(
         tot=Sum('points'),
         tot2=Sum(('points'),filter=Q(items__dates__lt=data)),
-        fn=F('f_email__p_fname'),
-        ln=F('f_email__p_lname'),
-        w=F('f_email__winnable'),
-        p=F('f_email__paid'),
-        stars=F('f_email__playerdb_id__stars'),
+        fn=F('f_player__p_fname'),
+        ln=F('f_player__p_lname'),
+        w=F('f_player__winnable'),
+        p=F('f_player__paid'),
+        stars=F('f_player__playerdb_id__stars'),
         dlt1=Sum(('points'),filter=Q(items__dates=data)),
         dlt2=Sum(('points'),filter=Q(items__dates=data-1)),
         dlt3=Sum(('points'),filter=Q(items__dates=data-2)),
@@ -489,12 +513,12 @@ def statistics(request):
     )
     print('stats', stats)
     
-    stnd4 = items.values('f_email').annotate(
+    stnd4 = items.values('f_player').annotate(
         tot=Sum('points'),
         tot2=Sum(('points'),filter=Q(items__dates__lt=data)),
-        fn=F('f_email__p_fname'),
-        ln=F('f_email__p_lname'),
-        stars=F('f_email__playerdb_id__stars'),
+        fn=F('f_player__p_fname'),
+        ln=F('f_player__p_lname'),
+        stars=F('f_player__playerdb_id__stars'),
         dlt1=Sum(('points'),filter=Q(items__dates__lte=data)),
         dlt2=Sum(('points'),filter=Q(items__dates__lte=data-1)),
         dlt3=Sum(('points'),filter=Q(items__dates__lte=data-2)),
@@ -622,9 +646,9 @@ def pointstable(request):
 
 # review starting here
 
-    forecasts = Forecasts.objects.filter(f_isactive=1, items__editions=33, items__open__lte=timezone.now()).values('items', 'f_email', 'fvalue1', 'fvalue2').annotate(
+    forecasts = Forecasts.objects.filter(f_isactive=1, items__editions=33, items__open__lte=timezone.now()).values('items', 'f_player', 'f_email', 'fvalue1', 'fvalue2').annotate(
         itm=Concat('items__id', V('  '), Substr('items__description', 1, 5), V(' '), Substr('items__fixtures__localteam__teamsdb__short', 1, 3), Substr('items__fixtures__awayteam__teamsdb__short', 1, 3), output_field=CharField()),
-        name=Concat(Substr('f_email__p_fname', 1, 1), Substr('f_email__p_lname', 1, 8), output_field=CharField()),
+        name=Concat(Substr('f_player__p_fname', 1, 1), Substr('f_player__p_lname', 1, 8), output_field=CharField()),
         day=F('items__dates'),
         result=Concat('items__value1','items__value2', output_field=TextField()),
         forec=Concat(Substr('fvalue1', 1, 6), V('..'),'fvalue2', output_field=TextField()),
@@ -679,14 +703,14 @@ def communities(request):
     print('data', data-38)
     communities = Communities.objects.all().order_by('name')
     items = Forecasts.objects.filter(items__editions=33, f_isactive=1, ts__lte=timezone.now(),items__dates__lte=data)
-    stnd = items.values('f_email').annotate(
+    stnd = items.values('f_player').annotate(
         tot=Sum('points'),
         tot2=Sum(('points'),filter=Q(items__dates__lt=data)),
-        fn=F('f_email__p_fname'),
-        ln=F('f_email__p_lname'),
-        w=F('f_email__winnable'),
-        p=F('f_email__paid'),
-        stars=F('f_email__playerdb_id__stars'),
+        fn=F('f_player__p_fname'),
+        ln=F('f_player__p_lname'),
+        w=F('f_player__winnable'),
+        p=F('f_player__paid'),
+        stars=F('f_player__playerdb_id__stars'),
         dlt1=Sum(('points'),filter=Q(items__dates=data)),
         dlt2=Sum(('points'),filter=Q(items__dates=data-1)),
         dlt3=Sum(('points'),filter=Q(items__dates=data-2)),
@@ -717,15 +741,15 @@ def communities(request):
         print('community: ', cty)
         peoples = list(Peoples.objects.filter(communities=cty).values_list('playerdb', flat=True))
         print('peoples: ', peoples)
-        items = Forecasts.objects.filter(items__editions=33, f_isactive=1, ts__lte=timezone.now(),items__dates__lte=data, f_email__playerdb__in=peoples)
-        stnd = items.values('f_email').annotate(
+        items = Forecasts.objects.filter(items__editions=33, f_isactive=1, ts__lte=timezone.now(),items__dates__lte=data, f_player__playerdb__in=peoples)
+        stnd = items.values('f_player').annotate(
             tot=Sum('points'),
             tot2=Sum(('points'),filter=Q(items__dates__lt=data)),
-            fn=F('f_email__p_fname'),
-            ln=F('f_email__p_lname'),
-            w=F('f_email__winnable'),
-            p=F('f_email__paid'),
-            stars=F('f_email__playerdb_id__stars'),
+            fn=F('f_player__p_fname'),
+            ln=F('f_player__p_lname'),
+            w=F('f_player__winnable'),
+            p=F('f_player__paid'),
+            stars=F('f_player__playerdb_id__stars'),
             dlt1=Sum(('points'),filter=Q(items__dates=data)),
             dlt2=Sum(('points'),filter=Q(items__dates=data-1)),
             dlt3=Sum(('points'),filter=Q(items__dates=data-2)),
@@ -765,11 +789,11 @@ def proves(request):
     data4 = data - 42
     print('data', data-38)
     items = Forecasts.objects.filter(items__editions=33, f_isactive=1, ts__lte=timezone.now(),items__dates__lte=data)
-    stnd = items.values('items__dates', 'f_email').annotate(
+    stnd = items.values('items__dates', 'f_player').annotate(
         dlt=Sum('points'),
-        fn=F('f_email__p_fname'),
-        ln=F('f_email__p_lname'),
-        stars=F('f_email__playerdb_id__stars'),
+        fn=F('f_player__p_fname'),
+        ln=F('f_player__p_lname'),
+        stars=F('f_player__playerdb_id__stars'),
     ).order_by('-items__dates', '-dlt', 'fn')
     print('stnd', stnd)
 
@@ -788,12 +812,12 @@ def proves(request):
     )
     print('stats', stats)
 
-    stnd3 = items.values('f_email').annotate(
+    stnd3 = items.values('f_player').annotate(
         tot=Sum('points'),
         tot2=Sum(('points'),filter=Q(items__dates__lt=data)),
-        fn=F('f_email__p_fname'),
-        ln=F('f_email__p_lname'),
-        stars=F('f_email__playerdb_id__stars'),
+        fn=F('f_player__p_fname'),
+        ln=F('f_player__p_lname'),
+        stars=F('f_player__playerdb_id__stars'),
         dlt1=Sum(('points'),filter=Q(items__dates=data)),
         dlt2=Sum(('points'),filter=Q(items__dates=data-1)),
         dlt3=Sum(('points'),filter=Q(items__dates=data-2)),
@@ -833,13 +857,13 @@ def proves(request):
     )
     print('stats3', stats3)
 
-    stnd4 = items.values('f_email').annotate(
+    stnd4 = items.values('f_player').annotate(
         tot=Sum('points'),
         tot2=Sum(('points'),filter=Q(items__dates__lt=data)),
-        fn=F('f_email__p_fname'),
-        ln=F('f_email__p_lname'),
-        name=Concat(Substr('f_email__p_fname', 1, 1), F('f_email__p_lname'), output_field=CharField()),
-        stars=F('f_email__playerdb_id__stars'),
+        fn=F('f_player__p_fname'),
+        ln=F('f_player__p_lname'),
+        name=Concat(Substr('f_player__p_fname', 1, 1), F('f_player__p_lname'), output_field=CharField()),
+        stars=F('f_player__playerdb_id__stars'),
         dlt1=Sum(('points'),filter=Q(items__dates__lte=data)),
         dlt2=Sum(('points'),filter=Q(items__dates__lte=data-1)),
         dlt3=Sum(('points'),filter=Q(items__dates__lte=data-2)),
@@ -888,23 +912,37 @@ def proves(request):
     
     itemsB = Forecasts.objects.filter(items__editions=33, f_isactive=1, items__dates__round=2).exclude(items__dates=52)
     print('itemsB', itemsB)
-    stndB = itemsB.values('f_email').annotate(
+    stndB = itemsB.values('f_player').annotate(
         Tot=Sum('points'),
-        fn=F('f_email__p_fname'),
-        ln=F('f_email__p_lname'),
-        stars=F('f_email__playerdb_id__stars'),
+        fn=F('f_player__p_fname'),
+        ln=F('f_player__p_lname'),
+        stars=F('f_player__playerdb_id__stars'),
         Rank=Window(expression=Rank(),order_by=F('Tot').desc()),
         bon=Value(26),
         Pts=F('Rank')
     ).order_by('-Tot', 'fn')
     print('stndB', stndB)
 
+    itemsC = Forecasts.objects.filter(items__editions=33, f_isactive=1, items__dates__round__stage=3).exclude(items__dates=36)
+    print('itemsC', itemsC)
+    stndC = itemsC.values('f_player').annotate(
+        Tot=Sum('points'),
+        fn=F('f_player__p_fname'),
+        ln=F('f_player__p_lname'),
+        stars=F('f_player__playerdb_id__stars'),
+        Rank=Window(expression=Rank(),order_by=F('Tot').desc()),
+        bon=Value(26),
+        Pts=F('Rank')
+    ).order_by('-Tot', 'fn')
+    print('stndC', stndC)
+
+
 
 # proves de points table alternatiu
 
-    forecasts = Forecasts.objects.filter(f_isactive=1, items__editions=33, items__open__lte=timezone.now()).values('items', 'f_email', 'fvalue1', 'fvalue2').annotate(
+    forecasts = Forecasts.objects.filter(f_isactive=1, items__editions=33, items__open__lte=timezone.now()).values('items', 'f_player', 'f_email', 'fvalue1', 'fvalue2').annotate(
         itm=Concat('items__id', V('  '), Substr('items__description', 1, 5), V(' '), Substr('items__fixtures__localteam__teamsdb__short', 1, 3), Substr('items__fixtures__awayteam__teamsdb__short', 1, 3), output_field=CharField()),
-        name=Concat(Substr('f_email__p_fname', 1, 1), Substr('f_email__p_lname', 1, 8), output_field=CharField()),
+        name=Concat(Substr('f_player__p_fname', 1, 1), Substr('f_player__p_lname', 1, 8), output_field=CharField()),
         day=F('items__dates'),
         result=Concat('items__value1','items__value2', output_field=TextField()),
         forec=Concat(Substr('fvalue1', 1, 6), V('..'),'fvalue2', output_field=TextField()),
@@ -919,7 +957,7 @@ def proves(request):
 # proves de detecció manca resuultats
 
     forecastsx2 = Forecasts.objects.filter(f_isactive=1, items__editions=33, items__open__lte=timezone.now()).values_list('items__dates').annotate(
-        name=Concat(Substr('f_email__p_fname', 1, 1), Substr('f_email__p_lname', 1, 2), output_field=CharField()),
+        name=Concat(Substr('f_player__p_fname', 1, 1), Substr('f_player__p_lname', 1, 2), output_field=CharField()),
         emk=F('f_email'),
         cnt=Count('pk')
         ).order_by('f_email', 'items__dates')
@@ -959,6 +997,7 @@ def proves(request):
     if request.method == 'GET':
         return render(request, 'proves.html', {
             'standingsB': stndB,
+            'standingsC': stndC,
             'standings': stnd,
             'stats': stats,
             'data': data,

@@ -2,6 +2,28 @@ from django.db import models
 
 # Create your models here.
 
+class Competitions(models.Model):
+    name = models.CharField(unique=True, max_length=25, blank=True, null=True)
+    period = models.IntegerField()
+    start = models.IntegerField()
+
+    class Meta:
+        managed = False
+        db_table = 'competitions'
+
+class Editions(models.Model):
+    competitions = models.ForeignKey(Competitions, models.DO_NOTHING, blank=True, null=True)
+    seasons = models.ForeignKey('Seasons', models.DO_NOTHING, blank=True, null=True)
+    name = models.CharField(unique=True, max_length=30, blank=True, null=True)
+    code = models.CharField(max_length=4)
+    short = models.CharField(max_length=10)
+    is_active = models.IntegerField(blank=True, null=True)
+    kickoff = models.DateField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'editions'
+
 class PlayerDB(models.Model):
     fname = models.CharField(max_length=20)
     lname = models.CharField(max_length=20)
@@ -21,6 +43,7 @@ class Players(models.Model):
     ppsw = models.CharField(max_length=300, blank=True, null=True)
     paid = models.DecimalField(max_digits=4, decimal_places=2, blank=True, null=True)
     winnable = models.IntegerField(blank=True, null=True)
+    editions = models.ForeignKey(Editions, models.DO_NOTHING, blank=True, null=True)
 
     class Meta:
         managed = False
@@ -34,16 +57,6 @@ class Communities(models.Model):
         db_table = 'communities'
 
 
-class Competitions(models.Model):
-    name = models.CharField(unique=True, max_length=25, blank=True, null=True)
-    period = models.IntegerField()
-    start = models.IntegerField()
-
-    class Meta:
-        managed = False
-        db_table = 'competitions'
-
-
 class Seasons(models.Model):
     syear = models.TextField(unique=True, blank=True, null=True)  # This field type is a guess.
     season = models.CharField(unique=True, max_length=9, blank=True, null=True)
@@ -51,16 +64,3 @@ class Seasons(models.Model):
     class Meta:
         managed = False
         db_table = 'seasons'
-
-
-class Editions(models.Model):
-    competitions = models.ForeignKey(Competitions, models.DO_NOTHING, blank=True, null=True)
-    seasons = models.ForeignKey('Seasons', models.DO_NOTHING, blank=True, null=True)
-    name = models.CharField(unique=True, max_length=30, blank=True, null=True)
-    code = models.CharField(max_length=4)
-    short = models.CharField(max_length=10)
-    is_active = models.IntegerField(blank=True, null=True)
-
-    class Meta:
-        managed = False
-        db_table = 'editions'

@@ -181,21 +181,18 @@ class Fixtures(models.Model):
 
 class Forecasts(models.Model):
     items = models.ForeignKey('Items', models.DO_NOTHING, blank=True, null=True)
-    f_email = models.ForeignKey('Players', models.DO_NOTHING, db_column='f_email', to_field='p_email', blank=True, null=True)
+    f_email = models.CharField(max_length=60, blank=True, null=True)
     ts = models.DateTimeField(blank=True, null=True)
     fvalue1 = models.CharField(max_length=50, blank=True, null=True)
     fvalue2 = models.CharField(max_length=50, blank=True, null=True)
     f1x2 = models.CharField(max_length=1, blank=True, null=True)
     points = models.IntegerField(blank=True, null=True)
     f_isactive = models.IntegerField(blank=True, null=True)
+    f_player = models.ForeignKey('Players', models.DO_NOTHING, db_column='f_player', blank=True, null=True)
 
     class Meta:
         managed = False
         db_table = 'forecasts'
-
-#    def __str__(self):
-#        return "<<" + self.f_email + "> " + self.items + ">"
-
 
 
 class Items(models.Model):
@@ -248,6 +245,7 @@ class Players(models.Model):
     ppsw = models.CharField(max_length=300, blank=True, null=True)
     paid = models.DecimalField(max_digits=4, decimal_places=2, blank=True, null=True)
     winnable = models.IntegerField(blank=True, null=True)
+    editions = models.ForeignKey(Editions, models.DO_NOTHING, blank=True, null=True)
 
     class Meta:
         managed = False

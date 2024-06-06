@@ -43,7 +43,7 @@
         <div class="card card-body">
           <div class="row gx-2">
             {% if item.fields.id == 2 %}
-            {{ item.close|date:"Y/m/d H:i" }} ({{ item.fixtures.localteam.teamsdb.name}} vs.{{ item.fixtures.awayteam.teamsdb.name }})
+            {{ item.close|date:"Y/m/d H:i" }} ({{ item.fixtures.localteam.teamsdb.name}} vs. {{ item.fixtures.awayteam.teamsdb.name }})
             {% else %}
             {{ item.close|date:"Y/m/d H:i" }}
             {% endif %}
@@ -144,6 +144,11 @@
                 {% if item.list == 12 %}
                   {% for team_rev in team_rev %}
                   <option value="{{team_rev.teamsdb.name}}">{{team_rev.teamsdb.name}} ({{team_rev.coef}})</option>
+                  {% endfor %}
+                {% endif %}
+                {% if item.list == 14 %}
+                  {% for teamQF in teamQF %}
+                  <option value="{{teamQF.name}}">{{teamQF.name}}</option>
                   {% endfor %}
                 {% endif %}
                 {% if item.list == 20 %}
@@ -264,6 +269,41 @@
                 {% if item.list == 45 %}
                   {% for teamRo16_8 in teamRo16_8 %}
                   <option value="{{teamRo16_8.name}}">{{teamRo16_8.name}}</option>
+                  {% endfor %}
+                {% endif %}
+                {% if item.list == 46 %}
+                  {% for teamQF_1 in teamQF_1 %}
+                  <option value="{{teamQF_1.name}}">{{teamQF_1.name}}</option>
+                  {% endfor %}
+                {% endif %}
+                {% if item.list == 47 %}
+                  {% for teamQF_2 in teamQF_2 %}
+                  <option value="{{teamQF_2.name}}">{{teamQF_2.name}}</option>
+                  {% endfor %}
+                {% endif %}
+                {% if item.list == 48 %}
+                  {% for teamQF_3 in teamQF_3 %}
+                  <option value="{{teamQF_3.name}}">{{teamQF_3.name}}</option>
+                  {% endfor %}
+                {% endif %}
+                {% if item.list == 49 %}
+                  {% for teamQF_4 in teamQF_4 %}
+                  <option value="{{teamQF_4.name}}">{{teamQF_4.name}}</option>
+                  {% endfor %}
+                {% endif %}
+                {% if item.list == 50 %}
+                  {% for teamSF_1 in teamSF_1 %}
+                  <option value="{{teamSF_1.name}}">{{teamSF_1.name}}</option>
+                  {% endfor %}
+                {% endif %}
+                {% if item.list == 51 %}
+                  {% for teamSF_2 in teamSF_2 %}
+                  <option value="{{teamSF_2.name}}">{{teamSF_2.name}}</option>
+                  {% endfor %}
+                {% endif %}
+                {% if item.list == 16 %}
+                  {% for teamW in teamW %}
+                  <option value="{{teamW.name}}">{{teamW.name}}</option>
                   {% endfor %}
                 {% endif %}
               </select>

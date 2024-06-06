@@ -142,6 +142,35 @@
     </tbody>
 </table>
 
+<!-- Test table points KnockOutStage -->
+
+<table class="table table-striped table-hover mt-5">
+    <thead>
+        <tr>
+            <th scope="col">#</th>
+            <th scope="col"></th>
+            <th scope="col">Player</th>
+            <th scope="col">Tot</th>
+            <th scope="col">Rank</th>
+            <th scope="col">Pts</th>
+            <th scope="col">mail</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for standingsC in standingsC %}
+            <tr>
+                <td scope="row">{{forloop.counter}}</td>
+                <td scope="row"><img src="http://imatges.vrn47.cat/Honours/Stars/v2/{{ standingsC.stars }}.png" width="20" height="20"></td>
+                <td scope="row">{{ standingsC.fn|slice:1 }}{{ standingsC.ln }}</td>
+                <td scope="row">{{ standingsC.Tot }}</td>
+                <td scope="row">{{ standingsC.Rank }}</td>
+                <td scope="row">{{ standingsC.Rank|add:"-26" }}</td>
+                <td scope="row">{{ standingsC.f_email }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
 <!-- Test table -->
 
 <table class="table table-striped table-hover mt-5">
