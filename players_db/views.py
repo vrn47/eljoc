@@ -61,6 +61,7 @@ def register(request):
 
 def playerinfo(request, pid):
 
+    currentedition = 34
     activeeditions = Editions.objects.filter(is_active=1)
     activeeditions2 = activeeditions.values()
     activeeditions3 = activeeditions.values_list()
@@ -75,7 +76,7 @@ def playerinfo(request, pid):
         #        form = PlayerInfoForm(instance=playerinfo)    ----> move to under playerinfo
 
         try:
-            playerinfo = Players.objects.get(playerdb=pid, editions__gt=33)
+            playerinfo = Players.objects.get(playerdb=pid, editions=currentedition)
             print('playerinfo', playerinfo)
         except ValueError as error:
             print('Value error', error)
@@ -109,7 +110,7 @@ def playerinfo(request, pid):
             print(request.POST)
             newedition = Editions.objects.get(id=request.POST['e_id'])
             userDB = PlayerDB.objects.get(id=pid)
-            user = Players.objects.get(playerdb=userDB)
+            user = Players.objects.get(playerdb=userDB, editions=currentedition)
             print(pid, newedition, userDB, user)
             print('user registered')
             playerid = user.id
