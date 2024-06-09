@@ -23,7 +23,8 @@ def game(request):
     print('Game')
     
     currentedition = 34
-    data = Items.objects.filter(editions=currentedition, value1__isnull=False).order_by('-dates').values_list('dates', flat=True).first()
+#   suprimir el "+1" quan arrenqui la competició.
+    data = Items.objects.filter(editions=currentedition, value1__isnull=False).order_by('-dates').values_list('dates', flat=True).first() + 1
     print('data', data)
     data0 = data - 83
     data1 = data - 84
@@ -120,7 +121,7 @@ def game(request):
         delta3 = list(stnd4.values_list('dlt3', flat=True))
         delta4 = list(stnd4.values_list('dlt4', flat=True))
         delta5 = list(stnd4.values_list('dlt5', flat=True))
-    #    print('delta1', delta1)
+        print('delta1', delta1)
 
 
         listdelta = np.array(nicks)
@@ -130,98 +131,98 @@ def game(request):
         listdelta = np.append(listdelta, delta4)
         listdelta = np.append(listdelta, delta5)
     # compte que el 44 d'aquí sota és el nombre de jugadors actius
-        listdelta = np.reshape(listdelta, (6, 44))
+        listdelta = np.reshape(listdelta, (6, 5))
         listdelta = np.transpose(listdelta)
 
         return render(request, 'game.html', {
                 'standings': stnd5,
                 'stats': stats,
-                'data': data-38,
+                'data': data0,
                 'labels': days,
                 'datax0': list(np.flip(listdelta[0])),
                 'datax1': list(np.flip(listdelta[1])),
                 'datax2': list(np.flip(listdelta[2])),
                 'datax3': list(np.flip(listdelta[3])),
                 'datax4': list(np.flip(listdelta[4])),
-                'datax5': list(np.flip(listdelta[5])),
-                'datax6': list(np.flip(listdelta[6])),
-                'datax7': list(np.flip(listdelta[7])),
-                'datax8': list(np.flip(listdelta[8])),
-                'datax9': list(np.flip(listdelta[9])),
-                'datax10': list(np.flip(listdelta[10])),
-                'datax11': list(np.flip(listdelta[11])),
-                'datax12': list(np.flip(listdelta[12])),
-                'datax13': list(np.flip(listdelta[13])),
-                'datax14': list(np.flip(listdelta[14])),
-                'datax15': list(np.flip(listdelta[15])),
-                'datax16': list(np.flip(listdelta[16])),
-                'datax17': list(np.flip(listdelta[17])),
-                'datax18': list(np.flip(listdelta[18])),
-                'datax19': list(np.flip(listdelta[19])),
-                'datax20': list(np.flip(listdelta[20])),
-                'datax21': list(np.flip(listdelta[21])),
-                'datax22': list(np.flip(listdelta[22])),
-                'datax23': list(np.flip(listdelta[23])),
-                'datax24': list(np.flip(listdelta[24])),
-                'datax25': list(np.flip(listdelta[25])),
-                'datax26': list(np.flip(listdelta[26])),
-                'datax27': list(np.flip(listdelta[27])),
-                'datax28': list(np.flip(listdelta[28])),
-                'datax29': list(np.flip(listdelta[29])),
-                'datax30': list(np.flip(listdelta[30])),
-                'datax31': list(np.flip(listdelta[31])),
-                'datax32': list(np.flip(listdelta[32])),
-                'datax33': list(np.flip(listdelta[33])),
-                'datax34': list(np.flip(listdelta[34])),
-                'datax35': list(np.flip(listdelta[35])),
-                'datax36': list(np.flip(listdelta[36])),
-                'datax37': list(np.flip(listdelta[37])),
-                'datax38': list(np.flip(listdelta[38])),
-                'datax39': list(np.flip(listdelta[39])),
-                'datax40': list(np.flip(listdelta[40])),
-                'datax41': list(np.flip(listdelta[41])),
+    #            'datax5': list(np.flip(listdelta[5])),
+    #            'datax6': list(np.flip(listdelta[6])),
+    #            'datax7': list(np.flip(listdelta[7])),
+    #            'datax8': list(np.flip(listdelta[8])),
+    #            'datax9': list(np.flip(listdelta[9])),
+    #            'datax10': list(np.flip(listdelta[10])),
+    #            'datax11': list(np.flip(listdelta[11])),
+    #            'datax12': list(np.flip(listdelta[12])),
+    #            'datax13': list(np.flip(listdelta[13])),
+    #            'datax14': list(np.flip(listdelta[14])),
+    #            'datax15': list(np.flip(listdelta[15])),
+    #            'datax16': list(np.flip(listdelta[16])),
+    #            'datax17': list(np.flip(listdelta[17])),
+    #            'datax18': list(np.flip(listdelta[18])),
+    #            'datax19': list(np.flip(listdelta[19])),
+    #            'datax20': list(np.flip(listdelta[20])),
+    #            'datax21': list(np.flip(listdelta[21])),
+    #            'datax22': list(np.flip(listdelta[22])),
+    #            'datax23': list(np.flip(listdelta[23])),
+    #            'datax24': list(np.flip(listdelta[24])),
+    #            'datax25': list(np.flip(listdelta[25])),
+    #            'datax26': list(np.flip(listdelta[26])),
+    #            'datax27': list(np.flip(listdelta[27])),
+    #            'datax28': list(np.flip(listdelta[28])),
+    #            'datax29': list(np.flip(listdelta[29])),
+    #            'datax30': list(np.flip(listdelta[30])),
+    #            'datax31': list(np.flip(listdelta[31])),
+    #            'datax32': list(np.flip(listdelta[32])),
+    #            'datax33': list(np.flip(listdelta[33])),
+    #            'datax34': list(np.flip(listdelta[34])),
+    #            'datax35': list(np.flip(listdelta[35])),
+    #            'datax36': list(np.flip(listdelta[36])),
+    #            'datax37': list(np.flip(listdelta[37])),
+    #            'datax38': list(np.flip(listdelta[38])),
+    #            'datax39': list(np.flip(listdelta[39])),
+    #            'datax40': list(np.flip(listdelta[40])),
+    #            'datax41': list(np.flip(listdelta[41])),
                 'label0': listdelta[0][0],
                 'label1': listdelta[1][0],
                 'label2': listdelta[2][0],
                 'label3': listdelta[3][0],
                 'label4': listdelta[4][0],
-                'label5': listdelta[5][0],
-                'label6': listdelta[6][0],
-                'label7': listdelta[7][0],
-                'label8': listdelta[8][0],
-                'label9': listdelta[9][0],
-                'label10': listdelta[10][0],
-                'label11': listdelta[11][0],
-                'label12': listdelta[12][0],
-                'label13': listdelta[13][0],
-                'label14': listdelta[14][0],
-                'label15': listdelta[15][0],
-                'label16': listdelta[16][0],
-                'label17': listdelta[17][0],
-                'label18': listdelta[18][0],
-                'label19': listdelta[19][0],
-                'label20': listdelta[20][0],
-                'label21': listdelta[21][0],
-                'label22': listdelta[22][0],
-                'label23': listdelta[23][0],
-                'label24': listdelta[24][0],
-                'label25': listdelta[25][0],
-                'label26': listdelta[26][0],
-                'label27': listdelta[27][0],
-                'label28': listdelta[28][0],
-                'label29': listdelta[29][0],
-                'label30': listdelta[30][0],
-                'label31': listdelta[31][0],
-                'label32': listdelta[32][0],
-                'label33': listdelta[33][0],
-                'label34': listdelta[34][0],
-                'label35': listdelta[35][0],
-                'label36': listdelta[36][0],
-                'label37': listdelta[37][0],
-                'label38': listdelta[38][0],
-                'label39': listdelta[39][0],
-                'label40': listdelta[40][0],
-                'label41': listdelta[41][0],
+    #            'label5': listdelta[5][0],
+    #            'label6': listdelta[6][0],
+    #            'label7': listdelta[7][0],
+    #            'label8': listdelta[8][0],
+    #            'label9': listdelta[9][0],
+    #            'label10': listdelta[10][0],
+    #            'label11': listdelta[11][0],
+    #            'label12': listdelta[12][0],
+    #            'label13': listdelta[13][0],
+    #            'label14': listdelta[14][0],
+    #            'label15': listdelta[15][0],
+    #            'label16': listdelta[16][0],
+    #            'label17': listdelta[17][0],
+    #            'label18': listdelta[18][0],
+    #            'label19': listdelta[19][0],
+    #            'label20': listdelta[20][0],
+    #            'label21': listdelta[21][0],
+    #            'label22': listdelta[22][0],
+    #            'label23': listdelta[23][0],
+    #            'label24': listdelta[24][0],
+    #            'label25': listdelta[25][0],
+    #            'label26': listdelta[26][0],
+    #            'label27': listdelta[27][0],
+    #            'label28': listdelta[28][0],
+    #            'label29': listdelta[29][0],
+    #            'label30': listdelta[30][0],
+    #            'label31': listdelta[31][0],
+    #            'label32': listdelta[32][0],
+    #            'label33': listdelta[33][0],
+    #            'label34': listdelta[34][0],
+    #            'label35': listdelta[35][0],
+    #            'label36': listdelta[36][0],
+    #            'label37': listdelta[37][0],
+    #            'label38': listdelta[38][0],
+    #            'label39': listdelta[39][0],
+    #            'label40': listdelta[40][0],
+    #            'label41': listdelta[41][0],
             })
 
 def items(request):        
@@ -448,11 +449,13 @@ def standings(request):
     print('Standings')   
 
     currentedition = 34
-    data = Items.objects.filter(editions=currentedition, value1__isnull=False).order_by('-dates').values_list('dates', flat=True).first()
+#   suprimir el "+1" quan arrenqui la competició.
+    data = Items.objects.filter(editions=currentedition, value1__isnull=False).order_by('-dates').values_list('dates', flat=True).first() + 1
     data0 = data - 83
-    print('data', data-83, 'data0', data0)
+    print('data', data, 'data0', data0)
 
     items = Forecasts.objects.filter(items__editions=currentedition, f_isactive=1, ts__lte=timezone.now(),items__dates__lte=data)
+    print('items', items)
 
     stnd = items.values('f_player').annotate(
         tot=Sum('points'),
@@ -492,7 +495,8 @@ def statistics(request):
     print('Statistics')
     
     currentedition = 34
-    data = Items.objects.filter(editions=currentedition, value1__isnull=False).order_by('-dates').values_list('dates', flat=True).first()
+#   suprimir el "+1" quan arrenqui la competició.
+    data = Items.objects.filter(editions=currentedition, value1__isnull=False).order_by('-dates').values_list('dates', flat=True).first() + 1
     data0 = data - 83
     data1 = data - 84
     data2 = data - 85
