@@ -25,7 +25,15 @@
         background-color: black;
         color: white;
         font-weight: bold;
-}
+    }
+
+    .subtable {
+        width: 50%;
+    }
+
+    .explanation {
+        font-size: 0.6em;
+    }
 
 </style>
 
@@ -39,20 +47,30 @@
         <thead>
             <tr><th colspan="6" style="text-align: center" class="titolcella">STATISTICS DAY {{data0}}</th></tr>
             <tr style="text-align: center">
-            <th scope="col">Max pts</th>
-            <th scope="col">Avg pts</th>
-            <th scope="col">Min pts</th>
-            <th scope="col">Tot pts</th>
-            <th scope="col"># players</th>
-          </tr>
+                <th scope="col">Top pts</th>
+                <th scope="col">Max pts</th>
+                <th scope="col">Avg pts</th>
+                <th scope="col">Min pts</th>
+                <th scope="col">Tot pts</th>
+                <th scope="col"># players</th>
+            </tr>
         </thead>
         <tbody>
             <tr style="text-align: center">
-              <td scope="row">{{ stats.maxdlt1 }}</td>
-              <td scope="row">{{ stats.avgdlt1 }}</td>
-              <td scope="row">{{ stats.mindlt1 }}</td>
-              <td scope="row">{{ stats.sumdlt1 }}</td>
-              <td scope="row">{{ stats.cntdlt1 }}</td>
+                <td scope="row">{{ stats.topdlt1 }}</td>
+                <td scope="row">{{ stats.maxdlt1 }}</td>
+                <td scope="row">{{ stats.avgdlt1 }}</td>
+                <td scope="row">{{ stats.mindlt1 }}</td>
+                <td scope="row">{{ stats.sumdlt1 }}</td>
+                <td scope="row">{{ stats.cntdlt1 }}</td>
+            </tr>
+            <tr style="text-align: center">
+                <td scope="col" class="explanation">Total points available to win this day</td>
+                <td scope="col" class="explanation">Maximum points scored by a player for this day</td>
+                <td scope="col" class="explanation">Average points scored by all players for this day</td>
+                <td scope="col" class="explanation">Minimum points scored by a player for this day</td>
+                <td scope="col" class="explanation">Total points scored by all players for this day</td>
+                <td scope="col" class="explanation">Number of players that submited a forecast for this day</td>
             </tr>
         </tbody>
       </table>
@@ -61,9 +79,19 @@
         <thead>
             <tr><th colspan="8" style="text-align: center" class="titolcella">EVOLUTION DAY {{data0}}</th></tr>
             <tr>
-                <th scope="col">△▽</th>
-                <th scope="col">Player</th>
                 <th scope="col"></th>
+                <th scope="col"></th>
+                <th scope="col"></th>
+                <th scope="col">{{dates0.name}}</th>
+                <th scope="col">{{dates1.name}}</th>
+                <th scope="col">{{dates2.name}}</th>
+                <th scope="col">{{dates3.name}}</th>
+                <th scope="col">{{dates4.name}}</th>
+            </tr>
+            <tr>
+                <th scope="col">△▽</th>
+                <th scope="col"></th>
+                <th scope="col">Player</th>
                 <th scope="col">Day {{data0}}</th>
                 <th scope="col">Day {{data1}}</th>
                 <th scope="col">Day {{data2}}</th>
@@ -86,6 +114,181 @@
             {% endfor %}
         </tbody>
     </table>
+
+    <table class="table table-striped table-hover">
+        <thead>
+            <tr><th colspan="2" style="text-align: center" class="titolcella">TEAMS STATS {{data0}}</th></tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td class="subtable">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th colspan="5" style="text-align: center" class="titolcella">BEST</th>
+                            </tr>
+                            <tr>
+                                <td colspan="5" style="text-align: center" class="explanation">Team with more points in all competition matches (win 3 pts, draw, 1 pt, loss 0 pts).<br>
+                                Goals difference factor is 0.01 / Goals for factor is 0.0001</td>
+                            </tr>
+                            <tr>
+                                <th scope="col">Rank</th>
+                                <th scope="col">Logo</th>
+                                <th scope="col">Name</th>
+                                <th scope="col">Flag</th>
+                                <th scope="col">Points</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for best in best %}
+                                <tr>
+                                    <td scope="row">{{forloop.counter}}</td>
+                                    <td scope="row"><img src="https://api.fifa.com/api/v3/picture/associations-sq-2/{{ best.Short }}" width="25" height="25"></td>
+                                    <td scope="row">{{best.Name}}</td>
+                                    <td scope="row"><img src="https://img.uefa.com/imgml/flags/240x240/{{ best.Short }}.png" width="20" height="20"></td>
+                                    <td scope="row">{{best.Pts}}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </td>
+                <td class="subtable">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th colspan="5" style="text-align: center" class="titolcella">WORST</th>
+                            </tr>
+                            <tr>
+                                <td colspan="5" style="text-align: center" class="explanation">Team with less points in group stage competition matches (win 3 pts, draw, 1 pt, loss 0 pts).<br>
+                                Goals difference factor is 0.01 / Goals for factor is 0.0001</td>
+                            </tr>
+                            <tr>
+                                <th scope="col">Rank</th>
+                                <th scope="col">Logo</th>
+                                <th scope="col">Name</th>
+                                <th scope="col">Flag</th>
+                                <th scope="col">Points</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for worst in worst %}
+                                <tr>
+                                    <td scope="row">{{forloop.counter}}</td>
+                                    <td scope="row"><img src="https://api.fifa.com/api/v3/picture/associations-sq-2/{{ worst.Short }}" width="25" height="25"></td>
+                                    <td scope="row">{{worst.Name}}</td>
+                                    <td scope="row"><img src="https://img.uefa.com/imgml/flags/240x240/{{ worst.Short }}.png" width="20" height="20"></td>
+                                    <td scope="row">{{worst.Pts}}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th colspan="5" style="text-align: center" class="titolcella">CRASH</th>
+                            </tr>
+                            <tr>
+                                <td colspan="5" style="text-align: center" class="explanation">Club with lowest coefficient not classified for Round of 16.</td>
+                            </tr>
+                            <tr>
+                                <th scope="col">Rank</th>
+                                <th scope="col">Logo</th>
+                                <th scope="col">Name</th>
+                                <th scope="col">Flag</th>
+                                <th scope="col">Coefficient</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for crash in crash %}
+                                <tr>
+                                    <td scope="row">{{forloop.counter}}</td>
+                                    <td scope="row"><img src="https://api.fifa.com/api/v3/picture/associations-sq-2/{{ crash.Short }}" width="25" height="25"></td>
+                                    <td scope="row">{{crash.Name}}</td>
+                                    <td scope="row"><img src="https://img.uefa.com/imgml/flags/240x240/{{ crash.Short }}.png" width="20" height="20"></td>
+                                    <td scope="row">{{crash.Coef}}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </td>
+            </tr>
+            <tr>
+                <td class="subtable">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th colspan="6" style="text-align: center" class="titolcella">SURPRISE GROUP STAGE</th>
+                            </tr>
+                            <tr>
+                                <td colspan="6" style="text-align: center" class="explanation">Team with best surprise ranking in group stage competition matches (win 3 pts, draw, 1 pt, loss 0 pts).<br>
+                                Goals difference factor is 0.01 / Goals for factor is 0.0001<br>
+                                Surprise ranking only applies to unseeded teams and multiplies coefficient and points in this group stage.</td>
+                            </tr>
+                            <tr>
+                                <th scope="col">Rank</th>
+                                <th scope="col">Logo</th>
+                                <th scope="col">Name</th>
+                                <th scope="col">Flag</th>
+                                <th scope="col">Coef</th>
+                                <th scope="col">Points</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for revGS in revGS %}
+                                <tr>
+                                    <td scope="row">{{forloop.counter}}</td>
+                                    <td scope="row"><img src="https://api.fifa.com/api/v3/picture/associations-sq-2/{{ revGS.Short }}" width="25" height="25"></td>
+                                    <td scope="row">{{revGS.Name}}</td>
+                                    <td scope="row"><img src="https://img.uefa.com/imgml/flags/240x240/{{ revGS.Short }}.png" width="20" height="20"></td>
+                                    <td scope="row">{{revGS.Coef}}</td>
+                                    <td scope="row">{{revGS.Pts}}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </td>
+                <td class="subtable">
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th colspan="6" style="text-align: center" class="titolcella">SURPRISE COMPETITION</th>
+                            </tr>
+                            <tr>
+                                <td colspan="6" style="text-align: center" class="explanation">Team with best surprise ranking in all competition matches (win 3 pts, draw, 1 pt, loss 0 pts).<br>
+                                Goals difference factor is 0.01 / Goals for factor is 0.0001<br>
+                                Surprise ranking only applies to unseeded teams and multiplies coefficient and total points in the competition.</td>
+                            </tr>
+                            <tr>
+                                <th scope="col">Rank</th>
+                                <th scope="col">Logo</th>
+                                <th scope="col">Name</th>
+                                <th scope="col">Flag</th>
+                                <th scope="col">Coef</th>
+                                <th scope="col">Points</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for rev in rev %}
+                                <tr>
+                                    <td scope="row">{{forloop.counter}}</td>
+                                    <td scope="row"><img src="https://api.fifa.com/api/v3/picture/associations-sq-2/{{ rev.Short }}" width="25" height="25"></td>
+                                    <td scope="row">{{rev.Name}}</td>
+                                    <td scope="row"><img src="https://img.uefa.com/imgml/flags/240x240/{{ rev.Short }}.png" width="20" height="20"></td>
+                                    <td scope="row">{{rev.Coef}}</td>
+                                    <td scope="row">{{rev.Pts}}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
 
     </main>
     {% endblock %}
