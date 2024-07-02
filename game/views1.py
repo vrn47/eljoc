@@ -55,6 +55,7 @@ def game(request):
             dlt5=Sum(('points'),filter=Q(items__dates=data-4)),
             rank0=Window(expression=Rank(),order_by=F('tot').desc()),
             rank1=Window(expression=Rank(),order_by=F('tot2').desc()),
+            top=Sum(('items__scores__s_max'),filter=Q(items__dates=data)),
         ).order_by('-tot', '-tot2', '-stars', 'fn')
         print('stnd', stnd)
         stnd5 = stnd[:5]
@@ -64,6 +65,7 @@ def game(request):
             avgdlt1=Avg('dlt1'),
             sumdlt1=Sum('dlt1'),
             cntdlt1=Count('dlt1'),
+            topdlt1=Avg('top'),
         )
     #    print('stats', stats)
 
@@ -300,10 +302,10 @@ def forecasts(request):
     teamRo16_7 = Teamsdb.objects.filter(teams__id=81) | Teamsdb.objects.filter(teams__id=78).order_by('teams__pos')
     teamRo16_8 = Teamsdb.objects.filter(teams__id=66) | Teamsdb.objects.filter(teams__id=87).order_by('teams__pos')
     teamQF = Teamsdb.objects.filter(teams__editions=33,teams__round__id=4).order_by('id')
-    teamQF_1 = Teamsdb.objects.filter(teams__id=48) | Teamsdb.objects.filter(teams__id=35).order_by('teams__pos')
-    teamQF_2 = Teamsdb.objects.filter(teams__id=37) | Teamsdb.objects.filter(teams__id=56).order_by('teams__pos')
-    teamQF_3 = Teamsdb.objects.filter(teams__id=44) | Teamsdb.objects.filter(teams__id=55).order_by('teams__pos')
-    teamQF_4 = Teamsdb.objects.filter(teams__id=53) | Teamsdb.objects.filter(teams__id=43).order_by('teams__pos')
+    teamQF_1 = Teamsdb.objects.filter(teams__id=72) | Teamsdb.objects.filter(teams__id=75).order_by('teams__pos')
+    teamQF_2 = Teamsdb.objects.filter(teams__id=80) | Teamsdb.objects.filter(teams__id=73).order_by('teams__pos')
+    teamQF_3 = Teamsdb.objects.filter(teams__id=71) | Teamsdb.objects.filter(teams__id=84).order_by('teams__pos')
+    teamQF_4 = Teamsdb.objects.filter(teams__id=78) | Teamsdb.objects.filter(teams__id=87).order_by('teams__pos')
     teamSF_1 = Teamsdb.objects.filter(teams__id=35) | Teamsdb.objects.filter(teams__id=37).order_by('teams__pos')
     teamSF_2 = Teamsdb.objects.filter(teams__id=55) | Teamsdb.objects.filter(teams__id=53).order_by('teams__pos')
     teamW = Teamsdb.objects.filter(teams__id=37) | Teamsdb.objects.filter(teams__id=55).order_by('teams__pos')
@@ -588,7 +590,8 @@ def statistics(request):
     )
     print('stats4', stats4)
 
-    teamsDB = Teamsdb.objects.filter(is_active=1)
+#    teams stats
+
     teams = Teams.objects.filter(editions=currentedition)
     best = teams.values('id').annotate(
         Pts=Sum(F('ptsgs') + F('ptsko')),
@@ -624,6 +627,15 @@ def statistics(request):
     ).order_by('Round', 'Coef')[:3]
     print('crash', crash)
 
+#    player stats
+
+    uri = 'https://api.football-data.org/v4/competitions/2018//scorers/'
+    headers = { 'X-Auth-Token': '3d6936d5fb044a3b925f7a9383b7d4d6' }
+    response_scorers = requests.get(uri, headers=headers)
+#    print('rsp scorers', response_scorers.json())
+    scorers = response_scorers.json()['scorers']
+#    print('scorers', scorers[:10])
+
 
     return render(request, 'statistics.html', {
             'standings': stnd5,
@@ -646,7 +658,7 @@ def statistics(request):
             'worst': worst,
             'rev': rev,
             'revGS': revGS,
-            'teamsDB': teamsDB,
+            'scorers': scorers,
         })
 
 def footballdata(request):
@@ -1239,6 +1251,15 @@ def proves2(request):
 #    matches = response.json()['teams']
 #    print(json.dumps(matches, indent=4, sort_keys=True))
 
+#    test top scorer
+    uri = 'https://api.football-data.org/v4/competitions/2018//scorers/'
+    headers = { 'X-Auth-Token': '3d6936d5fb044a3b925f7a9383b7d4d6' }
+    response_scorers = requests.get(uri, headers=headers)
+    print('rsp scorers', response_scorers.json())
+    scorers = response_scorers.json()['scorers']
+    print('scorers', scorers[:10])
+
+
     if request.method == 'GET':
         return render(request, 'proves2.html', {
             'match': partits,
@@ -1247,4 +1268,5 @@ def proves2(request):
             'fictures': fixtures,
             'equips': equips,
             'grups': grups,
+            'scorers': scorers,
         })
