@@ -455,11 +455,30 @@ def standings(request):
 
     print('Standings')   
 
+#    data editions and items, gap is diff from first item on current competition to 0.
+    gap = 83
     currentedition = 34
 #   suprimir el "+1" quan arrenqui la competició.
     data = Items.objects.filter(editions=currentedition, value1__isnull=False).order_by('-dates').values_list('dates', flat=True).first()
+    datafi = Items.objects.filter(editions=currentedition).order_by('-dates').values_list('dates', flat=True).first()
+    datafi0 = datafi - gap
+    print('datafi', datafi, gap, datafi0)
     data0 = data - 83
     print('data', data, 'data0', data0)
+
+    thisday = Items.objects.filter(editions=currentedition, dates=data).aggregate(
+        pts=Sum(F('scores__s_max'))
+    )
+    overall = Items.objects.filter(editions=currentedition, dates__gte=gap, dates__lte=datafi).aggregate(
+        pts=Sum(F('scores__s_max'))
+    )
+    awarded = Items.objects.filter(editions=currentedition, dates__gte=gap, dates__lte=data).aggregate(
+        pts=Sum(F('scores__s_max'))
+    )
+    remaining = Items.objects.filter(editions=currentedition, dates__gt=data, dates__lte=datafi).aggregate(
+        pts=Sum(F('scores__s_max'))
+    )
+    print('------------->overall', overall, 'thisday', thisday, 'awarded', awarded, 'remaining', remaining)
 
     items = Forecasts.objects.filter(items__editions=currentedition, f_isactive=1, ts__lte=timezone.now(),items__dates__lte=data)
     print('items', items)
@@ -481,6 +500,9 @@ def standings(request):
         rank1=Window(expression=Rank(),order_by=F('tot2').desc()),
     ).order_by('-tot', '-tot2', '-stars', 'fn')
     print('stnd', stnd)
+    first = list(stnd.values_list('tot', flat=True))
+    first = first[0]
+    print('first', first)
 
     stats = stnd.aggregate(
         maxdlt1=Max('dlt1'),
@@ -495,21 +517,31 @@ def standings(request):
         return render(request, 'standings.html', {
             'standings': stnd,
             'stats': stats,
+            'awarded': awarded,
+            'remaining': remaining,
+            'overall': overall,
+            'thisday': thisday,
+            'first': first,
         })
 
 def statistics(request):
         
     print('Statistics')
     
+#    data editions and items, gap is diff from first item on current competition to 0.
+    gap = 83
     currentedition = 34
-#   suprimir el "+1" quan arrenqui la competició.
+#    suprimir el "+1" quan arrenqui la competició.
     data = Items.objects.filter(editions=currentedition, value1__isnull=False).order_by('-dates').values_list('dates', flat=True).first()
+    datafi = Items.objects.filter(editions=currentedition).order_by('-dates').values_list('dates', flat=True).first()
+    datafi0 = datafi - gap
+    print('datafi', datafi, gap, datafi0)
     data0 = data - 83
     data1 = data - 84
     data2 = data - 85
     data3 = data - 86
     data4 = data - 87
-    print('data', data-83)
+    print('data', data-83, data)
     dates0 = Dates.objects.get(id=data)
     dates1 = Dates.objects.get(id=data-1)
     dates2 = Dates.objects.get(id=data-2)
@@ -590,6 +622,20 @@ def statistics(request):
     )
     print('stats4', stats4)
 
+    thisday = Items.objects.filter(editions=currentedition, dates=data).aggregate(
+        pts=Sum(F('scores__s_max'))
+    )
+    overall = Items.objects.filter(editions=currentedition, dates__gte=gap, dates__lte=datafi).aggregate(
+        pts=Sum(F('scores__s_max'))
+    )
+    awarded = Items.objects.filter(editions=currentedition, dates__gte=gap, dates__lte=data).aggregate(
+        pts=Sum(F('scores__s_max'))
+    )
+    remaining = Items.objects.filter(editions=currentedition, dates__gt=data, dates__lte=datafi).aggregate(
+        pts=Sum(F('scores__s_max'))
+    )
+    print('------------->overall', overall, 'thisday', thisday, 'awarded', awarded, 'remaining', remaining)
+
 #    teams stats
 
     teams = Teams.objects.filter(editions=currentedition)
@@ -659,6 +705,10 @@ def statistics(request):
             'rev': rev,
             'revGS': revGS,
             'scorers': scorers,
+            'awarded': awarded,
+            'remaining': remaining,
+            'overall': overall,
+            'thisday': thisday,
         })
 
 def footballdata(request):
