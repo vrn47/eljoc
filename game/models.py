@@ -189,6 +189,7 @@ class Forecasts(models.Model):
     points = models.IntegerField(blank=True, null=True)
     f_isactive = models.IntegerField(blank=True, null=True)
     f_player = models.ForeignKey('Players', models.DO_NOTHING, db_column='f_player', blank=True, null=True)
+    f_possible = models.IntegerField(blank=True, null=True)
 
     class Meta:
         managed = False

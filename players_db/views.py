@@ -61,7 +61,7 @@ def register(request):
 
 def playerinfo(request, pid):
 
-    currentedition = 34
+    currentedition = 35
     activeeditions = Editions.objects.filter(is_active=1)
     activeeditions2 = activeeditions.values()
     activeeditions3 = activeeditions.values_list()

@@ -33,6 +33,9 @@
         <th scope="col">∆</th>
         <th scope="col">Prize</th>
         <th scope="col">Winnable</th>
+        <th scope="col">WTest</th>
+        <th scope="col">Sure</th>
+        <th scope="col">Possible</th>
       </tr>
     </thead>
     <tbody>
@@ -44,7 +47,10 @@
           <th scope="row">{{ standings.tot }}</th>
           <td scope="row">{% if standings.dlt1 == stats.maxdlt1 %} <b>{{ standings.dlt1 }}✨</b> {% elif standings.dlt1 == stats.mindlt1 %} <b><FONT COLOR="#ff0000">{{ standings.dlt1 }}⚠️</b> {% elif standings.dlt1 > stats.avgdlt1 %} <FONT COLOR="#008000">{{ standings.dlt1 }} {% elif standings.dlt1 < stats.avgdlt1 %} <FONT COLOR="#FFA500">{{ standings.dlt1 }} {% else %} {{ standings.dlt1 }} {% endif %} </td>
           <td scope="row">{% if standings.p > 0 %} <img src="http://imatges.vrn47.cat/Logo/LogoElJocDEF50.png" width="20" height="20"> {% endif %}</td>
-          <td scope="row">{% if standings.tot == first%} <img src="http://imatges.vrn47.cat/Honours/Stars/v2/999.png" width="20" height="20"> {% elif standings.tot|add:remaining.pts >= first %} <img src="http://imatges.vrn47.cat/Honours/Stars/v2/999.png" width="20" height="20"> {% else %} <img src="http://imatges.vrn47.cat/Honours/Stars/v2/000.png" width="20" height="20"> {% endif %}</td>
+          <td scope="row">{% if standings.tot == first%} <img src="http://imatges.vrn47.cat/Honours/Stars/v2/999.png" width="20" height="20"> {% elif standings.tot|add:remaining.pts >= first %} <img src="http://imatges.vrn47.cat/Honours/Stars/v2/999.png" width="20" height="20"> {{remaining.pts}} {% else %} <img src="http://imatges.vrn47.cat/Honours/Stars/v2/000.png" width="20" height="20"> {{remaining.pts}} {% endif %}</td>
+          <td scope="row">{% if standings.tot == first%} <img src="http://imatges.vrn47.cat/Honours/Stars/v2/999.png" width="20" height="20"> {{standings.sure}}+{{standings.limit}}={{standings.sure|add:standings.limit}} {% elif standings.tot|add:standings.limit|add:standings.sure >= first %} <img src="http://imatges.vrn47.cat/Honours/Stars/v2/999.png" width="20" height="20"> {{standings.sure}}+{{standings.limit}}={{standings.sure|add:standings.limit}} {% else %} <img src="http://imatges.vrn47.cat/Honours/Stars/v2/000.png" width="20" height="20">  {{standings.sure}}+{{standings.limit}}={{standings.sure|add:standings.limit}} {% endif %}</td>
+          <td scope="row">{% if standings.tot == first%} {{standings.tot|add:standings.sure}} {% elif standings.tot|add:standings.limit|add:standings.sure >= first %} {{standings.tot|add:standings.sure}} {% else %}  {{standings.tot|add:standings.sure}} {% endif %}</td>
+          <td scope="row">{% if standings.tot == first%} {{standings.tot|add:standings.limit|add:standings.sure}} {% elif standings.tot|add:standings.limit|add:standings.sure >= first %} {{standings.tot|add:standings.limit|add:standings.sure}} {% else %} {{standings.tot|add:standings.limit|add:standings.sure}} {% endif %}</td>
         </tr>
       {% endfor %}
     </tbody>

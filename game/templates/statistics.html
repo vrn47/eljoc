@@ -146,7 +146,7 @@
                                 <th scope="col">Rank</th>
                                 <th scope="col">Logo</th>
                                 <th scope="col">Name</th>
-                                <th scope="col">Flag</th>
+                                {% if competition == 3 %}<th scope="col">Flag</th>{% endif %}
                                 <th scope="col">Points</th>
                             </tr>
                         </thead>
@@ -154,9 +154,9 @@
                             {% for best in best %}
                                 <tr>
                                     <td scope="row">{{forloop.counter}}</td>
-                                    <td scope="row"><img src="https://api.fifa.com/api/v3/picture/associations-sq-2/{{ best.Short }}" width="25" height="25"></td>
+                                    <td scope="row">{% if competition == 3 %}<img src="https://api.fifa.com/api/v3/picture/associations-sq-2/{{ best.Short }}" width="25" height="25">{% elif competition == 2 %}<img src="https://img.uefa.com/imgml/TP/teams/logos/140x140/{{ best.euro }}.png" width="25" height="25"></td>{% endif %}
                                     <td scope="row">{{best.Name}}</td>
-                                    <td scope="row"><img src="https://img.uefa.com/imgml/flags/240x240/{{ best.Short }}.png" width="20" height="20"></td>
+                                    {% if competition == 3 %}<td scope="row"><img src="https://img.uefa.com/imgml/flags/240x240/{{ best.Short }}.png" width="20" height="20"></td>{% endif %}
                                     <td scope="row">{{best.Pts}}</td>
                                 </tr>
                             {% endfor %}
@@ -177,7 +177,7 @@
                                 <th scope="col">Rank</th>
                                 <th scope="col">Logo</th>
                                 <th scope="col">Name</th>
-                                <th scope="col">Flag</th>
+                                {% if competition == 3 %}<th scope="col">Flag</th>{% endif %}
                                 <th scope="col">Points</th>
                             </tr>
                         </thead>
@@ -185,9 +185,9 @@
                             {% for worst in worst %}
                                 <tr>
                                     <td scope="row">{{forloop.counter}}</td>
-                                    <td scope="row"><img src="https://api.fifa.com/api/v3/picture/associations-sq-2/{{ worst.Short }}" width="25" height="25"></td>
+                                    <td scope="row">{% if competition == 3 %}<img src="https://api.fifa.com/api/v3/picture/associations-sq-2/{{ worst.Short }}" width="25" height="25">{% elif competition == 2 %}<img src="https://img.uefa.com/imgml/TP/teams/logos/140x140/{{ worst.euro }}.png" width="25" height="25"></td>{% endif %}
                                     <td scope="row">{{worst.Name}}</td>
-                                    <td scope="row"><img src="https://img.uefa.com/imgml/flags/240x240/{{ worst.Short }}.png" width="20" height="20"></td>
+                                    {% if competition == 3 %}<td scope="row"><img src="https://img.uefa.com/imgml/flags/240x240/{{ worst.Short }}.png" width="20" height="20"></td>{% endif %}
                                     <td scope="row">{{worst.Pts}}</td>
                                 </tr>
                             {% endfor %}
@@ -209,7 +209,7 @@
                                 <th scope="col">Rank</th>
                                 <th scope="col">Logo</th>
                                 <th scope="col">Name</th>
-                                <th scope="col">Flag</th>
+                                {% if competition == 3 %}<th scope="col">Flag</th>{% endif %}
                                 <th scope="col">Coefficient</th>
                             </tr>
                         </thead>
@@ -217,9 +217,9 @@
                             {% for crash in crash %}
                                 <tr>
                                     <td scope="row">{{forloop.counter}}</td>
-                                    <td scope="row"><img src="https://api.fifa.com/api/v3/picture/associations-sq-2/{{ crash.Short }}" width="25" height="25"></td>
+                                    <td scope="row">{% if competition == 3 %}<img src="https://api.fifa.com/api/v3/picture/associations-sq-2/{{ crash.Short }}" width="25" height="25">{% elif competition == 2 %}<img src="https://img.uefa.com/imgml/TP/teams/logos/140x140/{{ crash.euro }}.png" width="25" height="25"></td>{% endif %}
                                     <td scope="row">{{crash.Name}}</td>
-                                    <td scope="row"><img src="https://img.uefa.com/imgml/flags/240x240/{{ crash.Short }}.png" width="20" height="20"></td>
+                                    {% if competition == 3 %}<td scope="row"><img src="https://img.uefa.com/imgml/flags/240x240/{{ crash.Short }}.png" width="20" height="20"></td>{% endif %}
                                     <td scope="row">{{crash.Coef}}</td>
                                 </tr>
                             {% endfor %}
@@ -243,7 +243,7 @@
                                 <th scope="col">Rank</th>
                                 <th scope="col">Logo</th>
                                 <th scope="col">Name</th>
-                                <th scope="col">Flag</th>
+                                {% if competition == 3 %}<th scope="col">Flag</th>{% endif %}
                                 <th scope="col">Coef</th>
                                 <th scope="col">Points</th>
                             </tr>
@@ -252,9 +252,9 @@
                             {% for revGS in revGS %}
                                 <tr>
                                     <td scope="row">{{forloop.counter}}</td>
-                                    <td scope="row"><img src="https://api.fifa.com/api/v3/picture/associations-sq-2/{{ revGS.Short }}" width="25" height="25"></td>
+                                    <td scope="row">{% if competition == 3 %}<img src="https://api.fifa.com/api/v3/picture/associations-sq-2/{{ revGS.Short }}" width="25" height="25">{% elif competition == 2 %}<img src="https://img.uefa.com/imgml/TP/teams/logos/140x140/{{ revGS.euro }}.png" width="25" height="25"></td>{% endif %}
                                     <td scope="row">{{revGS.Name}}</td>
-                                    <td scope="row"><img src="https://img.uefa.com/imgml/flags/240x240/{{ revGS.Short }}.png" width="20" height="20"></td>
+                                    {% if competition == 3 %}<td scope="row"><img src="https://img.uefa.com/imgml/flags/240x240/{{ revGS.Short }}.png" width="20" height="20"></td>{% endif %}
                                     <td scope="row">{{revGS.Coef}}</td>
                                     <td scope="row">{{revGS.Pts}}</td>
                                 </tr>
@@ -277,7 +277,7 @@
                                 <th scope="col">Rank</th>
                                 <th scope="col">Logo</th>
                                 <th scope="col">Name</th>
-                                <th scope="col">Flag</th>
+                                {% if competition == 3 %}<th scope="col">Flag</th>{% endif %}
                                 <th scope="col">Coef</th>
                                 <th scope="col">Points</th>
                             </tr>
@@ -286,9 +286,9 @@
                             {% for rev in rev %}
                                 <tr>
                                     <td scope="row">{{forloop.counter}}</td>
-                                    <td scope="row"><img src="https://api.fifa.com/api/v3/picture/associations-sq-2/{{ rev.Short }}" width="25" height="25"></td>
+                                    <td scope="row">{% if competition == 3 %}<img src="https://api.fifa.com/api/v3/picture/associations-sq-2/{{ rev.Short }}" width="25" height="25">{% elif competition == 2 %}<img src="https://img.uefa.com/imgml/TP/teams/logos/140x140/{{ rev.euro }}.png" width="25" height="25"></td>{% endif %}
                                     <td scope="row">{{rev.Name}}</td>
-                                    <td scope="row"><img src="https://img.uefa.com/imgml/flags/240x240/{{ rev.Short }}.png" width="20" height="20"></td>
+                                    {% if competition == 3 %}<td scope="row"><img src="https://img.uefa.com/imgml/flags/240x240/{{ rev.Short }}.png" width="20" height="20"></td>{% endif %}
                                     <td scope="row">{{rev.Coef}}</td>
                                     <td scope="row">{{rev.Pts}}</td>
                                 </tr>

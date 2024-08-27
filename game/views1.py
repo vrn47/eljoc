@@ -5,7 +5,7 @@ from .forms import ItemsForm, ForecastsForm, PlayersForm
 from django.contrib.auth import login, logout, authenticate
 from django.utils import timezone
 from django.db.models import Sum, Count, TextField, Q, F, Max, Min, Avg, Func, Window, ExpressionWrapper, Value as V, CharField, Value
-from django.db.models.functions import Cast, Rank, DenseRank, ExtractYear, Concat, Substr, ConcatPair
+from django.db.models.functions import Cast, Rank, DenseRank, ExtractYear, Concat, Substr, ConcatPair, Coalesce
 from array import *
 from django_pivot.pivot import pivot
 import numpy as np
@@ -15,26 +15,26 @@ import django_tables2 as tables
 import datetime
 import pandas as pd
 
-
 # Create your views here.
 
 def game(request):
         
     print('Game')
     
-    currentedition = 34
+    currentedition = 35
 #   suprimir el "+1" quan arrenqui la competició.
-    data = Items.objects.filter(editions=currentedition, value1__isnull=False).order_by('-dates').values_list('dates', flat=True).first()
+    data = Items.objects.filter(editions=currentedition, value1__isnull=False).order_by('-dates').values_list('dates', flat=True).first()+1
     print('data', data)
-    data0 = data - 83
-    data1 = data - 84
-    data2 = data - 85
-    data3 = data - 86
-    data4 = data - 87
+#   offset value is 0 for world cup, 38 for old UCL, 83 for Euro, 116 for new UCL
+    data0 = data - 116
+    data1 = data - 117
+    data2 = data - 118
+    data3 = data - 119
+    data4 = data - 120
     print('data0', data0)
     if data0 == 0:
             return render(request, 'game.html', {
-            'data': data-83,
+            'data': data-116,
             })
 
     else:
@@ -138,98 +138,98 @@ def game(request):
         listdelta = np.reshape(listdelta, (6, mida))
         listdelta = np.transpose(listdelta)
         print('listdelta', listdelta)
-        print('datax0', list(np.flip(listdelta[41])))
-        print('label0', listdelta[41][0])
+##        print('datax0', list(np.flip(listdelta[41])))
+##        print('label0', listdelta[41][0])
 
         return render(request, 'game.html', {
                 'standings': stnd5,
                 'stats': stats,
                 'data': data0,
                 'labels': days,
-                'datax0': list(np.flip(listdelta[0])),
-                'datax1': list(np.flip(listdelta[1])),
-                'datax2': list(np.flip(listdelta[2])),
-                'datax3': list(np.flip(listdelta[3])),
-                'datax4': list(np.flip(listdelta[4])),
-                'datax5': list(np.flip(listdelta[5])),
-                'datax6': list(np.flip(listdelta[6])),
-                'datax7': list(np.flip(listdelta[7])),
-                'datax8': list(np.flip(listdelta[8])),
-                'datax9': list(np.flip(listdelta[9])),
-                'datax10': list(np.flip(listdelta[10])),
-                'datax11': list(np.flip(listdelta[11])),
-                'datax12': list(np.flip(listdelta[12])),
-                'datax13': list(np.flip(listdelta[13])),
-                'datax14': list(np.flip(listdelta[14])),
-                'datax15': list(np.flip(listdelta[15])),
-                'datax16': list(np.flip(listdelta[16])),
-                'datax17': list(np.flip(listdelta[17])),
-                'datax18': list(np.flip(listdelta[18])),
-                'datax19': list(np.flip(listdelta[19])),
-                'datax20': list(np.flip(listdelta[20])),
-                'datax21': list(np.flip(listdelta[21])),
-                'datax22': list(np.flip(listdelta[22])),
-                'datax23': list(np.flip(listdelta[23])),
-                'datax24': list(np.flip(listdelta[24])),
-                'datax25': list(np.flip(listdelta[25])),
-                'datax26': list(np.flip(listdelta[26])),
-                'datax27': list(np.flip(listdelta[27])),
-                'datax28': list(np.flip(listdelta[28])),
-                'datax29': list(np.flip(listdelta[29])),
-                'datax30': list(np.flip(listdelta[30])),
-                'datax31': list(np.flip(listdelta[31])),
-                'datax32': list(np.flip(listdelta[32])),
-                'datax33': list(np.flip(listdelta[33])),
-                'datax34': list(np.flip(listdelta[34])),
-                'datax35': list(np.flip(listdelta[35])),
-                'datax36': list(np.flip(listdelta[36])),
-                'datax37': list(np.flip(listdelta[37])),
-                'datax38': list(np.flip(listdelta[38])),
-                'datax39': list(np.flip(listdelta[39])),
-                'datax40': list(np.flip(listdelta[40])),
-                'datax41': list(np.flip(listdelta[41])),
-                'label0': listdelta[0][0],
-                'label1': listdelta[1][0],
-                'label2': listdelta[2][0],
-                'label3': listdelta[3][0],
-                'label4': listdelta[4][0],
-                'label5': listdelta[5][0],
-                'label6': listdelta[6][0],
-                'label7': listdelta[7][0],
-                'label8': listdelta[8][0],
-                'label9': listdelta[9][0],
-                'label10': listdelta[10][0],
-                'label11': listdelta[11][0],
-                'label12': listdelta[12][0],
-                'label13': listdelta[13][0],
-                'label14': listdelta[14][0],
-                'label15': listdelta[15][0],
-                'label16': listdelta[16][0],
-                'label17': listdelta[17][0],
-                'label18': listdelta[18][0],
-                'label19': listdelta[19][0],
-                'label20': listdelta[20][0],
-                'label21': listdelta[21][0],
-                'label22': listdelta[22][0],
-                'label23': listdelta[23][0],
-                'label24': listdelta[24][0],
-                'label25': listdelta[25][0],
-                'label26': listdelta[26][0],
-                'label27': listdelta[27][0],
-                'label28': listdelta[28][0],
-                'label29': listdelta[29][0],
-                'label30': listdelta[30][0],
-                'label31': listdelta[31][0],
-                'label32': listdelta[32][0],
-                'label33': listdelta[33][0],
-                'label34': listdelta[34][0],
-                'label35': listdelta[35][0],
-                'label36': listdelta[36][0],
-                'label37': listdelta[37][0],
-                'label38': listdelta[38][0],
-                'label39': listdelta[39][0],
-                'label40': listdelta[40][0],
-                'label41': listdelta[41][0],
+##                'datax0': list(np.flip(listdelta[0])),
+##                'datax1': list(np.flip(listdelta[1])),
+##                'datax2': list(np.flip(listdelta[2])),
+##                'datax3': list(np.flip(listdelta[3])),
+##                'datax4': list(np.flip(listdelta[4])),
+##                'datax5': list(np.flip(listdelta[5])),
+##                'datax6': list(np.flip(listdelta[6])),
+##                'datax7': list(np.flip(listdelta[7])),
+##                'datax8': list(np.flip(listdelta[8])),
+##                'datax9': list(np.flip(listdelta[9])),
+##                'datax10': list(np.flip(listdelta[10])),
+##                'datax11': list(np.flip(listdelta[11])),
+##                'datax12': list(np.flip(listdelta[12])),
+##                'datax13': list(np.flip(listdelta[13])),
+##                'datax14': list(np.flip(listdelta[14])),
+##                'datax15': list(np.flip(listdelta[15])),
+##                'datax16': list(np.flip(listdelta[16])),
+##                'datax17': list(np.flip(listdelta[17])),
+##                'datax18': list(np.flip(listdelta[18])),
+##                'datax19': list(np.flip(listdelta[19])),
+##                'datax20': list(np.flip(listdelta[20])),
+##                'datax21': list(np.flip(listdelta[21])),
+##                'datax22': list(np.flip(listdelta[22])),
+##                'datax23': list(np.flip(listdelta[23])),
+##                'datax24': list(np.flip(listdelta[24])),
+##                'datax25': list(np.flip(listdelta[25])),
+##                'datax26': list(np.flip(listdelta[26])),
+##                'datax27': list(np.flip(listdelta[27])),
+##                'datax28': list(np.flip(listdelta[28])),
+##                'datax29': list(np.flip(listdelta[29])),
+##                'datax30': list(np.flip(listdelta[30])),
+##                'datax31': list(np.flip(listdelta[31])),
+##                'datax32': list(np.flip(listdelta[32])),
+##                'datax33': list(np.flip(listdelta[33])),
+##                'datax34': list(np.flip(listdelta[34])),
+##                'datax35': list(np.flip(listdelta[35])),
+##                'datax36': list(np.flip(listdelta[36])),
+##                'datax37': list(np.flip(listdelta[37])),
+##                'datax38': list(np.flip(listdelta[38])),
+##                'datax39': list(np.flip(listdelta[39])),
+##                'datax40': list(np.flip(listdelta[40])),
+##                'datax41': list(np.flip(listdelta[41])),
+##                'label0': listdelta[0][0],
+##                'label1': listdelta[1][0],
+##                'label2': listdelta[2][0],
+##                'label3': listdelta[3][0],
+##                'label4': listdelta[4][0],
+##                'label5': listdelta[5][0],
+##                'label6': listdelta[6][0],
+##                'label7': listdelta[7][0],
+##                'label8': listdelta[8][0],
+##                'label9': listdelta[9][0],
+##                'label10': listdelta[10][0],
+##                'label11': listdelta[11][0],
+##                'label12': listdelta[12][0],
+##                'label13': listdelta[13][0],
+##                'label14': listdelta[14][0],
+##                'label15': listdelta[15][0],
+##                'label16': listdelta[16][0],
+##                'label17': listdelta[17][0],
+##                'label18': listdelta[18][0],
+##                'label19': listdelta[19][0],
+##                'label20': listdelta[20][0],
+##                'label21': listdelta[21][0],
+##                'label22': listdelta[22][0],
+##                'label23': listdelta[23][0],
+##                'label24': listdelta[24][0],
+##                'label25': listdelta[25][0],
+##                'label26': listdelta[26][0],
+##                'label27': listdelta[27][0],
+##                'label28': listdelta[28][0],
+##                'label29': listdelta[29][0],
+##                'label30': listdelta[30][0],
+##                'label31': listdelta[31][0],
+##                'label32': listdelta[32][0],
+##                'label33': listdelta[33][0],
+##                'label34': listdelta[34][0],
+##                'label35': listdelta[35][0],
+##                'label36': listdelta[36][0],
+##                'label37': listdelta[37][0],
+##                'label38': listdelta[38][0],
+##                'label39': listdelta[39][0],
+##                'label40': listdelta[40][0],
+##                'label41': listdelta[41][0],
             })
 
 def items(request):        
@@ -250,7 +250,7 @@ def items(request):
     })
 
 def forecasts(request):
-    currentedition = 34
+    currentedition = 35
     time = timezone.now()
     print(time)    
     item = Items.objects.filter(open__lt=time,close__gt=time, ).exclude(fields_id=1).exclude(fields_id=6)
@@ -275,24 +275,32 @@ def forecasts(request):
     teamdb_FR = Teamsdb.objects.filter(fed='FRA').order_by('id')
     teamdb_PT = Teamsdb.objects.filter(fed='POR').order_by('id')
     teamdb_ND = Teamsdb.objects.filter(fed='NED').order_by('id')
-    teamdb_1st = Teamsdb.objects.filter(teams__editions=currentedition,teams__pos=1).order_by('teams__grp')
-    teamdb_1stA = Teamsdb.objects.get(teams__editions=currentedition,teams__pos=1,teams__grp='A')
-    teamdb_1stB = Teamsdb.objects.get(teams__editions=currentedition,teams__pos=1,teams__grp='B')
-    teamdb_1stC = Teamsdb.objects.get(teams__editions=currentedition,teams__pos=1,teams__grp='C')
-    teamdb_1stD = Teamsdb.objects.get(teams__editions=currentedition,teams__pos=1,teams__grp='D')
-    teamdb_1stE = Teamsdb.objects.get(teams__editions=currentedition,teams__pos=1,teams__grp='E')
-    teamdb_1stF = Teamsdb.objects.get(teams__editions=currentedition,teams__pos=1,teams__grp='F')
+#    teamdb_1st = Teamsdb.objects.filter(teams__editions=currentedition,teams__pos=1).order_by('teams__grp')
+#    teamdb_1stA = Teamsdb.objects.get(teams__editions=currentedition,teams__pos=1,teams__grp='A')
+#    teamdb_1stB = Teamsdb.objects.get(teams__editions=currentedition,teams__pos=1,teams__grp='B')
+#    teamdb_1stC = Teamsdb.objects.get(teams__editions=currentedition,teams__pos=1,teams__grp='C')
+#    teamdb_1stD = Teamsdb.objects.get(teams__editions=currentedition,teams__pos=1,teams__grp='D')
+#    teamdb_1stE = Teamsdb.objects.get(teams__editions=currentedition,teams__pos=1,teams__grp='E')
+#    teamdb_1stF = Teamsdb.objects.get(teams__editions=currentedition,teams__pos=1,teams__grp='F')
 #    teamdb_1stG = Teamsdb.objects.get(teams__editions=currentedition,teams__pos=1,teams__grp='G')
 #    teamdb_1stH = Teamsdb.objects.get(teams__editions=currentedition,teams__pos=1,teams__grp='H')
-    teamdb_2nd = Teamsdb.objects.filter(teams__editions=currentedition,teams__pos=2).order_by('teams__grp')
-    teamdb_2ndA = Teamsdb.objects.filter(teams__editions=currentedition,teams__pos=2).order_by('teams__grp').exclude(teams__grp='A').exclude(fed=teamdb_1stA.fed)
-    teamdb_2ndB = Teamsdb.objects.filter(teams__editions=currentedition,teams__pos=2).order_by('teams__grp').exclude(teams__grp='B').exclude(fed=teamdb_1stB.fed)
-    teamdb_2ndC = Teamsdb.objects.filter(teams__editions=currentedition,teams__pos=2).order_by('teams__grp').exclude(teams__grp='C').exclude(fed=teamdb_1stC.fed)
-    teamdb_2ndD = Teamsdb.objects.filter(teams__editions=currentedition,teams__pos=2).order_by('teams__grp').exclude(teams__grp='D').exclude(fed=teamdb_1stD.fed)
-    teamdb_2ndE = Teamsdb.objects.filter(teams__editions=currentedition,teams__pos=2).order_by('teams__grp').exclude(teams__grp='E').exclude(fed=teamdb_1stE.fed)
-    teamdb_2ndF = Teamsdb.objects.filter(teams__editions=currentedition,teams__pos=2).order_by('teams__grp').exclude(teams__grp='F').exclude(fed=teamdb_1stF.fed)
+#    teamdb_2nd = Teamsdb.objects.filter(teams__editions=currentedition,teams__pos=2).order_by('teams__grp')
+#    teamdb_2ndA = Teamsdb.objects.filter(teams__editions=currentedition,teams__pos=2).order_by('teams__grp').exclude(teams__grp='A').exclude(fed=teamdb_1stA.fed)
+#    teamdb_2ndB = Teamsdb.objects.filter(teams__editions=currentedition,teams__pos=2).order_by('teams__grp').exclude(teams__grp='B').exclude(fed=teamdb_1stB.fed)
+#    teamdb_2ndC = Teamsdb.objects.filter(teams__editions=currentedition,teams__pos=2).order_by('teams__grp').exclude(teams__grp='C').exclude(fed=teamdb_1stC.fed)
+#    teamdb_2ndD = Teamsdb.objects.filter(teams__editions=currentedition,teams__pos=2).order_by('teams__grp').exclude(teams__grp='D').exclude(fed=teamdb_1stD.fed)
+#    teamdb_2ndE = Teamsdb.objects.filter(teams__editions=currentedition,teams__pos=2).order_by('teams__grp').exclude(teams__grp='E').exclude(fed=teamdb_1stE.fed)
+#    teamdb_2ndF = Teamsdb.objects.filter(teams__editions=currentedition,teams__pos=2).order_by('teams__grp').exclude(teams__grp='F').exclude(fed=teamdb_1stF.fed)
 #    teamdb_2ndG = Teamsdb.objects.filter(teams__editions=currentedition,teams__pos=2).order_by('teams__grp').exclude(teams__grp='G').exclude(fed=teamdb_1stG.fed)
 #    teamdb_2ndH = Teamsdb.objects.filter(teams__editions=currentedition,teams__pos=2).order_by('teams__grp').exclude(teams__grp='H').exclude(fed=teamdb_1stH.fed)
+    teamPO_1 = Teamsdb.objects.filter(teams__id=84) | Teamsdb.objects.filter(teams__id=77).order_by('teams__pos')
+    teamPO_2 = Teamsdb.objects.filter(teams__id=75) | Teamsdb.objects.filter(teams__id=70).order_by('teams__pos')
+    teamPO_3 = Teamsdb.objects.filter(teams__id=71) | Teamsdb.objects.filter(teams__id=85).order_by('teams__pos')
+    teamPO_4 = Teamsdb.objects.filter(teams__id=72) | Teamsdb.objects.filter(teams__id=74).order_by('teams__pos')
+    teamPO_5 = Teamsdb.objects.filter(teams__id=73) | Teamsdb.objects.filter(teams__id=67).order_by('teams__pos')
+    teamPO_6 = Teamsdb.objects.filter(teams__id=80) | Teamsdb.objects.filter(teams__id=86).order_by('teams__pos')
+    teamPO_7 = Teamsdb.objects.filter(teams__id=81) | Teamsdb.objects.filter(teams__id=78).order_by('teams__pos')
+    teamPO_8 = Teamsdb.objects.filter(teams__id=66) | Teamsdb.objects.filter(teams__id=87).order_by('teams__pos')
     teamRo16_1 = Teamsdb.objects.filter(teams__id=84) | Teamsdb.objects.filter(teams__id=77).order_by('teams__pos')
     teamRo16_2 = Teamsdb.objects.filter(teams__id=75) | Teamsdb.objects.filter(teams__id=70).order_by('teams__pos')
     teamRo16_3 = Teamsdb.objects.filter(teams__id=71) | Teamsdb.objects.filter(teams__id=85).order_by('teams__pos')
@@ -306,14 +314,22 @@ def forecasts(request):
     teamQF_2 = Teamsdb.objects.filter(teams__id=80) | Teamsdb.objects.filter(teams__id=73).order_by('teams__pos')
     teamQF_3 = Teamsdb.objects.filter(teams__id=71) | Teamsdb.objects.filter(teams__id=84).order_by('teams__pos')
     teamQF_4 = Teamsdb.objects.filter(teams__id=78) | Teamsdb.objects.filter(teams__id=87).order_by('teams__pos')
-    teamSF_1 = Teamsdb.objects.filter(teams__id=35) | Teamsdb.objects.filter(teams__id=37).order_by('teams__pos')
-    teamSF_2 = Teamsdb.objects.filter(teams__id=55) | Teamsdb.objects.filter(teams__id=53).order_by('teams__pos')
-    teamW = Teamsdb.objects.filter(teams__id=37) | Teamsdb.objects.filter(teams__id=55).order_by('teams__pos')
+    teamSF_1 = Teamsdb.objects.filter(teams__id=72) | Teamsdb.objects.filter(teams__id=73).order_by('teams__pos')
+    teamSF_2 = Teamsdb.objects.filter(teams__id=78) | Teamsdb.objects.filter(teams__id=71).order_by('teams__pos')
+    teamW = Teamsdb.objects.filter(teams__id=72) | Teamsdb.objects.filter(teams__id=71).order_by('teams__pos')
     # print('TeamQF: ', teamQF)
 
     forecast = Forecasts.objects.all()
     form = ForecastsForm
     form2 = PlayersForm
+
+    tims = Teams.objects.filter(editions=currentedition)
+    shild = tims.values('id').annotate(
+        Pts=Sum(F('ptsgs') + F('ptsko')),
+        Name=F('teamsdb__name'),
+        Short=F('teamsdb__short'),
+        euro=F('teamsdb__euro_id'),
+    ).order_by('-Pts')
 
     if request.method == 'GET':
         print('enviando formulario forecast')
@@ -339,24 +355,32 @@ def forecasts(request):
             'teamdb_FR': teamdb_FR,
             'teamdb_PT': teamdb_PT,
             'teamdb_ND': teamdb_ND,
-            'teamdb_1st': teamdb_1st,
-            'teamdb_1stA': teamdb_1stA,
-            'teamdb_1stB': teamdb_1stB,
-            'teamdb_1stC': teamdb_1stC,
-            'teamdb_1stD': teamdb_1stD,
-            'teamdb_1stE': teamdb_1stE,
-            'teamdb_1stF': teamdb_1stF,
+#            'teamdb_1st': teamdb_1st,
+#            'teamdb_1stA': teamdb_1stA,
+#            'teamdb_1stB': teamdb_1stB,
+#            'teamdb_1stC': teamdb_1stC,
+#            'teamdb_1stD': teamdb_1stD,
+#            'teamdb_1stE': teamdb_1stE,
+#            'teamdb_1stF': teamdb_1stF,
 #            'teamdb_1stG': teamdb_1stG,
 #            'teamdb_1stH': teamdb_1stH,
-            'teamdb_2nd': teamdb_2nd,
-            'teamdb_2ndA': teamdb_2ndA,
-            'teamdb_2ndB': teamdb_2ndB,
-            'teamdb_2ndC': teamdb_2ndC,
-            'teamdb_2ndD': teamdb_2ndD,
-            'teamdb_2ndE': teamdb_2ndE,
-            'teamdb_2ndF': teamdb_2ndF,
+#            'teamdb_2nd': teamdb_2nd,
+#            'teamdb_2ndA': teamdb_2ndA,
+#            'teamdb_2ndB': teamdb_2ndB,
+#            'teamdb_2ndC': teamdb_2ndC,
+#            'teamdb_2ndD': teamdb_2ndD,
+#            'teamdb_2ndE': teamdb_2ndE,
+#            'teamdb_2ndF': teamdb_2ndF,
 #            'teamdb_2ndG': teamdb_2ndG,
 #            'teamdb_2ndH': teamdb_2ndH,
+            'teamPO_1': teamPO_1,
+            'teamPO_2': teamPO_2,
+            'teamPO_3': teamPO_3,
+            'teamPO_4': teamPO_4,
+            'teamPO_5': teamPO_5,
+            'teamPO_6': teamPO_6,
+            'teamPO_7': teamPO_7,
+            'teamPO_8': teamPO_8,
             'teamRo16_1': teamRo16_1,
             'teamRo16_2': teamRo16_2,
             'teamRo16_3': teamRo16_3,
@@ -376,7 +400,8 @@ def forecasts(request):
             'team_rev': team_rev,
             'teamdb': teamdb,
             'form': form,
-            'form2': form2
+            'form2': form2,
+            'shild': shild,
         })
     else:
         print(request.POST)
@@ -455,15 +480,16 @@ def standings(request):
 
     print('Standings')   
 
-#    data editions and items, gap is diff from first item on current competition to 0.
-    gap = 83
-    currentedition = 34
+#   data editions and items, gap is diff from first item on current competition to 0.
+#   offset value is 0 for world cup, 38 for old UCL, 83 for Euro, 116 for new UCL
+    gap = 116
+    currentedition = 35
 #   suprimir el "+1" quan arrenqui la competició.
-    data = Items.objects.filter(editions=currentedition, value1__isnull=False).order_by('-dates').values_list('dates', flat=True).first()
+    data = Items.objects.filter(editions=currentedition, value1__isnull=False).order_by('-dates').values_list('dates', flat=True).first() + 1
     datafi = Items.objects.filter(editions=currentedition).order_by('-dates').values_list('dates', flat=True).first()
     datafi0 = datafi - gap
     print('datafi', datafi, gap, datafi0)
-    data0 = data - 83
+    data0 = data - 116
     print('data', data, 'data0', data0)
 
     thisday = Items.objects.filter(editions=currentedition, dates=data).aggregate(
@@ -480,24 +506,26 @@ def standings(request):
     )
     print('------------->overall', overall, 'thisday', thisday, 'awarded', awarded, 'remaining', remaining)
 
-    items = Forecasts.objects.filter(items__editions=currentedition, f_isactive=1, ts__lte=timezone.now(),items__dates__lte=data)
+    items = Forecasts.objects.filter(items__editions=currentedition, f_isactive=1)
     print('items', items)
 
     stnd = items.values('f_player').annotate(
-        tot=Sum('points'),
-        tot2=Sum(('points'),filter=Q(items__dates__lt=data)),
+        tot=Sum(('points'),filter=Q(ts__lte=timezone.now(), items__dates__lte=data)),
+        tot2=Sum(('points'),filter=Q(ts__lte=timezone.now(), items__dates__lt=data)),
         fn=F('f_player__p_fname'),
         ln=F('f_player__p_lname'),
         w=F('f_player__winnable'),
         p=F('f_player__paid'),
         stars=F('f_player__playerdb_id__stars'),
-        dlt1=Sum(('points'),filter=Q(items__dates=data)),
-        dlt2=Sum(('points'),filter=Q(items__dates=data-1)),
-        dlt3=Sum(('points'),filter=Q(items__dates=data-2)),
-        dlt4=Sum(('points'),filter=Q(items__dates=data-3)),
-        dlt5=Sum(('points'),filter=Q(items__dates=data-4)),
+        dlt1=Sum(('points'),filter=Q(ts__lte=timezone.now(), items__dates=data)),
+        dlt2=Sum(('points'),filter=Q(ts__lte=timezone.now(), items__dates=data-1)),
+        dlt3=Sum(('points'),filter=Q(ts__lte=timezone.now(), items__dates=data-2)),
+        dlt4=Sum(('points'),filter=Q(ts__lte=timezone.now(), items__dates=data-3)),
+        dlt5=Sum(('points'),filter=Q(ts__lte=timezone.now(), items__dates=data-4)),
         rank0=Window(expression=Rank(),order_by=F('tot').desc()),
         rank1=Window(expression=Rank(),order_by=F('tot2').desc()),
+        limit=Coalesce(Sum(('items__scores__s_max'),filter=Q(items__dates__gt=data, f_possible__isnull=True)), 0),
+        sure=Coalesce(Sum(('items__scores__s_max'),filter=Q(items__dates__gt=data, f_possible=1)), 0),
     ).order_by('-tot', '-tot2', '-stars', 'fn')
     print('stnd', stnd)
     first = list(stnd.values_list('tot', flat=True))
@@ -529,19 +557,21 @@ def statistics(request):
     print('Statistics')
     
 #    data editions and items, gap is diff from first item on current competition to 0.
-    gap = 83
-    currentedition = 34
+#   offset value is 0 for world cup, 38 for old UCL, 83 for Euro, 116 for new UCL
+    gap = 116
+    currentedition = 35
+    competition = Editions.objects.filter(id=currentedition, is_active=1).order_by('id').values_list('competitions', flat=True).first()
 #    suprimir el "+1" quan arrenqui la competició.
-    data = Items.objects.filter(editions=currentedition, value1__isnull=False).order_by('-dates').values_list('dates', flat=True).first()
+    data = Items.objects.filter(editions=currentedition, value1__isnull=False).order_by('-dates').values_list('dates', flat=True).first() + 1
     datafi = Items.objects.filter(editions=currentedition).order_by('-dates').values_list('dates', flat=True).first()
     datafi0 = datafi - gap
     print('datafi', datafi, gap, datafi0)
-    data0 = data - 83
-    data1 = data - 84
-    data2 = data - 85
-    data3 = data - 86
-    data4 = data - 87
-    print('data', data-83, data)
+    data0 = data - 116
+    data1 = data - 117
+    data2 = data - 118
+    data3 = data - 119
+    data4 = data - 120
+    print('data', data-116, data)
     dates0 = Dates.objects.get(id=data)
     dates1 = Dates.objects.get(id=data-1)
     dates2 = Dates.objects.get(id=data-2)
@@ -643,6 +673,7 @@ def statistics(request):
         Pts=Sum(F('ptsgs') + F('ptsko')),
         Name=F('teamsdb__name'),
         Short=F('teamsdb__short'),
+        euro=F('teamsdb__euro_id'),
     ).order_by('-Pts')[:3]
     print('best', best)
     revGS = teams.values('id').annotate(
@@ -650,6 +681,7 @@ def statistics(request):
         Coef=F('coef'),
         Name=F('teamsdb__name'),
         Short=F('teamsdb__short'),
+        euro=F('teamsdb__euro_id'),
     ).order_by('-Pts')[:3]
     print('revGS', revGS)
     rev = teams.values('id').annotate(
@@ -657,12 +689,14 @@ def statistics(request):
         Coef=F('coef'),
         Name=F('teamsdb__name'),
         Short=F('teamsdb__short'),
+        euro=F('teamsdb__euro_id'),
     ).order_by('-Pts')[:3]
     print('rev', rev)
     worst = teams.values('id').annotate(
         Pts=Sum(F('ptsgs')),
         Name=F('teamsdb__name'),
         Short=F('teamsdb__short'),
+        euro=F('teamsdb__euro_id'),
     ).order_by('Pts')[:3]
     print('worst', worst)
     crash = teams.values('id').annotate(
@@ -670,17 +704,19 @@ def statistics(request):
         Coef=F('coef'),
         Name=F('teamsdb__name'),
         Short=F('teamsdb__short'),
+        euro=F('teamsdb__euro_id'),
     ).order_by('Round', 'Coef')[:3]
     print('crash', crash)
 
 #    player stats
 
-    uri = 'https://api.football-data.org/v4/competitions/2018//scorers/'
+#   UCL is 2001, Euro is 2018, WC is ?, FCWC is ?
+    uri = 'https://api.football-data.org/v4/competitions/2001//scorers/'
     headers = { 'X-Auth-Token': '3d6936d5fb044a3b925f7a9383b7d4d6' }
     response_scorers = requests.get(uri, headers=headers)
 #    print('rsp scorers', response_scorers.json())
     scorers = response_scorers.json()['scorers']
-#    print('scorers', scorers[:10])
+    print('scorers', scorers[:10])
 
 
     return render(request, 'statistics.html', {
@@ -709,6 +745,7 @@ def statistics(request):
             'remaining': remaining,
             'overall': overall,
             'thisday': thisday,
+            'competition': competition,
         })
 
 def footballdata(request):
@@ -729,7 +766,7 @@ def footballdata(request):
     
 def oldforecasts(request):
 
-    currentedition = 34
+    currentedition = 35
     players = Players.objects.all()
     formP = PlayersForm
 
@@ -787,8 +824,9 @@ def pointstable(request):
 
 # review starting here
 
-    currentedition = 34
-    forecasts = Forecasts.objects.filter(f_isactive=1, items__editions=currentedition, items__open__lte=timezone.now()).values('items', 'f_player', 'f_email', 'fvalue1', 'fvalue2').annotate(
+    currentedition = 35
+## change 'items__close__gte' for 'items__close__lte' when competition starts
+    forecasts = Forecasts.objects.filter(f_isactive=1, items__editions=currentedition, items__close__gte=timezone.now()).values('items', 'f_player', 'f_email', 'fvalue1', 'fvalue2').annotate(
         itm=Concat('items__id', V('  '), Substr('items__description', 1, 5), V(' '), Substr('items__fixtures__localteam__teamsdb__short', 1, 3), Substr('items__fixtures__awayteam__teamsdb__short', 1, 3), output_field=CharField()),
         name=Concat(Substr('f_player__p_fname', 1, 1), Substr('f_player__p_lname', 1, 8), output_field=CharField()),
         day=F('items__dates'),
@@ -796,6 +834,7 @@ def pointstable(request):
         forec=Concat(Substr('fvalue1', 1, 6), V('..'),'fvalue2', output_field=TextField()),
         field=F('items__fields__id'),
     ).order_by('items', 'f_email')
+    print('forecasts', forecasts)
     forecasts_df = pd.DataFrame(forecasts)
     forecasts_pt = forecasts_df.pivot_table(index='itm', columns='name', values='forec', aggfunc='first')
     forecasts_html = forecasts_pt.to_html(header=True, border=1, table_id='pointstable')
@@ -841,9 +880,9 @@ def communities(request):
 
     print('Communities')
 
-    currentedition = 34
+    currentedition = 35
     data = Items.objects.filter(editions=currentedition, value1__isnull=False).order_by('-dates').values_list('dates', flat=True).first()
-    print('data', data-38)
+    print('data', data-116)
     communities = Communities.objects.all().order_by('name')
     items = Forecasts.objects.filter(items__editions=currentedition, f_isactive=1, ts__lte=timezone.now(),items__dates__lte=data)
     stnd = items.values('f_player').annotate(
@@ -924,14 +963,14 @@ def proves(request):
 
     print('Proves')
 
-    currentedition = 34
+    currentedition = 35
     data = Items.objects.filter(editions=currentedition, value1__isnull=False).order_by('-dates').values_list('dates', flat=True).first()
-    data0 = data - 83
-    data1 = data - 84
-    data2 = data - 85
-    data3 = data - 86
-    data4 = data - 87
-    print('data', data-83)
+    data0 = data - 116
+    data1 = data - 117
+    data2 = data - 118
+    data3 = data - 119
+    data4 = data - 120
+    print('data', data-116)
     items = Forecasts.objects.filter(items__editions=currentedition, f_isactive=1, ts__lte=timezone.now(),items__dates__lte=data)
     stnd = items.values('items__dates', 'f_player').annotate(
         dlt=Sum('points'),
@@ -1269,7 +1308,7 @@ def proves2(request):
         
     print('Proves2')
 
-    currentedition = 34
+    currentedition = 35
     uri = 'https://api.football-data.org/v4/competitions/2001/matches/'
     headers = { 'X-Auth-Token': '3d6936d5fb044a3b925f7a9383b7d4d6' }
     response_matches = requests.get(uri, headers=headers)
