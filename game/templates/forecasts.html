@@ -93,67 +93,67 @@
                 <option selected></option>
                 {% if item.list == 1 %}
                   {% for team in team %}
-                  <option value="{{team.teamsdb.name}}">{{team.teamsdb.name}} ({{team.coef}})</option>
+                  <option value="{{team.teamsdb.name}}">{{team.teamsdb.name}} ({{team.coef}}) {% if team.teamsdb.alphabet == 1 %} - {{team.teamsdb.short}} {% endif %}</option>
                   {% endfor %}
                 {% endif %}
                 {% if item.list == 3 %}
                   {% for team_3 in team_3 %}
-                  <option value="{{team_3.teamsdb.name}}">{{team_3.teamsdb.name}} ({{team_3.coef}})</option>
+                  <option value="{{team_3.teamsdb.name}}">{{team_3.teamsdb.name}} ({{team_3.coef}}) {% if team_3.teamsdb.alphabet == 1 %} - {{team_3.teamsdb.short}} {% endif %}</option>
                   {% endfor %}
                 {% endif %}
                 {% if item.list == 4 %}
                   {% for team_A in team_A %}
-                  <option value="{{team_A.teamsdb.name}}">{{team_A.teamsdb.name}} ({{team_A.coef}})</option>
+                  <option value="{{team_A.teamsdb.name}}">{{team_A.teamsdb.name}} ({{team_A.coef}}) {% if team_A.teamsdb.alphabet == 1 %} - {{team_A.teamsdb.short}} {% endif %}</option>
                   {% endfor %}
                 {% endif %}
                 {% if item.list == 5 %}
                   {% for team_B in team_B %}
-                  <option value="{{team_B.teamsdb.name}}">{{team_B.teamsdb.name}} ({{team_B.coef}})</option>
+                  <option value="{{team_B.teamsdb.name}}">{{team_B.teamsdb.name}} ({{team_B.coef}}) {% if team_B.teamsdb.alphabet == 1 %} - {{team_B.teamsdb.short}} {% endif %}</option>
                   {% endfor %}
                 {% endif %}
                 {% if item.list == 6 %}
                   {% for team_C in team_C %}
-                  <option value="{{team_C.teamsdb.name}}">{{team_C.teamsdb.name}} ({{team_C.coef}})</option>
+                  <option value="{{team_C.teamsdb.name}}">{{team_C.teamsdb.name}} ({{team_C.coef}}) {% if team_C.teamsdb.alphabet == 1 %} - {{team_C.teamsdb.short}} {% endif %}</option>
                   {% endfor %}
                 {% endif %}
                 {% if item.list == 7 %}
                   {% for team_D in team_D %}
-                  <option value="{{team_D.teamsdb.name}}">{{team_D.teamsdb.name}} ({{team_D.coef}})</option>
+                  <option value="{{team_D.teamsdb.name}}">{{team_D.teamsdb.name}} ({{team_D.coef}}) {% if team_D.teamsdb.alphabet == 1 %} - {{team_D.teamsdb.short}} {% endif %}</option>
                   {% endfor %}
                 {% endif %}
                 {% if item.list == 8 %}
                   {% for team_E in team_E %}
-                  <option value="{{team_E.teamsdb.name}}">{{team_E.teamsdb.name}} ({{team_E.coef}})</option>
+                  <option value="{{team_E.teamsdb.name}}">{{team_E.teamsdb.name}} ({{team_E.coef}}) {% if team_E.teamsdb.alphabet == 1 %} - {{team_E.teamsdb.short}} {% endif %}</option>
                   {% endfor %}
                 {% endif %}
                 {% if item.list == 9 %}
                   {% for team_F in team_F %}
-                  <option value="{{team_F.teamsdb.name}}">{{team_F.teamsdb.name}} ({{team_F.coef}})</option>
+                  <option value="{{team_F.teamsdb.name}}">{{team_F.teamsdb.name}} ({{team_F.coef}}) {% if team_F.teamsdb.alphabet == 1 %} - {{team_F.teamsdb.short}} {% endif %}</option>
                   {% endfor %}
                 {% endif %}
                 {% if item.list == 10 %}
                   {% for team_G in team_G %}
-                  <option value="{{team_G.teamsdb.name}}">{{team_G.teamsdb.name}} ({{team_G.coef}})</option>
+                  <option value="{{team_G.teamsdb.name}}">{{team_G.teamsdb.name}} ({{team_G.coef}}) {% if team_G.teamsdb.alphabet == 1 %} - {{team_G.teamsdb.short}} {% endif %}</option>
                   {% endfor %}
                 {% endif %}
                 {% if item.list == 11 %}
                   {% for team_H in team_H %}
-                  <option value="{{team_H.teamsdb.name}}">{{team_H.teamsdb.name}} ({{team_H.coef}})</option>
+                  <option value="{{team_H.teamsdb.name}}">{{team_H.teamsdb.name}} ({{team_H.coef}}) {% if team_H.teamsdb.alphabet == 1 %} - {{team_H.teamsdb.short}} {% endif %}</option>
                   {% endfor %}
                 {% endif %}
                 {% if item.list == 12 %}
                   {% for team_rev in team_rev %}
-                  <option value="{{team_rev.teamsdb.name}}">{{team_rev.teamsdb.name}} ({{team_rev.coef}})</option>
+                  <option value="{{team_rev.teamsdb.name}}">{{team_rev.teamsdb.name}} ({{team_rev.coef}}) {% if team_rev.teamsdb.alphabet == 1 %} - {{team_rev.teamsdb.short}} {% endif %}</option>
                   {% endfor %}
                 {% endif %}
                 {% if item.list == 14 %}
                   {% for teamQF in teamQF %}
-                  <option value="{{teamQF.name}}">{{teamQF.name}}</option>
+                  <option value="{{teamQF.name}}">{{teamQF.name}} {% if teamQF.teamsdb.alphabet == 1 %} - {{teamQF.teamsdb.short}} {% endif %}</option>
                   {% endfor %}
                 {% endif %}
                 {% if item.list == 20 %}
                   {% for teamdb_WC in teamdb_WC %}
-                  <option value="{{teamdb_WC.name}}">{{teamdb_WC.name}}</option>
+                  <option value="{{teamdb_WC.name}}">{{teamdb_WC.name}} {% if team_WC.teamsdb.alphabet == 1 %} - {{team_WC.teamsdb.short}} {% endif %} </option>
                   {% endfor %}
                 {% endif %}
                 {% if item.list == 21 %}
@@ -303,7 +303,7 @@
                 {% endif %}
                 {% if item.list == 16 %}
                   {% for teamW in teamW %}
-                  <option value="{{teamW.name}}">{{teamW.name}}</option>
+                  <option value="{{teamW.name}}">{{teamW.name}} {% if teamW.teamsdb.alphabet == 1 %} - {{teamW.teamsdb.short}} {% endif %} </option>
                   {% endfor %}
                 {% endif %}
               </select>

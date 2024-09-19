@@ -23,7 +23,7 @@ def game(request):
     
     currentedition = 35
 #   suprimir el "+1" quan arrenqui la competició.
-    data = Items.objects.filter(editions=currentedition, value1__isnull=False).order_by('-dates').values_list('dates', flat=True).first()+1
+    data = Items.objects.filter(editions=currentedition, value1__isnull=False).order_by('-dates').values_list('dates', flat=True).first()
     print('data', data)
 #   offset value is 0 for world cup, 38 for old UCL, 83 for Euro, 116 for new UCL
     data0 = data - 116
@@ -483,9 +483,11 @@ def standings(request):
 #   data editions and items, gap is diff from first item on current competition to 0.
 #   offset value is 0 for world cup, 38 for old UCL, 83 for Euro, 116 for new UCL
     gap = 116
+#   proves as 0 means that standings do not show test items, as 1 they will appear.
+    proves = 0
     currentedition = 35
 #   suprimir el "+1" quan arrenqui la competició.
-    data = Items.objects.filter(editions=currentedition, value1__isnull=False).order_by('-dates').values_list('dates', flat=True).first() + 1
+    data = Items.objects.filter(editions=currentedition, value1__isnull=False).order_by('-dates').values_list('dates', flat=True).first()
     datafi = Items.objects.filter(editions=currentedition).order_by('-dates').values_list('dates', flat=True).first()
     datafi0 = datafi - gap
     print('datafi', datafi, gap, datafi0)
@@ -550,6 +552,7 @@ def standings(request):
             'overall': overall,
             'thisday': thisday,
             'first': first,
+            'proves': proves,
         })
 
 def statistics(request):
@@ -562,7 +565,7 @@ def statistics(request):
     currentedition = 35
     competition = Editions.objects.filter(id=currentedition, is_active=1).order_by('id').values_list('competitions', flat=True).first()
 #    suprimir el "+1" quan arrenqui la competició.
-    data = Items.objects.filter(editions=currentedition, value1__isnull=False).order_by('-dates').values_list('dates', flat=True).first() + 1
+    data = Items.objects.filter(editions=currentedition, value1__isnull=False).order_by('-dates').values_list('dates', flat=True).first()
     datafi = Items.objects.filter(editions=currentedition).order_by('-dates').values_list('dates', flat=True).first()
     datafi0 = datafi - gap
     print('datafi', datafi, gap, datafi0)
@@ -700,12 +703,14 @@ def statistics(request):
     ).order_by('Pts')[:3]
     print('worst', worst)
     crash = teams.values('id').annotate(
-        Round=F('round'),
+        Pts=Sum(F('ptsgs')),
+        Rnk=Window(expression=Rank(),order_by=F('Pts').desc()),
         Coef=F('coef'),
+        Round=F('round'),
         Name=F('teamsdb__name'),
         Short=F('teamsdb__short'),
         euro=F('teamsdb__euro_id'),
-    ).order_by('Round', 'Coef')[:3]
+    ).filter(Rnk__gt=24).order_by('Coef')[:3]
     print('crash', crash)
 
 #    player stats
