@@ -293,14 +293,14 @@ def forecasts(request):
 #    teamdb_2ndF = Teamsdb.objects.filter(teams__editions=currentedition,teams__pos=2).order_by('teams__grp').exclude(teams__grp='F').exclude(fed=teamdb_1stF.fed)
 #    teamdb_2ndG = Teamsdb.objects.filter(teams__editions=currentedition,teams__pos=2).order_by('teams__grp').exclude(teams__grp='G').exclude(fed=teamdb_1stG.fed)
 #    teamdb_2ndH = Teamsdb.objects.filter(teams__editions=currentedition,teams__pos=2).order_by('teams__grp').exclude(teams__grp='H').exclude(fed=teamdb_1stH.fed)
-    teamPO_1 = Teamsdb.objects.filter(teams__id=84) | Teamsdb.objects.filter(teams__id=77).order_by('teams__pos')
-    teamPO_2 = Teamsdb.objects.filter(teams__id=75) | Teamsdb.objects.filter(teams__id=70).order_by('teams__pos')
-    teamPO_3 = Teamsdb.objects.filter(teams__id=71) | Teamsdb.objects.filter(teams__id=85).order_by('teams__pos')
-    teamPO_4 = Teamsdb.objects.filter(teams__id=72) | Teamsdb.objects.filter(teams__id=74).order_by('teams__pos')
-    teamPO_5 = Teamsdb.objects.filter(teams__id=73) | Teamsdb.objects.filter(teams__id=67).order_by('teams__pos')
-    teamPO_6 = Teamsdb.objects.filter(teams__id=80) | Teamsdb.objects.filter(teams__id=86).order_by('teams__pos')
-    teamPO_7 = Teamsdb.objects.filter(teams__id=81) | Teamsdb.objects.filter(teams__id=78).order_by('teams__pos')
-    teamPO_8 = Teamsdb.objects.filter(teams__id=66) | Teamsdb.objects.filter(teams__id=87).order_by('teams__pos')
+    teamPO_1 = Teamsdb.objects.filter(teams__id=128) | Teamsdb.objects.filter(teams__id=118).order_by('teams__pos')
+    teamPO_2 = Teamsdb.objects.filter(teams__id=122) | Teamsdb.objects.filter(teams__id=97).order_by('teams__pos')
+    teamPO_3 = Teamsdb.objects.filter(teams__id=108) | Teamsdb.objects.filter(teams__id=99).order_by('teams__pos')
+    teamPO_4 = Teamsdb.objects.filter(teams__id=110) | Teamsdb.objects.filter(teams__id=120).order_by('teams__pos')
+    teamPO_5 = Teamsdb.objects.filter(teams__id=95) | Teamsdb.objects.filter(teams__id=121).order_by('teams__pos')
+    teamPO_6 = Teamsdb.objects.filter(teams__id=119) | Teamsdb.objects.filter(teams__id=98).order_by('teams__pos')
+    teamPO_7 = Teamsdb.objects.filter(teams__id=96) | Teamsdb.objects.filter(teams__id=94).order_by('teams__pos')
+    teamPO_8 = Teamsdb.objects.filter(teams__id=90) | Teamsdb.objects.filter(teams__id=109).order_by('teams__pos')
     teamRo16_1 = Teamsdb.objects.filter(teams__id=84) | Teamsdb.objects.filter(teams__id=77).order_by('teams__pos')
     teamRo16_2 = Teamsdb.objects.filter(teams__id=75) | Teamsdb.objects.filter(teams__id=70).order_by('teams__pos')
     teamRo16_3 = Teamsdb.objects.filter(teams__id=71) | Teamsdb.objects.filter(teams__id=85).order_by('teams__pos')
@@ -1252,13 +1252,13 @@ def proves(request):
             'datax32': list(np.flip(listdelta[32])),
             'datax33': list(np.flip(listdelta[33])),
             'datax34': list(np.flip(listdelta[34])),
-            'datax35': list(np.flip(listdelta[35])),
-            'datax36': list(np.flip(listdelta[36])),
-            'datax37': list(np.flip(listdelta[37])),
-            'datax38': list(np.flip(listdelta[38])),
-            'datax39': list(np.flip(listdelta[39])),
-            'datax40': list(np.flip(listdelta[40])),
-            'datax41': list(np.flip(listdelta[41])),
+#            'datax35': list(np.flip(listdelta[35])),
+#            'datax36': list(np.flip(listdelta[36])),
+#            'datax37': list(np.flip(listdelta[37])),
+#            'datax38': list(np.flip(listdelta[38])),
+#            'datax39': list(np.flip(listdelta[39])),
+#            'datax40': list(np.flip(listdelta[40])),
+#            'datax41': list(np.flip(listdelta[41])),
             'label0': listdelta[0][0],
             'label1': listdelta[1][0],
             'label2': listdelta[2][0],
@@ -1294,13 +1294,13 @@ def proves(request):
             'label32': listdelta[32][0],
             'label33': listdelta[33][0],
             'label34': listdelta[34][0],
-            'label35': listdelta[35][0],
-            'label36': listdelta[36][0],
-            'label37': listdelta[37][0],
-            'label38': listdelta[38][0],
-            'label39': listdelta[39][0],
-            'label40': listdelta[40][0],
-            'label41': listdelta[41][0],
+#            'label35': listdelta[35][0],
+#            'label36': listdelta[36][0],
+#            'label37': listdelta[37][0],
+#            'label38': listdelta[38][0],
+#            'label39': listdelta[39][0],
+#            'label40': listdelta[40][0],
+#            'label41': listdelta[41][0],
             'nicks': nicks,
             'delta1': delta1,
             'delta2': delta2,
