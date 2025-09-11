@@ -21,9 +21,9 @@ def game(request):
         
     print('Game')
     
-    currentedition = 35
+    currentedition = 36
 #   suprimir el "+1" quan arrenqui la competició.
-    data = Items.objects.filter(editions=currentedition, value1__isnull=False).order_by('-dates').values_list('dates', flat=True).first()
+    data = Items.objects.filter(editions=currentedition, value1__isnull=False).order_by('-dates').values_list('dates', flat=True).first()+1
     print('data', data)
 #   offset value is 0 for world cup, 38 for old UCL, 83 for Euro, 116 for new UCL
     data0 = data - 116
@@ -250,7 +250,7 @@ def items(request):
     })
 
 def forecasts(request):
-    currentedition = 35
+    currentedition = 36
     time = timezone.now()
     print(time)    
     item = Items.objects.filter(open__lt=time,close__gt=time, ).exclude(fields_id=1).exclude(fields_id=6)
@@ -310,12 +310,12 @@ def forecasts(request):
     teamRo16_7 = Teamsdb.objects.filter(teams__id=94) | Teamsdb.objects.filter(teams__id=104).order_by('teams__pos')
     teamRo16_8 = Teamsdb.objects.filter(teams__id=109) | Teamsdb.objects.filter(teams__id=102).order_by('teams__pos')
     teamQF = Teamsdb.objects.filter(teams__editions=33,teams__round__id=4).order_by('id')
-    teamQF_1 = Teamsdb.objects.filter(teams__id=72) | Teamsdb.objects.filter(teams__id=75).order_by('teams__pos')
-    teamQF_2 = Teamsdb.objects.filter(teams__id=80) | Teamsdb.objects.filter(teams__id=73).order_by('teams__pos')
-    teamQF_3 = Teamsdb.objects.filter(teams__id=71) | Teamsdb.objects.filter(teams__id=84).order_by('teams__pos')
-    teamQF_4 = Teamsdb.objects.filter(teams__id=78) | Teamsdb.objects.filter(teams__id=87).order_by('teams__pos')
-    teamSF_1 = Teamsdb.objects.filter(teams__id=72) | Teamsdb.objects.filter(teams__id=73).order_by('teams__pos')
-    teamSF_2 = Teamsdb.objects.filter(teams__id=78) | Teamsdb.objects.filter(teams__id=71).order_by('teams__pos')
+    teamQF_1 = Teamsdb.objects.filter(teams__id=113) | Teamsdb.objects.filter(teams__id=97).order_by('teams__pos')
+    teamQF_2 = Teamsdb.objects.filter(teams__id=94) | Teamsdb.objects.filter(teams__id=107).order_by('teams__pos')
+    teamQF_3 = Teamsdb.objects.filter(teams__id=118) | Teamsdb.objects.filter(teams__id=115).order_by('teams__pos')
+    teamQF_4 = Teamsdb.objects.filter(teams__id=102) | Teamsdb.objects.filter(teams__id=120).order_by('teams__pos')
+    teamSF_1 = Teamsdb.objects.filter(teams__id=113) | Teamsdb.objects.filter(teams__id=118).order_by('teams__pos')
+    teamSF_2 = Teamsdb.objects.filter(teams__id=102) | Teamsdb.objects.filter(teams__id=107).order_by('teams__pos')
     teamW = Teamsdb.objects.filter(teams__id=72) | Teamsdb.objects.filter(teams__id=71).order_by('teams__pos')
     # print('TeamQF: ', teamQF)
 
@@ -485,9 +485,9 @@ def standings(request):
     gap = 116
 #   proves as 0 means that standings do not show test items, as 1 they will appear.
     proves = 0
-    currentedition = 35
+    currentedition = 36
 #   suprimir el "+1" quan arrenqui la competició.
-    data = Items.objects.filter(editions=currentedition, value1__isnull=False).order_by('-dates').values_list('dates', flat=True).first()
+    data = Items.objects.filter(editions=currentedition, value1__isnull=False).order_by('-dates').values_list('dates', flat=True).first()+1
     datafi = Items.objects.filter(editions=currentedition).order_by('-dates').values_list('dates', flat=True).first()
     datafi0 = datafi - gap
     print('datafi', datafi, gap, datafi0)
@@ -562,10 +562,10 @@ def statistics(request):
 #    data editions and items, gap is diff from first item on current competition to 0.
 #   offset value is 0 for world cup, 38 for old UCL, 83 for Euro, 116 for new UCL
     gap = 116
-    currentedition = 35
+    currentedition = 36
     competition = Editions.objects.filter(id=currentedition, is_active=1).order_by('id').values_list('competitions', flat=True).first()
 #    suprimir el "+1" quan arrenqui la competició.
-    data = Items.objects.filter(editions=currentedition, value1__isnull=False).order_by('-dates').values_list('dates', flat=True).first()
+    data = Items.objects.filter(editions=currentedition, value1__isnull=False).order_by('-dates').values_list('dates', flat=True).first()+1
     datafi = Items.objects.filter(editions=currentedition).order_by('-dates').values_list('dates', flat=True).first()
     datafi0 = datafi - gap
     print('datafi', datafi, gap, datafi0)
@@ -771,7 +771,7 @@ def footballdata(request):
     
 def oldforecasts(request):
 
-    currentedition = 35
+    currentedition = 36
     players = Players.objects.all()
     formP = PlayersForm
 
@@ -829,7 +829,7 @@ def pointstable(request):
 
 # review starting here
 
-    currentedition = 35
+    currentedition = 36
 ## change 'items__close__gte' for 'items__close__lte' when competition starts
     forecasts = Forecasts.objects.filter(f_isactive=1, items__editions=currentedition, items__close__gte=timezone.now()).values('items', 'f_player', 'f_email', 'fvalue1', 'fvalue2').annotate(
         itm=Concat('items__id', V('  '), Substr('items__description', 1, 5), V(' '), Substr('items__fixtures__localteam__teamsdb__short', 1, 3), Substr('items__fixtures__awayteam__teamsdb__short', 1, 3), output_field=CharField()),
@@ -885,8 +885,8 @@ def communities(request):
 
     print('Communities')
 
-    currentedition = 35
-    data = Items.objects.filter(editions=currentedition, value1__isnull=False).order_by('-dates').values_list('dates', flat=True).first()
+    currentedition = 36
+    data = Items.objects.filter(editions=currentedition, value1__isnull=False).order_by('-dates').values_list('dates', flat=True).first()+1
     print('data', data-116)
     communities = Communities.objects.all().order_by('name')
     items = Forecasts.objects.filter(items__editions=currentedition, f_isactive=1, ts__lte=timezone.now(),items__dates__lte=data)
@@ -968,7 +968,7 @@ def proves(request):
 
     print('Proves')
 
-    currentedition = 35
+    currentedition = 36
     data = Items.objects.filter(editions=currentedition, value1__isnull=False).order_by('-dates').values_list('dates', flat=True).first()
     data0 = data - 116
     data1 = data - 117
@@ -1313,7 +1313,7 @@ def proves2(request):
         
     print('Proves2')
 
-    currentedition = 35
+    currentedition = 36
     uri = 'https://api.football-data.org/v4/competitions/2001/matches/'
     headers = { 'X-Auth-Token': '3d6936d5fb044a3b925f7a9383b7d4d6' }
     response_matches = requests.get(uri, headers=headers)
