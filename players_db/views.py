@@ -124,3 +124,30 @@ def playerinfo(request, pid):
             playerid = newuser.id
             return redirect('game')
 
+def about(request):
+
+    if request.method == 'GET':
+        print('enviando formulario Login')
+        return render(request, 'about.html', {
+            'form': PlayerDBLogForm
+        })
+    else:
+        print('request: ', request)
+        print('request.POST:', request.POST)
+        print("request.POST['email']: ", request.POST['email'])
+        print('obteniendo datos')
+        try:
+            user = PlayerDB.objects.get(email=request.POST['email'])
+            print('ok')
+            print(user)
+            print(user.id)
+            playerid = user.id
+            print(playerid)
+            return redirect('playerinfo', pid=playerid)
+
+        except:
+            print('ko')
+            return render(request, 'about.html', {
+                'form': PlayerDBLogForm,
+                'error': 'Email not found'
+            })

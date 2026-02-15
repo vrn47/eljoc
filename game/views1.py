@@ -23,7 +23,7 @@ def game(request):
     
     currentedition = 36
 #   suprimir el "+1" quan arrenqui la competició.
-    data = Items.objects.filter(editions=currentedition, value1__isnull=False).order_by('-dates').values_list('dates', flat=True).first()+1
+    data = Items.objects.filter(editions=currentedition, value1__isnull=False).order_by('-dates').values_list('dates', flat=True).first()
     print('data', data)
 #   offset value is 0 for world cup, 38 for old UCL, 83 for Euro, 116 for new UCL
     data0 = data - 116
@@ -293,14 +293,14 @@ def forecasts(request):
 #    teamdb_2ndF = Teamsdb.objects.filter(teams__editions=currentedition,teams__pos=2).order_by('teams__grp').exclude(teams__grp='F').exclude(fed=teamdb_1stF.fed)
 #    teamdb_2ndG = Teamsdb.objects.filter(teams__editions=currentedition,teams__pos=2).order_by('teams__grp').exclude(teams__grp='G').exclude(fed=teamdb_1stG.fed)
 #    teamdb_2ndH = Teamsdb.objects.filter(teams__editions=currentedition,teams__pos=2).order_by('teams__grp').exclude(teams__grp='H').exclude(fed=teamdb_1stH.fed)
-    teamPO_1 = Teamsdb.objects.filter(teams__id=128) | Teamsdb.objects.filter(teams__id=118).order_by('teams__pos')
-    teamPO_2 = Teamsdb.objects.filter(teams__id=122) | Teamsdb.objects.filter(teams__id=97).order_by('teams__pos')
-    teamPO_3 = Teamsdb.objects.filter(teams__id=108) | Teamsdb.objects.filter(teams__id=99).order_by('teams__pos')
-    teamPO_4 = Teamsdb.objects.filter(teams__id=110) | Teamsdb.objects.filter(teams__id=120).order_by('teams__pos')
-    teamPO_5 = Teamsdb.objects.filter(teams__id=95) | Teamsdb.objects.filter(teams__id=121).order_by('teams__pos')
-    teamPO_6 = Teamsdb.objects.filter(teams__id=119) | Teamsdb.objects.filter(teams__id=98).order_by('teams__pos')
-    teamPO_7 = Teamsdb.objects.filter(teams__id=96) | Teamsdb.objects.filter(teams__id=94).order_by('teams__pos')
-    teamPO_8 = Teamsdb.objects.filter(teams__id=90) | Teamsdb.objects.filter(teams__id=109).order_by('teams__pos')
+    teamPO_1 = Teamsdb.objects.filter(teams__id=140) | Teamsdb.objects.filter(teams__id=148).order_by('teams__pos')
+    teamPO_2 = Teamsdb.objects.filter(teams__id=135) | Teamsdb.objects.filter(teams__id=155).order_by('teams__pos')
+    teamPO_3 = Teamsdb.objects.filter(teams__id=150) | Teamsdb.objects.filter(teams__id=138).order_by('teams__pos')
+    teamPO_4 = Teamsdb.objects.filter(teams__id=157) | Teamsdb.objects.filter(teams__id=158).order_by('teams__pos')
+    teamPO_5 = Teamsdb.objects.filter(teams__id=163) | Teamsdb.objects.filter(teams__id=161).order_by('teams__pos')
+    teamPO_6 = Teamsdb.objects.filter(teams__id=137) | Teamsdb.objects.filter(teams__id=144).order_by('teams__pos')
+    teamPO_7 = Teamsdb.objects.filter(teams__id=162) | Teamsdb.objects.filter(teams__id=147).order_by('teams__pos')
+    teamPO_8 = Teamsdb.objects.filter(teams__id=133) | Teamsdb.objects.filter(teams__id=143).order_by('teams__pos')
     teamRo16_1 = Teamsdb.objects.filter(teams__id=95) | Teamsdb.objects.filter(teams__id=115).order_by('teams__pos')
     teamRo16_2 = Teamsdb.objects.filter(teams__id=97) | Teamsdb.objects.filter(teams__id=106).order_by('teams__pos')
     teamRo16_3 = Teamsdb.objects.filter(teams__id=99) | Teamsdb.objects.filter(teams__id=113).order_by('teams__pos')
@@ -487,7 +487,7 @@ def standings(request):
     proves = 0
     currentedition = 36
 #   suprimir el "+1" quan arrenqui la competició.
-    data = Items.objects.filter(editions=currentedition, value1__isnull=False).order_by('-dates').values_list('dates', flat=True).first()+1
+    data = Items.objects.filter(editions=currentedition, value1__isnull=False).order_by('-dates').values_list('dates', flat=True).first()
     datafi = Items.objects.filter(editions=currentedition).order_by('-dates').values_list('dates', flat=True).first()
     datafi0 = datafi - gap
     print('datafi', datafi, gap, datafi0)
@@ -565,7 +565,7 @@ def statistics(request):
     currentedition = 36
     competition = Editions.objects.filter(id=currentedition, is_active=1).order_by('id').values_list('competitions', flat=True).first()
 #    suprimir el "+1" quan arrenqui la competició.
-    data = Items.objects.filter(editions=currentedition, value1__isnull=False).order_by('-dates').values_list('dates', flat=True).first()+1
+    data = Items.objects.filter(editions=currentedition, value1__isnull=False).order_by('-dates').values_list('dates', flat=True).first()
     datafi = Items.objects.filter(editions=currentedition).order_by('-dates').values_list('dates', flat=True).first()
     datafi0 = datafi - gap
     print('datafi', datafi, gap, datafi0)
@@ -886,7 +886,7 @@ def communities(request):
     print('Communities')
 
     currentedition = 36
-    data = Items.objects.filter(editions=currentedition, value1__isnull=False).order_by('-dates').values_list('dates', flat=True).first()+1
+    data = Items.objects.filter(editions=currentedition, value1__isnull=False).order_by('-dates').values_list('dates', flat=True).first()
     print('data', data-116)
     communities = Communities.objects.all().order_by('name')
     items = Forecasts.objects.filter(items__editions=currentedition, f_isactive=1, ts__lte=timezone.now(),items__dates__lte=data)
@@ -1244,14 +1244,14 @@ def proves(request):
             'datax24': list(np.flip(listdelta[24])),
             'datax25': list(np.flip(listdelta[25])),
             'datax26': list(np.flip(listdelta[26])),
-            'datax27': list(np.flip(listdelta[27])),
-            'datax28': list(np.flip(listdelta[28])),
-            'datax29': list(np.flip(listdelta[29])),
-            'datax30': list(np.flip(listdelta[30])),
-            'datax31': list(np.flip(listdelta[31])),
-            'datax32': list(np.flip(listdelta[32])),
-            'datax33': list(np.flip(listdelta[33])),
-            'datax34': list(np.flip(listdelta[34])),
+#            'datax27': list(np.flip(listdelta[27])),
+#            'datax28': list(np.flip(listdelta[28])),
+#            'datax29': list(np.flip(listdelta[29])),
+#            'datax30': list(np.flip(listdelta[30])),
+#            'datax31': list(np.flip(listdelta[31])),
+#            'datax32': list(np.flip(listdelta[32])),
+#            'datax33': list(np.flip(listdelta[33])),
+#            'datax34': list(np.flip(listdelta[34])),
 #            'datax35': list(np.flip(listdelta[35])),
 #            'datax36': list(np.flip(listdelta[36])),
 #            'datax37': list(np.flip(listdelta[37])),
@@ -1286,14 +1286,14 @@ def proves(request):
             'label24': listdelta[24][0],
             'label25': listdelta[25][0],
             'label26': listdelta[26][0],
-            'label27': listdelta[27][0],
-            'label28': listdelta[28][0],
-            'label29': listdelta[29][0],
-            'label30': listdelta[30][0],
-            'label31': listdelta[31][0],
-            'label32': listdelta[32][0],
-            'label33': listdelta[33][0],
-            'label34': listdelta[34][0],
+#            'label27': listdelta[27][0],
+#            'label28': listdelta[28][0],
+#            'label29': listdelta[29][0],
+#            'label30': listdelta[30][0],
+#            'label31': listdelta[31][0],
+#            'label32': listdelta[32][0],
+#            'label33': listdelta[33][0],
+#            'label34': listdelta[34][0],
 #            'label35': listdelta[35][0],
 #            'label36': listdelta[36][0],
 #            'label37': listdelta[37][0],

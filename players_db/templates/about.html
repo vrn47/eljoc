@@ -1,0 +1,70 @@
+{% extends 'base_pdb.html' %}
+
+{% block content %}
+
+<style>
+  .container2 {
+    position: relative;
+    text-align: center;
+    color: white;
+  }
+
+  .centered {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+</style>
+
+<div class="container2">
+  <img src="http://imatges.vrn47.cat/Logo/Euro-FormBanner24.png" style="width:100%;"">
+    <h1 class='centered'>About</h1>
+</div>
+
+<main class=" container">
+  <div class="row">
+    <div class="col-md-8 offset-md-2 mt-5">
+        <p>EL JOC<br>
+            It is a private game to forecast football competition results.<br>
+            It has 4 stages: Group, Knock-Out, Roll of Honours and Bonus.</p>
+
+        <p>ROLL OF HONOURS:<br>
+        - Forecasts must be sent before competition starts in mid-September and can't be changed.<br>
+        - EL JOC uses a coefficient ("COEF") based in UEFA Club coefficient (https://www.uefa.com/memberassociations/uefarankings/club/) that will be shown with forecast forms.<br>
+        . RelCoef = Max(UEFACoef) / UEFACoef<br>
+        . COEF = (1-3)/(Min(RelCoef)-Max(RelCoef))*(RelCoef-Max(RealCoef))+3<br>
+        - EL JOC determines which teams are seeded before competition starts and this will be shown with forecast forms. Seeded teams can't be chosen as "Surprise". Seeded teams "FAV" value is "-1" while not seeded teams "FAV" value is "1".<br>
+        - Each team collects points for competition match as follows: win --> 3 points, draw --> 1 point and loss --> 0 points. Points amount is value "PTS".<br>
+        - Surpise ranking formula: PTS x COEF x FAV. Updated information is shown at Standings.</p>
+
+        <p>LEAGUE STAGE<br>
+        - It includes matches on league stage.<br>
+        - Matches: Player must send a forecast for match score before match starts. Player collects MAX points for a right score guess (match ends 2-1 and forecast was 2-1),  LOW points for a match winner guess (match ends 2-1 and forecast was 1-0) or MIN points otherwise (match ends 2-1 and forecast was 0-0 or 0-1).<br>
+        - Teams classified: Player must choose which team will finish first and second in each group (which qualifies for Round of 16) before competition starts. Player collects MAX points for a right guess (Bayern is 1st and forecast to be 1st) ,  LOW points for a partial right guess (player forecast was Bayern as 1st and Bayern classifies as 2nd) or MIN points otherwise (player forecast was Bayern as 1st or 2nd and Bayern is neither 1st nor 2nd).</p>
+
+        <p>KNOCK-OUT STAGE<br>
+        - It includes matches, teams classified and draws during Round of 16, Quarter-finals, Semi-finals and Final.<br>
+        - Matches: Player must send a forecast for match score before match starts. Player collects MAX points for a right score guess (match ends 2-1 and forecast was 2-1),  LOW points for a match winner guess (match ends 2-1 and forecast was 1-0) or MIN points otherwise (match ends 2-1 and forecast was 0-0 or 0-1). Forecast for 2nd leg should include extra-time but not penalty shoot-out.<br>
+        - Teams classified: Player must choose which teams will qualify for next round before round starts. Player collects MAX points for a right guess (Bayern reaches semi-finals as forecasted) or MIN points otherwise (Bayern does not reaches semi-finals as forecasted).<br>
+        - Draws: Player must select play-off teams before round draw taked place. Player collects MAX points for a right guess (Bayern faces Chelsea as forecasted) or MIN points otherwise (Bayern does not face Chelasea as forecasted).<p>
+
+        <o>BONUS<br>
+        - Bonus adds 25 points to best player at the end of a stage, 24 to 2nd, 23 to 3rd... 1 to 25th and 0 to 26th or lower ranks.<br>
+        - Bonus apply to Group and Knock-out stages only.<br>
+
+        <p>OTHERS:<br>
+        - If someone fails to send forecasts before scheduled time that player will collect 50% points of worst player that competition day.<br>
+        - PRIZE: Winner will win all money collected (10 € per player).<br>
+        - EL JOC winner collects a gold star, second a silver star and third a bronze star that will be added on player profile.<br>
+        - Previous forecasts are available here: http://eljoc-dades.vrn47.cat<br>
+        - Standings are available here:http://eljoc-clas.vrn47.cat<br>
+        - Forecasts form:http://eljoc.vrn47.cat<br>
+        - Questions: eljoc@vrn47.cat<p>
+
+    </div>
+  </div>
+  </main>
+
+
+  {% endblock %}
