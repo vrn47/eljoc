@@ -21,20 +21,20 @@ def game(request):
         
     print('Game')
     
-    currentedition = 36
+    currentedition = 37
 #   suprimir el "+1" quan arrenqui la competició.
-    data = Items.objects.filter(editions=currentedition, value1__isnull=False).order_by('-dates').values_list('dates', flat=True).first()
+    data = Items.objects.filter(editions=currentedition, value1__isnull=False).order_by('-dates').values_list('dates', flat=True).first()+1
     print('data', data)
-#   offset value is 0 for world cup, 38 for old UCL, 83 for Euro, 116 for new UCL
-    data0 = data - 116
-    data1 = data - 117
-    data2 = data - 118
-    data3 = data - 119
-    data4 = data - 120
+#   offset value is 0 for world cup (32 teams), 38 for old UCL (groups), 83 for Euro, 116 for new UCL (league), 204 for new WC (48 teams)
+    data0 = data - 204
+    data1 = data - 205
+    data2 = data - 206
+    data3 = data - 207
+    data4 = data - 208
     print('data0', data0)
     if data0 == 0:
             return render(request, 'game.html', {
-            'data': data-116,
+            'data': data-204,
             })
 
     else:
@@ -250,12 +250,13 @@ def items(request):
     })
 
 def forecasts(request):
-    currentedition = 36
+    currentedition = 37
     time = timezone.now()
     print(time)    
     item = Items.objects.filter(open__lt=time,close__gt=time, ).exclude(fields_id=1).exclude(fields_id=6)
     fixture = Fixtures.objects.all()
     team = Teams.objects.filter(editions=currentedition).order_by('coef')
+    team_2 = Teams.objects.filter(editions=currentedition, rev=0).order_by('coef')
     team_3 = Teams.objects.filter(editions=currentedition).order_by('-coef')
     team_A = Teams.objects.filter(editions=currentedition, grp='A').order_by('pos')
     team_B = Teams.objects.filter(editions=currentedition, grp='B').order_by('pos')
@@ -265,6 +266,10 @@ def forecasts(request):
     team_F = Teams.objects.filter(editions=currentedition, grp='F').order_by('pos')
     team_G = Teams.objects.filter(editions=currentedition, grp='G').order_by('pos')
     team_H = Teams.objects.filter(editions=currentedition, grp='H').order_by('pos')
+    team_I = Teams.objects.filter(editions=currentedition, grp='I').order_by('pos')
+    team_J = Teams.objects.filter(editions=currentedition, grp='J').order_by('pos')
+    team_K = Teams.objects.filter(editions=currentedition, grp='K').order_by('pos')
+    team_L = Teams.objects.filter(editions=currentedition, grp='L').order_by('pos')
     team_rev = Teams.objects.filter(editions=currentedition, rev=1).order_by('-coef')
     teamdb = Teamsdb.objects.all()
     teamdb_WC = Teamsdb.objects.filter(world_id=1, is_club=1)
@@ -284,6 +289,10 @@ def forecasts(request):
 #    teamdb_1stF = Teamsdb.objects.get(teams__editions=currentedition,teams__pos=1,teams__grp='F')
 #    teamdb_1stG = Teamsdb.objects.get(teams__editions=currentedition,teams__pos=1,teams__grp='G')
 #    teamdb_1stH = Teamsdb.objects.get(teams__editions=currentedition,teams__pos=1,teams__grp='H')
+#    teamdb_1stI = Teamsdb.objects.get(teams__editions=currentedition,teams__pos=1,teams__grp='I')
+#    teamdb_1stJ = Teamsdb.objects.get(teams__editions=currentedition,teams__pos=1,teams__grp='J')
+#    teamdb_1stK = Teamsdb.objects.get(teams__editions=currentedition,teams__pos=1,teams__grp='K')
+#    teamdb_1stL = Teamsdb.objects.get(teams__editions=currentedition,teams__pos=1,teams__grp='L')
 #    teamdb_2nd = Teamsdb.objects.filter(teams__editions=currentedition,teams__pos=2).order_by('teams__grp')
 #    teamdb_2ndA = Teamsdb.objects.filter(teams__editions=currentedition,teams__pos=2).order_by('teams__grp').exclude(teams__grp='A').exclude(fed=teamdb_1stA.fed)
 #    teamdb_2ndB = Teamsdb.objects.filter(teams__editions=currentedition,teams__pos=2).order_by('teams__grp').exclude(teams__grp='B').exclude(fed=teamdb_1stB.fed)
@@ -293,6 +302,10 @@ def forecasts(request):
 #    teamdb_2ndF = Teamsdb.objects.filter(teams__editions=currentedition,teams__pos=2).order_by('teams__grp').exclude(teams__grp='F').exclude(fed=teamdb_1stF.fed)
 #    teamdb_2ndG = Teamsdb.objects.filter(teams__editions=currentedition,teams__pos=2).order_by('teams__grp').exclude(teams__grp='G').exclude(fed=teamdb_1stG.fed)
 #    teamdb_2ndH = Teamsdb.objects.filter(teams__editions=currentedition,teams__pos=2).order_by('teams__grp').exclude(teams__grp='H').exclude(fed=teamdb_1stH.fed)
+#    teamdb_2ndI = Teamsdb.objects.filter(teams__editions=currentedition,teams__pos=2).order_by('teams__grp').exclude(teams__grp='I').exclude(fed=teamdb_1stI.fed)
+#    teamdb_2ndJ = Teamsdb.objects.filter(teams__editions=currentedition,teams__pos=2).order_by('teams__grp').exclude(teams__grp='J').exclude(fed=teamdb_1stJ.fed)
+#    teamdb_2ndK = Teamsdb.objects.filter(teams__editions=currentedition,teams__pos=2).order_by('teams__grp').exclude(teams__grp='K').exclude(fed=teamdb_1stK.fed)
+#    teamdb_2ndL = Teamsdb.objects.filter(teams__editions=currentedition,teams__pos=2).order_by('teams__grp').exclude(teams__grp='L').exclude(fed=teamdb_1stL.fed)
     teamPO_1 = Teamsdb.objects.filter(teams__id=140) | Teamsdb.objects.filter(teams__id=148).order_by('teams__pos')
     teamPO_2 = Teamsdb.objects.filter(teams__id=135) | Teamsdb.objects.filter(teams__id=155).order_by('teams__pos')
     teamPO_3 = Teamsdb.objects.filter(teams__id=150) | Teamsdb.objects.filter(teams__id=138).order_by('teams__pos')
@@ -301,6 +314,14 @@ def forecasts(request):
     teamPO_6 = Teamsdb.objects.filter(teams__id=137) | Teamsdb.objects.filter(teams__id=144).order_by('teams__pos')
     teamPO_7 = Teamsdb.objects.filter(teams__id=162) | Teamsdb.objects.filter(teams__id=147).order_by('teams__pos')
     teamPO_8 = Teamsdb.objects.filter(teams__id=133) | Teamsdb.objects.filter(teams__id=143).order_by('teams__pos')
+    teamPO_9 = Teamsdb.objects.filter(teams__id=162) | Teamsdb.objects.filter(teams__id=151).order_by('teams__pos')
+    teamPO_A = Teamsdb.objects.filter(teams__id=162) | Teamsdb.objects.filter(teams__id=151).order_by('teams__pos')
+    teamPO_B = Teamsdb.objects.filter(teams__id=162) | Teamsdb.objects.filter(teams__id=151).order_by('teams__pos')
+    teamPO_C = Teamsdb.objects.filter(teams__id=162) | Teamsdb.objects.filter(teams__id=151).order_by('teams__pos')
+    teamPO_D = Teamsdb.objects.filter(teams__id=162) | Teamsdb.objects.filter(teams__id=151).order_by('teams__pos')
+    teamPO_E = Teamsdb.objects.filter(teams__id=162) | Teamsdb.objects.filter(teams__id=151).order_by('teams__pos')
+    teamPO_F = Teamsdb.objects.filter(teams__id=162) | Teamsdb.objects.filter(teams__id=151).order_by('teams__pos')
+    teamPO_G = Teamsdb.objects.filter(teams__id=162) | Teamsdb.objects.filter(teams__id=151).order_by('teams__pos')
     teamRo16_1 = Teamsdb.objects.filter(teams__id=140) | Teamsdb.objects.filter(teams__id=134).order_by('teams__pos')
     teamRo16_2 = Teamsdb.objects.filter(teams__id=158) | Teamsdb.objects.filter(teams__id=136).order_by('teams__pos')
     teamRo16_3 = Teamsdb.objects.filter(teams__id=161) | Teamsdb.objects.filter(teams__id=142).order_by('teams__pos')
@@ -314,9 +335,10 @@ def forecasts(request):
     teamQF_2 = Teamsdb.objects.filter(teams__id=151) | Teamsdb.objects.filter(teams__id=152).order_by('teams__pos')
     teamQF_3 = Teamsdb.objects.filter(teams__id=155) | Teamsdb.objects.filter(teams__id=134).order_by('teams__pos')
     teamQF_4 = Teamsdb.objects.filter(teams__id=142) | Teamsdb.objects.filter(teams__id=144).order_by('teams__pos')
-    teamSF_1 = Teamsdb.objects.filter(teams__id=113) | Teamsdb.objects.filter(teams__id=118).order_by('teams__pos')
-    teamSF_2 = Teamsdb.objects.filter(teams__id=102) | Teamsdb.objects.filter(teams__id=107).order_by('teams__pos')
-    teamW = Teamsdb.objects.filter(teams__id=72) | Teamsdb.objects.filter(teams__id=71).order_by('teams__pos')
+    teamSF_1 = Teamsdb.objects.filter(teams__id=155) | Teamsdb.objects.filter(teams__id=136).order_by('teams__pos')
+    teamSF_2 = Teamsdb.objects.filter(teams__id=144) | Teamsdb.objects.filter(teams__id=152).order_by('teams__pos')
+    team3rd = Teamsdb.objects.filter(teams__id=155) | Teamsdb.objects.filter(teams__id=152).order_by('teams__pos')
+    teamW = Teamsdb.objects.filter(teams__id=155) | Teamsdb.objects.filter(teams__id=152).order_by('teams__pos')
     # print('TeamQF: ', teamQF)
 
     forecast = Forecasts.objects.all()
@@ -338,6 +360,7 @@ def forecasts(request):
             'item': item,
             'fixture': fixture,
             'team': team,
+            'team_2': team_2,
             'team_3': team_3,
             'team_A': team_A,
             'team_B': team_B,
@@ -347,6 +370,10 @@ def forecasts(request):
             'team_F': team_F,
             'team_G': team_G,
             'team_H': team_H,
+            'team_I': team_I,
+            'team_J': team_J,
+            'team_K': team_K,
+            'team_L': team_L,
             'teamdb_WC': teamdb_WC,
             'teamdb_EN': teamdb_EN,
             'teamdb_ES': teamdb_ES,
@@ -364,6 +391,10 @@ def forecasts(request):
 #            'teamdb_1stF': teamdb_1stF,
 #            'teamdb_1stG': teamdb_1stG,
 #            'teamdb_1stH': teamdb_1stH,
+#            'teamdb_1stI': teamdb_1stI,
+#            'teamdb_1stJ': teamdb_1stJ,
+#            'teamdb_1stK': teamdb_1stK,
+#            'teamdb_1stL': teamdb_1stL,
 #            'teamdb_2nd': teamdb_2nd,
 #            'teamdb_2ndA': teamdb_2ndA,
 #            'teamdb_2ndB': teamdb_2ndB,
@@ -373,6 +404,10 @@ def forecasts(request):
 #            'teamdb_2ndF': teamdb_2ndF,
 #            'teamdb_2ndG': teamdb_2ndG,
 #            'teamdb_2ndH': teamdb_2ndH,
+#            'teamdb_2ndI': teamdb_2ndI,
+#            'teamdb_2ndJ': teamdb_2ndJ,
+#            'teamdb_2ndK': teamdb_2ndK,
+#            'teamdb_2ndL': teamdb_2ndL,
             'teamPO_1': teamPO_1,
             'teamPO_2': teamPO_2,
             'teamPO_3': teamPO_3,
@@ -381,6 +416,14 @@ def forecasts(request):
             'teamPO_6': teamPO_6,
             'teamPO_7': teamPO_7,
             'teamPO_8': teamPO_8,
+            'teamPO_9': teamPO_9,
+            'teamPO_A': teamPO_A,
+            'teamPO_B': teamPO_B,
+            'teamPO_C': teamPO_C,
+            'teamPO_D': teamPO_D,
+            'teamPO_E': teamPO_E,
+            'teamPO_F': teamPO_F,
+            'teamPO_G': teamPO_G,
             'teamRo16_1': teamRo16_1,
             'teamRo16_2': teamRo16_2,
             'teamRo16_3': teamRo16_3,
@@ -397,6 +440,7 @@ def forecasts(request):
             'teamSF_1': teamSF_1,
             'teamSF_2': teamSF_2,
             'teamW': teamW,
+            'team3rd': team3rd,
             'team_rev': team_rev,
             'teamdb': teamdb,
             'form': form,
@@ -481,17 +525,17 @@ def standings(request):
     print('Standings')   
 
 #   data editions and items, gap is diff from first item on current competition to 0.
-#   offset value is 0 for world cup, 38 for old UCL, 83 for Euro, 116 for new UCL
-    gap = 116
+#   offset value is 0 for world cup (32 teams), 38 for old UCL (groups), 83 for Euro, 116 for new UCL (league), 204 for new WC (48 teams)
+    gap = 204
 #   proves as 0 means that standings do not show test items, as 1 they will appear.
-    proves = 0
-    currentedition = 36
+    proves = 1
+    currentedition = 37
 #   suprimir el "+1" quan arrenqui la competició.
-    data = Items.objects.filter(editions=currentedition, value1__isnull=False).order_by('-dates').values_list('dates', flat=True).first()
+    data = Items.objects.filter(editions=currentedition, value1__isnull=False).order_by('-dates').values_list('dates', flat=True).first()+1
     datafi = Items.objects.filter(editions=currentedition).order_by('-dates').values_list('dates', flat=True).first()
     datafi0 = datafi - gap
     print('datafi', datafi, gap, datafi0)
-    data0 = data - 116
+    data0 = data - 204
     print('data', data, 'data0', data0)
 
     thisday = Items.objects.filter(editions=currentedition, dates=data).aggregate(
@@ -560,21 +604,21 @@ def statistics(request):
     print('Statistics')
     
 #    data editions and items, gap is diff from first item on current competition to 0.
-#   offset value is 0 for world cup, 38 for old UCL, 83 for Euro, 116 for new UCL
-    gap = 116
-    currentedition = 36
+#   offset value is 0 for world cup (32 teams), 38 for old UCL (groups), 83 for Euro, 116 for new UCL (league), 204 for new WC (48 teams)
+    gap = 204
+    currentedition = 37
     competition = Editions.objects.filter(id=currentedition, is_active=1).order_by('id').values_list('competitions', flat=True).first()
 #    suprimir el "+1" quan arrenqui la competició.
-    data = Items.objects.filter(editions=currentedition, value1__isnull=False).order_by('-dates').values_list('dates', flat=True).first()
+    data = Items.objects.filter(editions=currentedition, value1__isnull=False).order_by('-dates').values_list('dates', flat=True).first()+1
     datafi = Items.objects.filter(editions=currentedition).order_by('-dates').values_list('dates', flat=True).first()
     datafi0 = datafi - gap
     print('datafi', datafi, gap, datafi0)
-    data0 = data - 116
-    data1 = data - 117
-    data2 = data - 118
-    data3 = data - 119
-    data4 = data - 120
-    print('data', data-116, data)
+    data0 = data - 204
+    data1 = data - 205
+    data2 = data - 206
+    data3 = data - 207
+    data4 = data - 208
+    print('data', data-204, data)
     dates0 = Dates.objects.get(id=data)
     dates1 = Dates.objects.get(id=data-1)
     dates2 = Dates.objects.get(id=data-2)
@@ -771,7 +815,7 @@ def footballdata(request):
     
 def oldforecasts(request):
 
-    currentedition = 36
+    currentedition = 37
     players = Players.objects.all()
     formP = PlayersForm
 
@@ -829,7 +873,7 @@ def pointstable(request):
 
 # review starting here
 
-    currentedition = 36
+    currentedition = 37
 ## change 'items__close__gte' for 'items__close__lte' when competition starts
     forecasts = Forecasts.objects.filter(f_isactive=1, items__editions=currentedition, items__close__gte=timezone.now()).values('items', 'f_player', 'f_email', 'fvalue1', 'fvalue2').annotate(
         itm=Concat('items__id', V('  '), Substr('items__description', 1, 5), V(' '), Substr('items__fixtures__localteam__teamsdb__short', 1, 3), Substr('items__fixtures__awayteam__teamsdb__short', 1, 3), output_field=CharField()),
@@ -885,9 +929,9 @@ def communities(request):
 
     print('Communities')
 
-    currentedition = 36
+    currentedition = 37
     data = Items.objects.filter(editions=currentedition, value1__isnull=False).order_by('-dates').values_list('dates', flat=True).first()
-    print('data', data-116)
+    print('data', data-204)
     communities = Communities.objects.all().order_by('name')
     items = Forecasts.objects.filter(items__editions=currentedition, f_isactive=1, ts__lte=timezone.now(),items__dates__lte=data)
     stnd = items.values('f_player').annotate(
@@ -968,14 +1012,14 @@ def proves(request):
 
     print('Proves')
 
-    currentedition = 36
+    currentedition = 37
     data = Items.objects.filter(editions=currentedition, value1__isnull=False).order_by('-dates').values_list('dates', flat=True).first()
-    data0 = data - 116
-    data1 = data - 117
-    data2 = data - 118
-    data3 = data - 119
-    data4 = data - 120
-    print('data', data-116)
+    data0 = data - 204
+    data1 = data - 205
+    data2 = data - 206
+    data3 = data - 207
+    data4 = data - 208
+    print('data', data-204)
     items = Forecasts.objects.filter(items__editions=currentedition, f_isactive=1, ts__lte=timezone.now(),items__dates__lte=data)
     stnd = items.values('items__dates', 'f_player').annotate(
         dlt=Sum('points'),
@@ -1313,7 +1357,7 @@ def proves2(request):
         
     print('Proves2')
 
-    currentedition = 36
+    currentedition = 37
     uri = 'https://api.football-data.org/v4/competitions/2001/matches/'
     headers = { 'X-Auth-Token': '3d6936d5fb044a3b925f7a9383b7d4d6' }
     response_matches = requests.get(uri, headers=headers)

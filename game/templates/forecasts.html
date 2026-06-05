@@ -96,57 +96,87 @@
                   <option value="{{team.teamsdb.name}}">{{team.teamsdb.name}} ({{team.coef}}) {% if team.teamsdb.alphabet == 1 %} - {{team.teamsdb.short}} {% endif %}</option>
                   {% endfor %}
                 {% endif %}
+                {% if item.list == 2 %}
+                  {% for team_2 in team_2 %}
+                  <option value="{{team_2.teamsdb.name}}">{{team_2.teamsdb.name}} ({{team_2.coef}}) {% if team_2.teamsdb.alphabet == 1 %} - {{team_2.teamsdb.short}} {% endif %}</option>
+                  {% endfor %}
+                {% endif %}
                 {% if item.list == 3 %}
                   {% for team_3 in team_3 %}
                   <option value="{{team_3.teamsdb.name}}">{{team_3.teamsdb.name}} ({{team_3.coef}}) {% if team_3.teamsdb.alphabet == 1 %} - {{team_3.teamsdb.short}} {% endif %}</option>
                   {% endfor %}
                 {% endif %}
                 {% if item.list == 4 %}
-                  {% for team_A in team_A %}
-                  <option value="{{team_A.teamsdb.name}}">{{team_A.teamsdb.name}} ({{team_A.coef}}) {% if team_A.teamsdb.alphabet == 1 %} - {{team_A.teamsdb.short}} {% endif %}</option>
-                  {% endfor %}
-                {% endif %}
-                {% if item.list == 5 %}
-                  {% for team_B in team_B %}
-                  <option value="{{team_B.teamsdb.name}}">{{team_B.teamsdb.name}} ({{team_B.coef}}) {% if team_B.teamsdb.alphabet == 1 %} - {{team_B.teamsdb.short}} {% endif %}</option>
-                  {% endfor %}
-                {% endif %}
-                {% if item.list == 6 %}
-                  {% for team_C in team_C %}
-                  <option value="{{team_C.teamsdb.name}}">{{team_C.teamsdb.name}} ({{team_C.coef}}) {% if team_C.teamsdb.alphabet == 1 %} - {{team_C.teamsdb.short}} {% endif %}</option>
-                  {% endfor %}
-                {% endif %}
-                {% if item.list == 7 %}
-                  {% for team_D in team_D %}
-                  <option value="{{team_D.teamsdb.name}}">{{team_D.teamsdb.name}} ({{team_D.coef}}) {% if team_D.teamsdb.alphabet == 1 %} - {{team_D.teamsdb.short}} {% endif %}</option>
-                  {% endfor %}
-                {% endif %}
-                {% if item.list == 8 %}
-                  {% for team_E in team_E %}
-                  <option value="{{team_E.teamsdb.name}}">{{team_E.teamsdb.name}} ({{team_E.coef}}) {% if team_E.teamsdb.alphabet == 1 %} - {{team_E.teamsdb.short}} {% endif %}</option>
-                  {% endfor %}
-                {% endif %}
-                {% if item.list == 9 %}
-                  {% for team_F in team_F %}
-                  <option value="{{team_F.teamsdb.name}}">{{team_F.teamsdb.name}} ({{team_F.coef}}) {% if team_F.teamsdb.alphabet == 1 %} - {{team_F.teamsdb.short}} {% endif %}</option>
-                  {% endfor %}
-                {% endif %}
-                {% if item.list == 10 %}
-                  {% for team_G in team_G %}
-                  <option value="{{team_G.teamsdb.name}}">{{team_G.teamsdb.name}} ({{team_G.coef}}) {% if team_G.teamsdb.alphabet == 1 %} - {{team_G.teamsdb.short}} {% endif %}</option>
-                  {% endfor %}
-                {% endif %}
-                {% if item.list == 11 %}
-                  {% for team_H in team_H %}
-                  <option value="{{team_H.teamsdb.name}}">{{team_H.teamsdb.name}} ({{team_H.coef}}) {% if team_H.teamsdb.alphabet == 1 %} - {{team_H.teamsdb.short}} {% endif %}</option>
-                  {% endfor %}
-                {% endif %}
-                {% if item.list == 12 %}
                   {% for team_rev in team_rev %}
                   <option value="{{team_rev.teamsdb.name}}">{{team_rev.teamsdb.name}} ({{team_rev.coef}}) {% if team_rev.teamsdb.alphabet == 1 %} - {{team_rev.teamsdb.short}} {% endif %}</option>
                   {% endfor %}
                 {% endif %}
+                {% if item.list == 7 %}
+                  {% for team_A in team_A %}
+                  <option value="{{team_A.teamsdb.name}}">{{team_A.teamsdb.name}} ({{team_A.coef}}) {% if team_A.teamsdb.alphabet == 1 %} - {{team_A.teamsdb.short}} {% endif %}</option>
+                  {% endfor %}
+                {% endif %}
+                {% if item.list == 8 %}
+                  {% for team_B in team_B %}
+                  <option value="{{team_B.teamsdb.name}}">{{team_B.teamsdb.name}} ({{team_B.coef}}) {% if team_B.teamsdb.alphabet == 1 %} - {{team_B.teamsdb.short}} {% endif %}</option>
+                  {% endfor %}
+                {% endif %}
+                {% if item.list == 9 %}
+                  {% for team_C in team_C %}
+                  <option value="{{team_C.teamsdb.name}}">{{team_C.teamsdb.name}} ({{team_C.coef}}) {% if team_C.teamsdb.alphabet == 1 %} - {{team_C.teamsdb.short}} {% endif %}</option>
+                  {% endfor %}
+                {% endif %}
+                {% if item.list == 10 %}
+                  {% for team_D in team_D %}
+                  <option value="{{team_D.teamsdb.name}}">{{team_D.teamsdb.name}} ({{team_D.coef}}) {% if team_D.teamsdb.alphabet == 1 %} - {{team_D.teamsdb.short}} {% endif %}</option>
+                  {% endfor %}
+                {% endif %}
+                {% if item.list == 11 %}
+                  {% for team_E in team_E %}
+                  <option value="{{team_E.teamsdb.name}}">{{team_E.teamsdb.name}} ({{team_E.coef}}) {% if team_E.teamsdb.alphabet == 1 %} - {{team_E.teamsdb.short}} {% endif %}</option>
+                  {% endfor %}
+                {% endif %}
+                {% if item.list == 12 %}
+                  {% for team_F in team_F %}
+                  <option value="{{team_F.teamsdb.name}}">{{team_F.teamsdb.name}} ({{team_F.coef}}) {% if team_F.teamsdb.alphabet == 1 %} - {{team_F.teamsdb.short}} {% endif %}</option>
+                  {% endfor %}
+                {% endif %}
+                {% if item.list == 13 %}
+                  {% for team_G in team_G %}
+                  <option value="{{team_G.teamsdb.name}}">{{team_G.teamsdb.name}} ({{team_G.coef}}) {% if team_G.teamsdb.alphabet == 1 %} - {{team_G.teamsdb.short}} {% endif %}</option>
+                  {% endfor %}
+                {% endif %}
                 {% if item.list == 14 %}
+                  {% for team_H in team_H %}
+                  <option value="{{team_H.teamsdb.name}}">{{team_H.teamsdb.name}} ({{team_H.coef}}) {% if team_H.teamsdb.alphabet == 1 %} - {{team_H.teamsdb.short}} {% endif %}</option>
+                  {% endfor %}
+                {% endif %}
+                {% if item.list == 15 %}
+                  {% for team_I in team_I %}
+                  <option value="{{team_I.teamsdb.name}}">{{team_I.teamsdb.name}} ({{team_I.coef}}) {% if team_I.teamsdb.alphabet == 1 %} - {{team_I.teamsdb.short}} {% endif %}</option>
+                  {% endfor %}
+                {% endif %}
+                {% if item.list == 16 %}
+                  {% for team_J in team_J %}
+                  <option value="{{team_J.teamsdb.name}}">{{team_J.teamsdb.name}} ({{team_J.coef}}) {% if team_J.teamsdb.alphabet == 1 %} - {{team_J.teamsdb.short}} {% endif %}</option>
+                  {% endfor %}
+                {% endif %}
+                {% if item.list == 17 %}
+                  {% for team_K in team_K %}
+                  <option value="{{team_K.teamsdb.name}}">{{team_K.teamsdb.name}} ({{team_K.coef}}) {% if team_K.teamsdb.alphabet == 1 %} - {{team_K.teamsdb.short}} {% endif %}</option>
+                  {% endfor %}
+                {% endif %}
+                {% if item.list == 18 %}
+                  {% for team_L in team_L %}
+                  <option value="{{team_L.teamsdb.name}}">{{team_L.teamsdb.name}} ({{team_L.coef}}) {% if team_L.teamsdb.alphabet == 1 %} - {{team_L.teamsdb.short}} {% endif %}</option>
+                  {% endfor %}
+                {% endif %}
+                {% if item.list == 19 %}
+                  {% for team in team %}
+                  <option value="{{team.teamsdb.name}}">{{team.teamsdb.name}} ({{team.coef}}) {% if team.teamsdb.alphabet == 1 %} - {{team.teamsdb.short}} {% endif %}</option>
+                  {% endfor %}
+                {% endif %}
+                {% if item.list == 1400 %}
                   {% for teamQF in teamQF %}
                   <option value="{{teamQF.name}}">{{teamQF.name}} {% if teamQF.teamsdb.alphabet == 1 %} - {{teamQF.teamsdb.short}} {% endif %}</option>
                   {% endfor %}
@@ -301,47 +331,92 @@
                   <option value="{{teamSF_2.name}}">{{teamSF_2.name}}</option>
                   {% endfor %}
                 {% endif %}
-                {% if item.list == 52 %}
+                {% if item.list == 53 %}
                   {% for teamPO_1 in teamPO_1 %}
                   <option value="{{teamPO_1.name}}">{{teamPO_1.name}}</option>
                   {% endfor %}
                 {% endif %}
-                {% if item.list == 53 %}
+                {% if item.list == 54 %}
                   {% for teamPO_2 in teamPO_2 %}
                   <option value="{{teamPO_2.name}}">{{teamPO_2.name}}</option>
                   {% endfor %}
                 {% endif %}
-                {% if item.list == 54 %}
+                {% if item.list == 55 %}
                   {% for teamPO_3 in teamPO_3 %}
                   <option value="{{teamPO_3.name}}">{{teamPO_3.name}}</option>
                   {% endfor %}
                 {% endif %}
-                {% if item.list == 55 %}
+                {% if item.list == 56 %}
                   {% for teamPO_4 in teamPO_4 %}
                   <option value="{{teamPO_4.name}}">{{teamPO_4.name}}</option>
                   {% endfor %}
                 {% endif %}
-                {% if item.list == 56 %}
+                {% if item.list == 57 %}
                   {% for teamPO_5 in teamPO_5 %}
                   <option value="{{teamPO_5.name}}">{{teamPO_5.name}}</option>
                   {% endfor %}
                 {% endif %}
-                {% if item.list == 57 %}
+                {% if item.list == 58 %}
                   {% for teamPO_6 in teamPO_6 %}
                   <option value="{{teamPO_6.name}}">{{teamPO_6.name}}</option>
                   {% endfor %}
                 {% endif %}
-                {% if item.list == 58 %}
+                {% if item.list == 59 %}
                   {% for teamPO_7 in teamPO_7 %}
                   <option value="{{teamPO_7.name}}">{{teamPO_7.name}}</option>
                   {% endfor %}
                 {% endif %}
-                {% if item.list == 59 %}
+                {% if item.list == 60 %}
                   {% for teamPO_8 in teamPO_8 %}
                   <option value="{{teamPO_8.name}}">{{teamPO_8.name}}</option>
                   {% endfor %}
                 {% endif %}
-                {% if item.list == 16 %}
+                {% if item.list == 61 %}
+                  {% for teamPO_9 in teamPO_9 %}
+                  <option value="{{teamPO_9.name}}">{{teamPO_9.name}}</option>
+                  {% endfor %}
+                {% endif %}
+                {% if item.list == 62 %}
+                  {% for teamPO_A in teamPO_A %}
+                  <option value="{{teamPO_A.name}}">{{teamPO_A.name}}</option>
+                  {% endfor %}
+                {% endif %}
+                {% if item.list == 63 %}
+                  {% for teamPO_B in teamPO_B %}
+                  <option value="{{teamPO_B.name}}">{{teamPO_B.name}}</option>
+                  {% endfor %}
+                {% endif %}
+                {% if item.list == 64 %}
+                  {% for teamPO_C in teamPO_C %}
+                  <option value="{{teamPO_C.name}}">{{teamPO_C.name}}</option>
+                  {% endfor %}
+                {% endif %}
+                {% if item.list == 65 %}
+                  {% for teamPO_D in teamPO_D %}
+                  <option value="{{teamPO_D.name}}">{{teamPO_D.name}}</option>
+                  {% endfor %}
+                {% endif %}
+                {% if item.list == 66 %}
+                  {% for teamPO_E in teamPO_E %}
+                  <option value="{{teamPO_E.name}}">{{teamPO_E.name}}</option>
+                  {% endfor %}
+                {% endif %}
+                {% if item.list == 67 %}
+                  {% for teamPO_F in teamPO_F %}
+                  <option value="{{teamPO_F.name}}">{{teamPO_F.name}}</option>
+                  {% endfor %}
+                {% endif %}
+                {% if item.list == 68 %}
+                  {% for teamPO_G in teamPO_G %}
+                  <option value="{{teamPO_G.name}}">{{teamPO_G.name}}</option>
+                  {% endfor %}
+                {% endif %}
+                {% if item.list == 69 %}
+                  {% for team3rd in team3rd %}
+                  <option value="{{team3rd.name}}">{{team3rd.name}} {% if team3rd.teamsdb.alphabet == 1 %} - {{team3rd.teamsdb.short}} {% endif %} </option>
+                  {% endfor %}
+                {% endif %}
+                {% if item.list == 70 %}
                   {% for teamW in teamW %}
                   <option value="{{teamW.name}}">{{teamW.name}} {% if teamW.teamsdb.alphabet == 1 %} - {{teamW.teamsdb.short}} {% endif %} </option>
                   {% endfor %}
