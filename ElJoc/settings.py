@@ -25,8 +25,17 @@ SECRET_KEY = 'django-insecure-h2is)_^1u-bv62@6r28ocmcb94x70v*6%ri#aa%u1b%i&@%ovh
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    "127.0.0.1",
+    "18.158.201.199",
+    "eljoc.vrn47.cat",
+]
 
+CSRF_TRUSTED_ORIGINS = [
+    "https://eljoc.vrn47.cat",
+]
+
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 # Application definition
 

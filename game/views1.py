@@ -253,7 +253,278 @@ def forecasts(request):
     currentedition = 37
     time = timezone.now()
     print(time)    
-    item = Items.objects.filter(open__lt=time,close__gt=time, ).exclude(fields_id=1).exclude(fields_id=6)
+    item = Items.objects.filter(open__lt=time,close__gt=time).exclude(fields_id=1).exclude(fields_id=6)
+    fixture = Fixtures.objects.all()
+    team = Teams.objects.filter(editions=currentedition).order_by('coef')
+    team_2 = Teams.objects.filter(editions=currentedition, rev=0).order_by('coef')
+    team_3 = Teams.objects.filter(editions=currentedition).order_by('-coef')
+    team_A = Teams.objects.filter(editions=currentedition, grp='A').order_by('pos')
+    team_B = Teams.objects.filter(editions=currentedition, grp='B').order_by('pos')
+    team_C = Teams.objects.filter(editions=currentedition, grp='C').order_by('pos')
+    team_D = Teams.objects.filter(editions=currentedition, grp='D').order_by('pos')
+    team_E = Teams.objects.filter(editions=currentedition, grp='E').order_by('pos')
+    team_F = Teams.objects.filter(editions=currentedition, grp='F').order_by('pos')
+    team_G = Teams.objects.filter(editions=currentedition, grp='G').order_by('pos')
+    team_H = Teams.objects.filter(editions=currentedition, grp='H').order_by('pos')
+    team_I = Teams.objects.filter(editions=currentedition, grp='I').order_by('pos')
+    team_J = Teams.objects.filter(editions=currentedition, grp='J').order_by('pos')
+    team_K = Teams.objects.filter(editions=currentedition, grp='K').order_by('pos')
+    team_L = Teams.objects.filter(editions=currentedition, grp='L').order_by('pos')
+    team_rev = Teams.objects.filter(editions=currentedition, rev=1).order_by('-coef')
+    teamdb = Teamsdb.objects.all()
+    teamdb_WC = Teamsdb.objects.filter(world_id=1, is_club=1)
+    teamdb_EN = Teamsdb.objects.filter(fed='ENG').order_by('id')
+    teamdb_ES = Teamsdb.objects.filter(fed='ESP').order_by('id')
+    teamdb_IT = Teamsdb.objects.filter(fed='ITA').order_by('id')
+    teamdb_DE = Teamsdb.objects.filter(fed='DEU').order_by('id')
+    teamdb_FR = Teamsdb.objects.filter(fed='FRA').order_by('id')
+    teamdb_PT = Teamsdb.objects.filter(fed='POR').order_by('id')
+    teamdb_ND = Teamsdb.objects.filter(fed='NED').order_by('id')
+#    teamdb_1st = Teamsdb.objects.filter(teams__editions=currentedition,teams__pos=1).order_by('teams__grp')
+#    teamdb_1stA = Teamsdb.objects.get(teams__editions=currentedition,teams__pos=1,teams__grp='A')
+#    teamdb_1stB = Teamsdb.objects.get(teams__editions=currentedition,teams__pos=1,teams__grp='B')
+#    teamdb_1stC = Teamsdb.objects.get(teams__editions=currentedition,teams__pos=1,teams__grp='C')
+#    teamdb_1stD = Teamsdb.objects.get(teams__editions=currentedition,teams__pos=1,teams__grp='D')
+#    teamdb_1stE = Teamsdb.objects.get(teams__editions=currentedition,teams__pos=1,teams__grp='E')
+#    teamdb_1stF = Teamsdb.objects.get(teams__editions=currentedition,teams__pos=1,teams__grp='F')
+#    teamdb_1stG = Teamsdb.objects.get(teams__editions=currentedition,teams__pos=1,teams__grp='G')
+#    teamdb_1stH = Teamsdb.objects.get(teams__editions=currentedition,teams__pos=1,teams__grp='H')
+#    teamdb_1stI = Teamsdb.objects.get(teams__editions=currentedition,teams__pos=1,teams__grp='I')
+#    teamdb_1stJ = Teamsdb.objects.get(teams__editions=currentedition,teams__pos=1,teams__grp='J')
+#    teamdb_1stK = Teamsdb.objects.get(teams__editions=currentedition,teams__pos=1,teams__grp='K')
+#    teamdb_1stL = Teamsdb.objects.get(teams__editions=currentedition,teams__pos=1,teams__grp='L')
+#    teamdb_2nd = Teamsdb.objects.filter(teams__editions=currentedition,teams__pos=2).order_by('teams__grp')
+#    teamdb_2ndA = Teamsdb.objects.filter(teams__editions=currentedition,teams__pos=2).order_by('teams__grp').exclude(teams__grp='A').exclude(fed=teamdb_1stA.fed)
+#    teamdb_2ndB = Teamsdb.objects.filter(teams__editions=currentedition,teams__pos=2).order_by('teams__grp').exclude(teams__grp='B').exclude(fed=teamdb_1stB.fed)
+#    teamdb_2ndC = Teamsdb.objects.filter(teams__editions=currentedition,teams__pos=2).order_by('teams__grp').exclude(teams__grp='C').exclude(fed=teamdb_1stC.fed)
+#    teamdb_2ndD = Teamsdb.objects.filter(teams__editions=currentedition,teams__pos=2).order_by('teams__grp').exclude(teams__grp='D').exclude(fed=teamdb_1stD.fed)
+#    teamdb_2ndE = Teamsdb.objects.filter(teams__editions=currentedition,teams__pos=2).order_by('teams__grp').exclude(teams__grp='E').exclude(fed=teamdb_1stE.fed)
+#    teamdb_2ndF = Teamsdb.objects.filter(teams__editions=currentedition,teams__pos=2).order_by('teams__grp').exclude(teams__grp='F').exclude(fed=teamdb_1stF.fed)
+#    teamdb_2ndG = Teamsdb.objects.filter(teams__editions=currentedition,teams__pos=2).order_by('teams__grp').exclude(teams__grp='G').exclude(fed=teamdb_1stG.fed)
+#    teamdb_2ndH = Teamsdb.objects.filter(teams__editions=currentedition,teams__pos=2).order_by('teams__grp').exclude(teams__grp='H').exclude(fed=teamdb_1stH.fed)
+#    teamdb_2ndI = Teamsdb.objects.filter(teams__editions=currentedition,teams__pos=2).order_by('teams__grp').exclude(teams__grp='I').exclude(fed=teamdb_1stI.fed)
+#    teamdb_2ndJ = Teamsdb.objects.filter(teams__editions=currentedition,teams__pos=2).order_by('teams__grp').exclude(teams__grp='J').exclude(fed=teamdb_1stJ.fed)
+#    teamdb_2ndK = Teamsdb.objects.filter(teams__editions=currentedition,teams__pos=2).order_by('teams__grp').exclude(teams__grp='K').exclude(fed=teamdb_1stK.fed)
+#    teamdb_2ndL = Teamsdb.objects.filter(teams__editions=currentedition,teams__pos=2).order_by('teams__grp').exclude(teams__grp='L').exclude(fed=teamdb_1stL.fed)
+    teamPO_1 = Teamsdb.objects.filter(teams__id=140) | Teamsdb.objects.filter(teams__id=148).order_by('teams__pos')
+    teamPO_2 = Teamsdb.objects.filter(teams__id=135) | Teamsdb.objects.filter(teams__id=155).order_by('teams__pos')
+    teamPO_3 = Teamsdb.objects.filter(teams__id=150) | Teamsdb.objects.filter(teams__id=138).order_by('teams__pos')
+    teamPO_4 = Teamsdb.objects.filter(teams__id=157) | Teamsdb.objects.filter(teams__id=158).order_by('teams__pos')
+    teamPO_5 = Teamsdb.objects.filter(teams__id=163) | Teamsdb.objects.filter(teams__id=161).order_by('teams__pos')
+    teamPO_6 = Teamsdb.objects.filter(teams__id=137) | Teamsdb.objects.filter(teams__id=144).order_by('teams__pos')
+    teamPO_7 = Teamsdb.objects.filter(teams__id=162) | Teamsdb.objects.filter(teams__id=147).order_by('teams__pos')
+    teamPO_8 = Teamsdb.objects.filter(teams__id=133) | Teamsdb.objects.filter(teams__id=143).order_by('teams__pos')
+    teamPO_9 = Teamsdb.objects.filter(teams__id=162) | Teamsdb.objects.filter(teams__id=151).order_by('teams__pos')
+    teamPO_A = Teamsdb.objects.filter(teams__id=162) | Teamsdb.objects.filter(teams__id=151).order_by('teams__pos')
+    teamPO_B = Teamsdb.objects.filter(teams__id=162) | Teamsdb.objects.filter(teams__id=151).order_by('teams__pos')
+    teamPO_C = Teamsdb.objects.filter(teams__id=162) | Teamsdb.objects.filter(teams__id=151).order_by('teams__pos')
+    teamPO_D = Teamsdb.objects.filter(teams__id=162) | Teamsdb.objects.filter(teams__id=151).order_by('teams__pos')
+    teamPO_E = Teamsdb.objects.filter(teams__id=162) | Teamsdb.objects.filter(teams__id=151).order_by('teams__pos')
+    teamPO_F = Teamsdb.objects.filter(teams__id=162) | Teamsdb.objects.filter(teams__id=151).order_by('teams__pos')
+    teamPO_G = Teamsdb.objects.filter(teams__id=162) | Teamsdb.objects.filter(teams__id=151).order_by('teams__pos')
+    teamRo16_1 = Teamsdb.objects.filter(teams__id=140) | Teamsdb.objects.filter(teams__id=134).order_by('teams__pos')
+    teamRo16_2 = Teamsdb.objects.filter(teams__id=158) | Teamsdb.objects.filter(teams__id=136).order_by('teams__pos')
+    teamRo16_3 = Teamsdb.objects.filter(teams__id=161) | Teamsdb.objects.filter(teams__id=142).order_by('teams__pos')
+    teamRo16_4 = Teamsdb.objects.filter(teams__id=144) | Teamsdb.objects.filter(teams__id=132).order_by('teams__pos')
+    teamRo16_5 = Teamsdb.objects.filter(teams__id=143) | Teamsdb.objects.filter(teams__id=152).order_by('teams__pos')
+    teamRo16_6 = Teamsdb.objects.filter(teams__id=155) | Teamsdb.objects.filter(teams__id=159).order_by('teams__pos')
+    teamRo16_7 = Teamsdb.objects.filter(teams__id=138) | Teamsdb.objects.filter(teams__id=160).order_by('teams__pos')
+    teamRo16_8 = Teamsdb.objects.filter(teams__id=162) | Teamsdb.objects.filter(teams__id=151).order_by('teams__pos')
+    teamQF = Teamsdb.objects.filter(teams__editions=33,teams__round__id=4).order_by('id')
+    teamQF_1 = Teamsdb.objects.filter(teams__id=138) | Teamsdb.objects.filter(teams__id=136).order_by('teams__pos')
+    teamQF_2 = Teamsdb.objects.filter(teams__id=151) | Teamsdb.objects.filter(teams__id=152).order_by('teams__pos')
+    teamQF_3 = Teamsdb.objects.filter(teams__id=155) | Teamsdb.objects.filter(teams__id=134).order_by('teams__pos')
+    teamQF_4 = Teamsdb.objects.filter(teams__id=142) | Teamsdb.objects.filter(teams__id=144).order_by('teams__pos')
+    teamSF_1 = Teamsdb.objects.filter(teams__id=155) | Teamsdb.objects.filter(teams__id=136).order_by('teams__pos')
+    teamSF_2 = Teamsdb.objects.filter(teams__id=144) | Teamsdb.objects.filter(teams__id=152).order_by('teams__pos')
+    team3rd = Teamsdb.objects.filter(teams__id=155) | Teamsdb.objects.filter(teams__id=152).order_by('teams__pos')
+    teamW = Teamsdb.objects.filter(teams__id=155) | Teamsdb.objects.filter(teams__id=152).order_by('teams__pos')
+    # print('TeamQF: ', teamQF)
+
+    forecast = Forecasts.objects.all()
+    form = ForecastsForm
+    form2 = PlayersForm
+
+    tims = Teams.objects.filter(editions=currentedition)
+    shild = tims.values('id').annotate(
+        Pts=Sum(F('ptsgs') + F('ptsko')),
+        Name=F('teamsdb__name'),
+        Short=F('teamsdb__short'),
+        euro=F('teamsdb__euro_id'),
+    ).order_by('-Pts')
+
+    if request.method == 'GET':
+        print('enviando formulario forecast')
+        return render(request, 'forecasts.html', {
+            'forecast': forecast,
+            'item': item,
+            'fixture': fixture,
+            'team': team,
+            'team_2': team_2,
+            'team_3': team_3,
+            'team_A': team_A,
+            'team_B': team_B,
+            'team_C': team_C,
+            'team_D': team_D,
+            'team_E': team_E,
+            'team_F': team_F,
+            'team_G': team_G,
+            'team_H': team_H,
+            'team_I': team_I,
+            'team_J': team_J,
+            'team_K': team_K,
+            'team_L': team_L,
+            'teamdb_WC': teamdb_WC,
+            'teamdb_EN': teamdb_EN,
+            'teamdb_ES': teamdb_ES,
+            'teamdb_IT': teamdb_IT,
+            'teamdb_DE': teamdb_DE,
+            'teamdb_FR': teamdb_FR,
+            'teamdb_PT': teamdb_PT,
+            'teamdb_ND': teamdb_ND,
+#            'teamdb_1st': teamdb_1st,
+#            'teamdb_1stA': teamdb_1stA,
+#            'teamdb_1stB': teamdb_1stB,
+#            'teamdb_1stC': teamdb_1stC,
+#            'teamdb_1stD': teamdb_1stD,
+#            'teamdb_1stE': teamdb_1stE,
+#            'teamdb_1stF': teamdb_1stF,
+#            'teamdb_1stG': teamdb_1stG,
+#            'teamdb_1stH': teamdb_1stH,
+#            'teamdb_1stI': teamdb_1stI,
+#            'teamdb_1stJ': teamdb_1stJ,
+#            'teamdb_1stK': teamdb_1stK,
+#            'teamdb_1stL': teamdb_1stL,
+#            'teamdb_2nd': teamdb_2nd,
+#            'teamdb_2ndA': teamdb_2ndA,
+#            'teamdb_2ndB': teamdb_2ndB,
+#            'teamdb_2ndC': teamdb_2ndC,
+#            'teamdb_2ndD': teamdb_2ndD,
+#            'teamdb_2ndE': teamdb_2ndE,
+#            'teamdb_2ndF': teamdb_2ndF,
+#            'teamdb_2ndG': teamdb_2ndG,
+#            'teamdb_2ndH': teamdb_2ndH,
+#            'teamdb_2ndI': teamdb_2ndI,
+#            'teamdb_2ndJ': teamdb_2ndJ,
+#            'teamdb_2ndK': teamdb_2ndK,
+#            'teamdb_2ndL': teamdb_2ndL,
+            'teamPO_1': teamPO_1,
+            'teamPO_2': teamPO_2,
+            'teamPO_3': teamPO_3,
+            'teamPO_4': teamPO_4,
+            'teamPO_5': teamPO_5,
+            'teamPO_6': teamPO_6,
+            'teamPO_7': teamPO_7,
+            'teamPO_8': teamPO_8,
+            'teamPO_9': teamPO_9,
+            'teamPO_A': teamPO_A,
+            'teamPO_B': teamPO_B,
+            'teamPO_C': teamPO_C,
+            'teamPO_D': teamPO_D,
+            'teamPO_E': teamPO_E,
+            'teamPO_F': teamPO_F,
+            'teamPO_G': teamPO_G,
+            'teamRo16_1': teamRo16_1,
+            'teamRo16_2': teamRo16_2,
+            'teamRo16_3': teamRo16_3,
+            'teamRo16_4': teamRo16_4,
+            'teamRo16_5': teamRo16_5,
+            'teamRo16_6': teamRo16_6,
+            'teamRo16_7': teamRo16_7,
+            'teamRo16_8': teamRo16_8,
+            'teamQF': teamQF,
+            'teamQF_1': teamQF_1,
+            'teamQF_2': teamQF_2,
+            'teamQF_3': teamQF_3,
+            'teamQF_4': teamQF_4,
+            'teamSF_1': teamSF_1,
+            'teamSF_2': teamSF_2,
+            'teamW': teamW,
+            'team3rd': team3rd,
+            'team_rev': team_rev,
+            'teamdb': teamdb,
+            'form': form,
+            'form2': form2,
+            'shild': shild,
+        })
+    else:
+        print(request.POST)
+        print('new forecast')
+        try:
+            print('try')
+            playersedition = Players.objects.filter(editions=currentedition)
+            print('playersedition', playersedition)
+            playeredition = playersedition.get(p_email=request.POST['p_email'])
+            print('playeredition', playeredition)
+            playerid = getattr(playeredition, 'id')
+            edition = getattr(getattr(playeredition, 'editions'), 'id')
+#            players = Players.objects.get(p_email=request.POST['p_email'])
+            i = 0
+            v1 = request.POST.getlist('fvalue1')
+            v2 = request.POST.getlist('fvalue2')
+            v3 = request.POST.getlist('id')
+#            print(v3, v2, v1)
+            xmail = request.POST['p_email']
+            for x in v1:
+                if v1[i] == '':
+                    i = i + 1
+                    print('buit', i)
+
+                else:
+                    itemi = Items.objects.get(id=v3[i])
+#                    print(itemi)
+                    newforecast=Forecasts.objects.create(f_email=xmail, fvalue1=v1[i], fvalue2=v2[i], items=itemi, f_player=playeredition)
+#                    print(newforecast)
+                    newforecast.ts = timezone.now()
+                    try:
+                        print('inner try')
+                        zzz = Forecasts.objects.get(f_email=xmail, f_isactive=1, items=v3[i])
+#                        print(zzz)
+                        zzz.f_isactive = 0
+                        zzz.save()
+                    except Exception as error2:
+                        print('inner except: ', error2)
+
+                    newforecast.f_isactive = 1
+                    if v2[i] == '':
+                        newforecast.f1x2 = ''
+                    elif v1[i] == v2[i]:
+                        newforecast.f1x2 = 'x'
+                    elif v1[i] > v2[i]:
+                        newforecast.f1x2 = '1'
+                    elif v1[i] < v2[i]:
+                        newforecast.f1x2 = '2'
+                    else:
+                        newforecast.f1x2 = ''
+                    newforecast.save()
+                    i = i + 1
+                    print('saved')
+                    print('ple', i)
+
+            
+            return redirect('forecasts')
+
+
+        except Exception as error:
+            print('except: ', error)
+            return render(request, 'forecasts.html', {
+                'forecast': forecast,
+                'item': item,
+                'fixture': fixture,
+                'team': team,
+                'teamdb': teamdb,
+                'form': form,
+                'error': 'Player not registered. Try new email.'
+            })
+
+    print('Forecasted')
+    return render(request, 'forecast.html')
+
+def forecasts2(request):
+    currentedition = 37
+    time = timezone.now() - datetime.timedelta(days=2)
+    print(time)    
+    item = Items.objects.filter(open__lt=time, close__gt=time, dates_id__round_id=7).exclude(fields_id=1).exclude(fields_id=6).order_by('id')
     fixture = Fixtures.objects.all()
     team = Teams.objects.filter(editions=currentedition).order_by('coef')
     team_2 = Teams.objects.filter(editions=currentedition, rev=0).order_by('coef')
@@ -528,7 +799,7 @@ def standings(request):
 #   offset value is 0 for world cup (32 teams), 38 for old UCL (groups), 83 for Euro, 116 for new UCL (league), 204 for new WC (48 teams)
     gap = 204
 #   proves as 0 means that standings do not show test items, as 1 they will appear.
-    proves = 1
+    proves = 0
     currentedition = 37
 #   suprimir el "+1" quan arrenqui la competició.
     data = Items.objects.filter(editions=currentedition, value1__isnull=False).order_by('-dates').values_list('dates', flat=True).first()+1

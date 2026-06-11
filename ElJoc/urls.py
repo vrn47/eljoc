@@ -30,6 +30,7 @@ urlpatterns = [
     path('playerinfo/<int:pid>/', views.playerinfo, name = 'playerinfo'),
     path('items/', views1.items, name = 'items'),
     path('forecasts/', views1.forecasts, name = 'forecasts'),
+    path('forecasts2/', views1.forecasts2, name = 'forecasts2'),
     path('standings/', views1.standings, name = 'standings'),
     path('statistics/', views1.statistics, name = 'statistics'),
     path('footballdata/', views1.footballdata, name = 'footballdata'),
