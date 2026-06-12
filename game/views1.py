@@ -23,7 +23,7 @@ def game(request):
     
     currentedition = 37
 #   suprimir el "+1" quan arrenqui la competició.
-    data = Items.objects.filter(editions=currentedition, value1__isnull=False).order_by('-dates').values_list('dates', flat=True).first()+1
+    data = Items.objects.filter(editions=currentedition, value1__isnull=False).order_by('-dates').values_list('dates', flat=True).first()
     print('data', data)
 #   offset value is 0 for world cup (32 teams), 38 for old UCL (groups), 83 for Euro, 116 for new UCL (league), 204 for new WC (48 teams)
     data0 = data - 204
@@ -802,7 +802,7 @@ def standings(request):
     proves = 0
     currentedition = 37
 #   suprimir el "+1" quan arrenqui la competició.
-    data = Items.objects.filter(editions=currentedition, value1__isnull=False).order_by('-dates').values_list('dates', flat=True).first()+1
+    data = Items.objects.filter(editions=currentedition, value1__isnull=False).order_by('-dates').values_list('dates', flat=True).first()
     datafi = Items.objects.filter(editions=currentedition).order_by('-dates').values_list('dates', flat=True).first()
     datafi0 = datafi - gap
     print('datafi', datafi, gap, datafi0)
@@ -880,7 +880,7 @@ def statistics(request):
     currentedition = 37
     competition = Editions.objects.filter(id=currentedition, is_active=1).order_by('id').values_list('competitions', flat=True).first()
 #    suprimir el "+1" quan arrenqui la competició.
-    data = Items.objects.filter(editions=currentedition, value1__isnull=False).order_by('-dates').values_list('dates', flat=True).first()+1
+    data = Items.objects.filter(editions=currentedition, value1__isnull=False).order_by('-dates').values_list('dates', flat=True).first()
     datafi = Items.objects.filter(editions=currentedition).order_by('-dates').values_list('dates', flat=True).first()
     datafi0 = datafi - gap
     print('datafi', datafi, gap, datafi0)
@@ -1030,8 +1030,8 @@ def statistics(request):
 
 #    player stats
 
-#   UCL is 2001, Euro is 2018, WC is ?, FCWC is ?
-    uri = 'https://api.football-data.org/v4/competitions/2001//scorers/'
+#   UCL is 2001, Euro is 2018, WC is 2000, FCWC is ?
+    uri = 'https://api.football-data.org/v4/competitions/2000//scorers/'
     headers = { 'X-Auth-Token': '3d6936d5fb044a3b925f7a9383b7d4d6' }
     response_scorers = requests.get(uri, headers=headers)
 #    print('rsp scorers', response_scorers.json())
@@ -1146,7 +1146,7 @@ def pointstable(request):
 
     currentedition = 37
 ## change 'items__close__gte' for 'items__close__lte' when competition starts
-    forecasts = Forecasts.objects.filter(f_isactive=1, items__editions=currentedition, items__close__gte=timezone.now()).values('items', 'f_player', 'f_email', 'fvalue1', 'fvalue2').annotate(
+    forecasts = Forecasts.objects.filter(f_isactive=1, items__editions=currentedition, items__close__lte=timezone.now()).values('items', 'f_player', 'f_email', 'fvalue1', 'fvalue2').annotate(
         itm=Concat('items__id', V('  '), Substr('items__description', 1, 5), V(' '), Substr('items__fixtures__localteam__teamsdb__short', 1, 3), Substr('items__fixtures__awayteam__teamsdb__short', 1, 3), output_field=CharField()),
         name=Concat(Substr('f_player__p_fname', 1, 1), Substr('f_player__p_lname', 1, 8), output_field=CharField()),
         day=F('items__dates'),
