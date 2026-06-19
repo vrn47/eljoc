@@ -151,3 +151,121 @@ def about(request):
                 'form': PlayerDBLogForm,
                 'error': 'Email not found'
             })
+
+#--------------
+# New developments ElJoc5.0
+#--------------
+
+def access5(request):
+
+    if request.method == 'GET':
+        print('GET')
+        return render(request, 'access5.html')
+    
+    email = request.POST['email']
+    print('email: ', email)
+
+    try:
+        print('access5 ok')
+        user = PlayerDB.objects.get(email=email)
+        print('access5 ok 2', user.id)
+        request.session["playerdb_id"] = user.id
+        request.session["player_email"] = user.email
+        return redirect('playerinfo5', pid=user.id)
+    
+    except PlayerDB.DoesNotExist:
+        print('access5 ko')
+        return redirect(f'/register/?email={email}')
+
+def register5(request):
+
+    if request.method == 'GET':
+        email = request.GET.get('email', '')
+        return render(
+            request,
+            'register5.html',
+            {
+            'email': email
+            }
+        )
+    else:
+        try:
+            user = PlayerDB.objects.get(email=request.POST['email'])
+            print('existing email')
+            return render(
+                request,
+                'register5.html',
+                {
+                    'error': 'Email already in use',
+                    'email': request.POST['email']
+                }
+            )
+
+        except PlayerDB.DoesNotExist:
+            newuser=PlayerDB.objects.create(
+                fname=request.POST['fname'],
+                lname=request.POST['lname'],
+                email=request.POST['email']
+                )
+
+            newuser.save()
+            request.session["playerdb_id"] = newuser.id
+            request.session["player_email"] = newuser.email
+            print('user registered')
+            return redirect('playerinfo5', pid=newuser.id)
+
+def playerinfo5(request, pid):
+
+    playerDBinfo = PlayerDB.objects.get(id=pid)
+    request.session["playerdb_id"] = playerDBinfo.id
+    request.session["player_email"] = playerDBinfo.email
+    active_editions = Editions.objects.filter(is_active=1)
+
+    edition_cards = []
+
+    for edition in active_editions:
+        player = Players.objects.filter(
+            playerdb=playerDBinfo,
+            editions=edition
+        ).first()
+
+        edition_cards.append({
+            'edition': edition,
+            'player': player,
+            'is_joined': player is not None
+        })
+
+    if request.method == 'GET':
+        return render(request, 'playerinfo5.html', {
+            'playerDB': playerDBinfo,
+            'pid': pid,
+            'edition_cards': edition_cards
+        })
+
+    else:
+        edition_id = request.POST['edition_id']
+        edition = Editions.objects.get(id=edition_id)
+
+        existing_player = Players.objects.filter(
+            playerdb=playerDBinfo,
+            editions=edition
+        ).first()
+
+        if existing_player is None:
+            Players.objects.create(
+                playerdb=playerDBinfo,
+                p_fname=playerDBinfo.fname,
+                p_lname=playerDBinfo.lname,
+                p_email=playerDBinfo.email,
+                ppsw="void",
+                winnable=1,
+                editions=edition
+            )
+        else:
+            player = existing_player
+
+        request.session["player_id"] = player.id
+        request.session["edition_id"] = edition.id
+        request.session["player_email"] = playerDBinfo.email
+
+        return redirect('game')

@@ -14,14 +14,127 @@ import json
 import django_tables2 as tables
 import datetime
 import pandas as pd
+from datetime import timedelta
 
 # Create your views here.
 
 def game(request):
         
-    print('Game')
+    print('GAME')
+
+    print("PLAYER:", request.session.get("player_id"))
+    print("EMAIL:", request.session.get("player_email"))
+    print("EDITION:", request.session.get("edition_id"))
+
+# canvia l'edició en curs ja sigui manual en <<currentedition = 37>> o automàtic en <<currentedition = request.session.get('edition_id', 37)>>
+#   currentedition = 37
+    currentedition = request.session.get('edition_id', 37)
+    player_id = request.session.get("player_id")
+
+# codi per mostrar el banner corresponent a la competició
+    competition = Editions.objects.get(id=currentedition)
+    competition_code = competition.competitions.id
+    if competition_code == 1:
+        banner = "Euro-FormBanner24.png"
+    elif competition_code == 2:
+        banner = "UCL-FormBanner.jpg"
+    elif competition_code == 3:
+        banner = "Euro-FormBanner2024.png"
+    else:
+        banner = "UCL-FormBanner.jpg"
     
-    currentedition = 37
+    print("Banner:", banner)
+
+#-----------------
+# Username info
+
+    plyr = Players.objects.get(id=player_id)
+
+    username = (
+        plyr.p_fname[0].upper() +
+        plyr.p_lname.capitalize()
+    )
+
+#-----------------
+
+#---------------------
+# codi per a PENDING forecasts
+
+    pending_items = []
+    pending_count = 0
+
+    if player_id:
+        forecasted_item_ids = Forecasts.objects.filter(
+            f_player_id=player_id,
+            f_isactive=1,
+            items__editions_id=currentedition
+        ).values_list("items_id", flat=True)
+
+        pending_items = Items.objects.filter(
+            editions_id=currentedition,
+            open__lte=timezone.now(),
+            close__gt=timezone.now()
+        ).exclude(
+            id__in=forecasted_item_ids
+        ).order_by("close")
+
+        pending_count = pending_items.count()
+
+    print("PENDING:", pending_count)
+    for item in pending_items[:5]:
+        print(item.id, item.description, item.open, item.close)
+
+#---------------------
+# barra de progrés
+    now = timezone.now()
+
+    open_items = Items.objects.filter(
+        editions_id=currentedition,
+        open__lte=now,
+        close__gt=now
+    )
+
+    forecasted_item_ids = Forecasts.objects.filter(
+        f_player_id=player_id,
+        f_isactive=1,
+        items__editions_id=currentedition
+    ).values_list("items_id", flat=True)
+
+    pending_items = open_items.exclude(
+        id__in=forecasted_item_ids
+    ).order_by("close")
+
+    open_items_count = open_items.count()
+    pending_count = pending_items.count()
+    completed_count = open_items_count - pending_count
+
+    progress_pct = 0
+    if open_items_count > 0:
+        progress_pct = round(completed_count * 100 / open_items_count)
+
+    print("progrés:", progress_pct)
+
+    urgent_count = pending_items.filter(
+        close__lte=now + timedelta(hours=24)
+    ).count()
+
+    warning_count = pending_items.filter(
+        close__gt=now + timedelta(hours=24),
+        close__lte=now + timedelta(hours=72)
+    ).count()
+
+    normal_count = pending_count - urgent_count - warning_count
+
+    completed_pct = round(completed_count * 100 / open_items_count) if open_items_count else 0
+    urgent_pct = round(urgent_count * 100 / open_items_count) if open_items_count else 0
+    warning_pct = round(warning_count * 100 / open_items_count) if open_items_count else 0
+    normal_pct = max(0, 100 - completed_pct - urgent_pct - warning_pct)
+
+    print("progrés:", progress_pct, urgent_pct, warning_pct, normal_pct)
+
+
+#---------------------
+
 #   suprimir el "+1" quan arrenqui la competició.
     data = Items.objects.filter(editions=currentedition, value1__isnull=False).order_by('-dates').values_list('dates', flat=True).first()
     print('data', data)
@@ -35,6 +148,8 @@ def game(request):
     if data0 == 0:
             return render(request, 'game.html', {
             'data': data-204,
+            'pending_items': pending_items[:5],
+            'pending_count': pending_count,
             })
 
     else:
@@ -141,11 +256,41 @@ def game(request):
 ##        print('datax0', list(np.flip(listdelta[41])))
 ##        print('label0', listdelta[41][0])
 
+#------------------
+# prioritats
+
+        now = timezone.now()
+        pending_items_dashboard = list(pending_items[:5])
+
+        for item in pending_items_dashboard:
+            item.urgency = "secondary"
+            if item.close <= now + timedelta(hours=24):
+                item.urgency = "danger"
+            elif item.close <= now + timedelta(hours=72):
+                item.urgency = "warning"
+
+#------------------
+
         return render(request, 'game.html', {
                 'standings': stnd5,
                 'stats': stats,
                 'data': data0,
                 'labels': days,
+                'competition': competition,
+                'banner': banner,
+                'pending_items': pending_items_dashboard,
+                'pending_count': pending_count,
+                'open_items_count': open_items_count,
+                'completed_count': completed_count,
+                'progress_pct': progress_pct,
+                'urgent_count': urgent_count,
+                'warning_count': warning_count,
+                'normal_count': normal_count,
+                'completed_pct': completed_pct,
+                'urgent_pct': urgent_pct,
+                'warning_pct': warning_pct,
+                'normal_pct': normal_pct,
+                'username': username,
 ##                'datax0': list(np.flip(listdelta[0])),
 ##                'datax1': list(np.flip(listdelta[1])),
 ##                'datax2': list(np.flip(listdelta[2])),
@@ -232,24 +377,14 @@ def game(request):
 ##                'label41': listdelta[41][0],
             })
 
-def items(request):        
-    item = Items.objects.all()
-    fixture = Fixtures.objects.all()
-    team = Teams.objects.all()
-    teamdb = Teamsdb.objects.all()
-    item1 = Items.objects.get(id=1)
-#    iteminfo = Playerdb.objects.get(id=pid)
-    form = ItemsForm
-
-    return render(request, 'items.html', {
-        'item': item,
-        'fixture': fixture,
-        'team': team,
-        'teamdb': teamdb,
-        'form': form,
-    })
-
 def forecasts(request):
+
+    print('FORECASTS')
+
+    print("PLAYER:", request.session.get("player_id"))
+    print("EMAIL:", request.session.get("player_email"))
+    print("EDITION:", request.session.get("edition_id"))
+
     currentedition = 37
     time = timezone.now()
     print(time)    
@@ -520,11 +655,49 @@ def forecasts(request):
     print('Forecasted')
     return render(request, 'forecast.html')
 
-def forecasts2(request):
-    currentedition = 37
-    time = timezone.now() - datetime.timedelta(days=2)
+def lateforecasts(request):
+
+    print('LATE FORECASTS')
+
+    print("PLAYER:", request.session.get("player_id"))
+    print("EMAIL:", request.session.get("player_email"))
+    print("EDITION:", request.session.get("edition_id"))
+
+# canvia l'edició en curs ja sigui manual en <<currentedition = 37>> o automàtic en <<currentedition = request.session.get('edition_id', 37)>>
+#   currentedition = 37
+    currentedition = request.session.get('edition_id', 37)
+    player_id = request.session.get("player_id")
+
+# codi per mostrar el banner corresponent a la competició
+    competition = Editions.objects.get(id=currentedition)
+    competition_code = competition.competitions.id
+    if competition_code == 1:
+        banner = "Euro-FormBanner24.png"
+    elif competition_code == 2:
+        banner = "UCL-FormBanner.jpg"
+    elif competition_code == 3:
+        banner = "Euro-FormBanner2024.png"
+    else:
+        banner = "UCL-FormBanner.jpg"
+    
+    print("Banner:", banner)
+
+#-----------------
+# Username info
+
+    plyr = Players.objects.get(id=player_id)
+
+    username = (
+        plyr.p_fname[0].upper() +
+        plyr.p_lname.capitalize()
+    )
+
+#-----------------
+
+
+    time = timezone.now() - datetime.timedelta(days=7)
     print(time)    
-    item = Items.objects.filter(open__lt=time, close__gt=time, dates_id__round_id=7).exclude(fields_id=1).exclude(fields_id=6).order_by('id')
+    item = Items.objects.filter(open__lt=time, close__gt=time, dates_id__round_id=7).exclude(fields_id=1).exclude(fields_id=6).order_by('id') | Items.objects.filter(open__lt=time, close__gt=time, dates_id=222).exclude(fields_id=1).exclude(fields_id=6).order_by('id')
     fixture = Fixtures.objects.all()
     team = Teams.objects.filter(editions=currentedition).order_by('coef')
     team_2 = Teams.objects.filter(editions=currentedition, rev=0).order_by('coef')
@@ -626,7 +799,7 @@ def forecasts2(request):
 
     if request.method == 'GET':
         print('enviando formulario forecast')
-        return render(request, 'forecasts.html', {
+        return render(request, 'lateforecasts.html', {
             'forecast': forecast,
             'item': item,
             'fixture': fixture,
@@ -717,6 +890,9 @@ def forecasts2(request):
             'form': form,
             'form2': form2,
             'shild': shild,
+            'competition': competition,
+            'banner': banner,
+            'username': username,
         })
     else:
         print(request.POST)
@@ -773,12 +949,12 @@ def forecasts2(request):
                     print('ple', i)
 
             
-            return redirect('forecasts')
+            return redirect('lateforecasts')
 
 
         except Exception as error:
             print('except: ', error)
-            return render(request, 'forecasts.html', {
+            return render(request, 'lateforecasts.html', {
                 'forecast': forecast,
                 'item': item,
                 'fixture': fixture,
@@ -793,14 +969,50 @@ def forecasts2(request):
 
 def standings(request):
 
-    print('Standings')   
+    print('STANDINGS')   
+        
+    print("PLAYER:", request.session.get("player_id"))
+    print("EMAIL:", request.session.get("player_email"))
+    print("EDITION:", request.session.get("edition_id"))
 
 #   data editions and items, gap is diff from first item on current competition to 0.
 #   offset value is 0 for world cup (32 teams), 38 for old UCL (groups), 83 for Euro, 116 for new UCL (league), 204 for new WC (48 teams)
     gap = 204
 #   proves as 0 means that standings do not show test items, as 1 they will appear.
     proves = 0
-    currentedition = 37
+
+# canvia l'edició en curs ja sigui manual en <<currentedition = 37>> o automàtic en <<currentedition = request.session.get('edition_id', 37)>>
+#   currentedition = 37
+    currentedition = request.session.get('edition_id', 37)
+    player_id = request.session.get("player_id")
+
+# codi per mostrar el banner corresponent a la competició
+    competition = Editions.objects.get(id=currentedition)
+    competition_code = competition.competitions.id
+    if competition_code == 1:
+        banner = "Euro-FormBanner24.png"
+    elif competition_code == 2:
+        banner = "UCL-FormBanner.jpg"
+    elif competition_code == 3:
+        banner = "Euro-FormBanner2024.png"
+    else:
+        banner = "UCL-FormBanner.jpg"
+    
+    print("Banner:", banner)
+
+#-----------------
+# Username info
+
+    plyr = Players.objects.get(id=player_id)
+
+    username = (
+        plyr.p_fname[0].upper() +
+        plyr.p_lname.capitalize()
+    )
+
+#-----------------
+
+
 #   suprimir el "+1" quan arrenqui la competició.
     data = Items.objects.filter(editions=currentedition, value1__isnull=False).order_by('-dates').values_list('dates', flat=True).first()
     datafi = Items.objects.filter(editions=currentedition).order_by('-dates').values_list('dates', flat=True).first()
@@ -868,16 +1080,55 @@ def standings(request):
             'thisday': thisday,
             'first': first,
             'proves': proves,
+            'competition': competition,
+            'banner': banner,
+            'username': username,
         })
 
 def statistics(request):
         
-    print('Statistics')
+    print('STATISTICS')
+        
+    print('Game')
+    print("PLAYER:", request.session.get("player_id"))
+    print("EMAIL:", request.session.get("player_email"))
+    print("EDITION:", request.session.get("edition_id"))
     
 #    data editions and items, gap is diff from first item on current competition to 0.
 #   offset value is 0 for world cup (32 teams), 38 for old UCL (groups), 83 for Euro, 116 for new UCL (league), 204 for new WC (48 teams)
     gap = 204
-    currentedition = 37
+
+# canvia l'edició en curs ja sigui manual en <<currentedition = 37>> o automàtic en <<currentedition = request.session.get('edition_id', 37)>>
+#   currentedition = 37
+    currentedition = request.session.get('edition_id', 37)
+    player_id = request.session.get("player_id")
+
+# codi per mostrar el banner corresponent a la competició
+    competition = Editions.objects.get(id=currentedition)
+    competition_code = competition.competitions.id
+    if competition_code == 1:
+        banner = "Euro-FormBanner24.png"
+    elif competition_code == 2:
+        banner = "UCL-FormBanner.jpg"
+    elif competition_code == 3:
+        banner = "Euro-FormBanner2024.png"
+    else:
+        banner = "UCL-FormBanner.jpg"
+    
+    print("Banner:", banner)
+
+#-----------------
+# Username info
+
+    plyr = Players.objects.get(id=player_id)
+
+    username = (
+        plyr.p_fname[0].upper() +
+        plyr.p_lname.capitalize()
+    )
+
+#-----------------
+
     competition = Editions.objects.filter(id=currentedition, is_active=1).order_by('id').values_list('competitions', flat=True).first()
 #    suprimir el "+1" quan arrenqui la competició.
     data = Items.objects.filter(editions=currentedition, value1__isnull=False).order_by('-dates').values_list('dates', flat=True).first()
@@ -1066,34 +1317,85 @@ def statistics(request):
             'overall': overall,
             'thisday': thisday,
             'competition': competition,
+            'banner': banner,
+            'username': username,
         })
 
-def footballdata(request):
-    uri = 'https://api.football-data.org/v2/competitions/2001/teams/'
-    headers = { 'X-Auth-Token': '3d6936d5fb044a3b925f7a9383b7d4d6' }
-
-    response = requests.get(uri, headers=headers)
-
-#    matches = response.json()['matches']
-    matches = response.json()['teams']
-#    print(json.dumps(matches, indent=4, sort_keys=True))
-    print(matches)
-
-    if request.method == 'GET':
-        return render(request, 'footballdata.html', {
-            'match': matches,
-        })
-    
 def oldforecasts(request):
 
-    currentedition = 37
+    print('OLD FORECASTS')
+
+    print("PLAYER:", request.session.get("player_id"))
+    print("EMAIL:", request.session.get("player_email"))
+    print("EDITION:", request.session.get("edition_id"))
+
+# canvia l'edició en curs ja sigui manual en <<currentedition = 37>> o automàtic en <<currentedition = request.session.get('edition_id', 37)>>
+#   currentedition = 37
+    currentedition = request.session.get('edition_id', 37)
+    player_id = request.session.get("player_id")
+    email = request.session.get('player_email')
+
+# codi per mostrar el banner corresponent a la competició
+    competition = Editions.objects.get(id=currentedition)
+    competition_code = competition.competitions.id
+    if competition_code == 1:
+        banner = "Euro-FormBanner24.png"
+    elif competition_code == 2:
+        banner = "UCL-FormBanner.jpg"
+    elif competition_code == 3:
+        banner = "Euro-FormBanner2024.png"
+    else:
+        banner = "UCL-FormBanner.jpg"
+    
+    print("Banner:", banner)
+
+#-----------------
+# Username info
+
+    plyr = Players.objects.get(id=player_id)
+
+    username = (
+        plyr.p_fname[0].upper() +
+        plyr.p_lname.capitalize()
+    )
+
+#-----------------
+
     players = Players.objects.all()
     formP = PlayersForm
 
     if request.method == 'GET':
+
+        # test amb dades directes sense filtres
+        forecasts = Forecasts.objects.filter(items__editions=currentedition, f_email=email, f_isactive=1, ).order_by('items_id')
+        player = Players.objects.get(editions=currentedition, p_email=email)
+        items = Items.objects.filter(editions=currentedition)
+        teams = Teams.objects.all()
+        teamsDB = Teamsdb.objects.all()
+        scores = Scores.objects.all
+        dates = Dates.objects.all
+        rounds = Rounds.objects.all
+        stages = Stages.objects.all
+        formF = ForecastsForm
+        # test end
+
         return render(request, 'oldforecasts.html', {
             'players': players,
-            'form': formP,
+#            'form': formP,
+            'competition': competition,
+            'banner': banner,
+            'username': username,
+            'email': email,
+            'forecasts': forecasts,
+            'form': formF,
+            'player': player,
+            'items': items,
+            'teams': teams,
+            'teamsDB': teamsDB,
+            'scores': scores,
+            'dates': dates,
+            'rounds': rounds,
+            'stages': stages,
         })
     else:
         forecasts = Forecasts.objects.filter(items__editions=currentedition, f_email=request.POST['mail'], f_isactive=1, ).order_by('items_id')
@@ -1105,12 +1407,10 @@ def oldforecasts(request):
         dates = Dates.objects.all
         rounds = Rounds.objects.all
         stages = Stages.objects.all
-#        mail = request.POST['mail']
         formF = ForecastsForm
         return render(request, 'oldforecasts.html', {
             'forecasts': forecasts,
             'form': formF,
-#            'email': mail,
             'player': player,
             'items': items,
             'teams': teams,
@@ -1119,6 +1419,10 @@ def oldforecasts(request):
             'dates': dates,
             'rounds': rounds,
             'stages': stages,
+            'competition': competition,
+            'banner': banner,
+            'username': username,
+            'email': email,
         })
     
 def pointstable(request):
@@ -1143,8 +1447,46 @@ def pointstable(request):
 #    print('done')
 
 # review starting here
+        
+    print('POINTS TABLE')
 
-    currentedition = 37
+    print('Game')
+    print("PLAYER:", request.session.get("player_id"))
+    print("EMAIL:", request.session.get("player_email"))
+    print("EDITION:", request.session.get("edition_id"))
+
+# canvia l'edició en curs ja sigui manual en <<currentedition = 37>> o automàtic en <<currentedition = request.session.get('edition_id', 37)>>
+#   currentedition = 37
+    currentedition = request.session.get('edition_id', 37)
+    player_id = request.session.get("player_id")
+    email = request.session.get('player_email')
+
+# codi per mostrar el banner corresponent a la competició
+    competition = Editions.objects.get(id=currentedition)
+    competition_code = competition.competitions.id
+    if competition_code == 1:
+        banner = "Euro-FormBanner24.png"
+    elif competition_code == 2:
+        banner = "UCL-FormBanner.jpg"
+    elif competition_code == 3:
+        banner = "Euro-FormBanner2024.png"
+    else:
+        banner = "UCL-FormBanner.jpg"
+    
+    print("Banner:", banner)
+
+#-----------------
+# Username info
+
+    plyr = Players.objects.get(id=player_id)
+
+    username = (
+        plyr.p_fname[0].upper() +
+        plyr.p_lname.capitalize()
+    )
+
+#-----------------
+
 ## change 'items__close__gte' for 'items__close__lte' when competition starts
     forecasts = Forecasts.objects.filter(f_isactive=1, items__editions=currentedition, items__close__lte=timezone.now()).values('items', 'f_player', 'f_email', 'fvalue1', 'fvalue2').annotate(
         itm=Concat('items__id', V('  '), Substr('items__description', 1, 5), V(' '), Substr('items__fixtures__localteam__teamsdb__short', 1, 3), Substr('items__fixtures__awayteam__teamsdb__short', 1, 3), output_field=CharField()),
@@ -1165,42 +1507,60 @@ def pointstable(request):
 #            'players': players,
 #            'array': valuexy,
             'forecasts_html': forecasts_html,
+            'competition': competition,
+            'banner': banner,
+            'username': username,
         })
     else:
         return render(request, 'pointstable.html', {
 #            'players': players,
             'forecasts_html': forecasts_html,
+            'competition': competition,
+            'banner': banner,
+            'username': username,
         })
 
-def apiresults(request):
-    uri = 'https://api.football-data.org/v4/competitions/2001/matches/'
-    headers = { 'X-Auth-Token': '3d6936d5fb044a3b925f7a9383b7d4d6' }
-
-    response = requests.get(uri, headers=headers)
-
-    print(response.json())
-    matches = response.json()['matches']
-    teams = Teams.objects.all()
-    teamsdb = Teamsdb.objects.all()
-    fixtures = Fixtures.objects.all()
-
-#    matches = response.json()['teams']
-#    print(json.dumps(matches, indent=4, sort_keys=True))
-    print(matches)
-
-    if request.method == 'GET':
-        return render(request, 'apiresults.html', {
-            'match': matches,
-            'teams':teams,
-            'teamsdb':teamsdb,
-            'fictures': fixtures,
-        })
-    
 def communities(request):
 
-    print('Communities')
+    print('COMMUNITIES')
+        
+    print('Game')
+    print("PLAYER:", request.session.get("player_id"))
+    print("EMAIL:", request.session.get("player_email"))
+    print("EDITION:", request.session.get("edition_id"))
 
-    currentedition = 37
+# canvia l'edició en curs ja sigui manual en <<currentedition = 37>> o automàtic en <<currentedition = request.session.get('edition_id', 37)>>
+#   currentedition = 37
+    currentedition = request.session.get('edition_id', 37)
+    player_id = request.session.get("player_id")
+    email = request.session.get('player_email')
+
+# codi per mostrar el banner corresponent a la competició
+    competition = Editions.objects.get(id=currentedition)
+    competition_code = competition.competitions.id
+    if competition_code == 1:
+        banner = "Euro-FormBanner24.png"
+    elif competition_code == 2:
+        banner = "UCL-FormBanner.jpg"
+    elif competition_code == 3:
+        banner = "Euro-FormBanner2024.png"
+    else:
+        banner = "UCL-FormBanner.jpg"
+    
+    print("Banner:", banner)
+
+#-----------------
+# Username info
+
+    plyr = Players.objects.get(id=player_id)
+
+    username = (
+        plyr.p_fname[0].upper() +
+        plyr.p_lname.capitalize()
+    )
+
+#-----------------
+
     data = Items.objects.filter(editions=currentedition, value1__isnull=False).order_by('-dates').values_list('dates', flat=True).first()
     print('data', data-204)
     communities = Communities.objects.all().order_by('name')
@@ -1235,6 +1595,9 @@ def communities(request):
             'standings': stnd,
             'stats': stats,
             'communities': communities,
+            'competition': competition,
+            'banner': banner,
+            'username': username,
         })
     else:
         print('POST:', request.POST)
@@ -1277,11 +1640,350 @@ def communities(request):
             'stats': stats,
             'communities': communities,
             'name': name,
+            'competition': competition,
+            'banner': banner,
+            'username': username,
         })
+
+# funcions en desenvolupament
+
+def forecasts5(request):
+
+    print('FORECASTS 5')
+
+    print('Game')
+    print("PLAYER:", request.session.get("player_id"))
+    print("EMAIL:", request.session.get("player_email"))
+    print("EDITION:", request.session.get("edition_id"))
+
+# canvia l'edició en curs de forma manual ja sigui directe en <<currentedition = 37>> o automàtic en <<currentedition = request.session.get('edition_id', 37)>>
+#   currentedition = 37
+    currentedition = request.session.get('edition_id', 37)
+    player_id = request.session.get("player_id")
+    email = request.session.get('player_email')
+
+#-----------------
+# Username info
+
+    plyr = Players.objects.get(id=player_id)
+
+    username = (
+        plyr.p_fname[0].upper() +
+        plyr.p_lname.capitalize()
+    )
+#-----------------
+
+
+    time = timezone.now() - datetime.timedelta(days=0)
+    print(time)    
+    items = Items.objects.filter(open__lt=time,close__gt=time).exclude(fields_id=1).exclude(fields_id=6)
+    fixture = Fixtures.objects.all()
+    team = Teams.objects.filter(editions=currentedition).order_by('coef')
+    team_2 = Teams.objects.filter(editions=currentedition, rev=0).order_by('coef')
+    team_3 = Teams.objects.filter(editions=currentedition).order_by('-coef')
+    team_A = Teams.objects.filter(editions=currentedition, grp='A').order_by('pos')
+    team_B = Teams.objects.filter(editions=currentedition, grp='B').order_by('pos')
+    team_C = Teams.objects.filter(editions=currentedition, grp='C').order_by('pos')
+    team_D = Teams.objects.filter(editions=currentedition, grp='D').order_by('pos')
+    team_E = Teams.objects.filter(editions=currentedition, grp='E').order_by('pos')
+    team_F = Teams.objects.filter(editions=currentedition, grp='F').order_by('pos')
+    team_G = Teams.objects.filter(editions=currentedition, grp='G').order_by('pos')
+    team_H = Teams.objects.filter(editions=currentedition, grp='H').order_by('pos')
+    team_I = Teams.objects.filter(editions=currentedition, grp='I').order_by('pos')
+    team_J = Teams.objects.filter(editions=currentedition, grp='J').order_by('pos')
+    team_K = Teams.objects.filter(editions=currentedition, grp='K').order_by('pos')
+    team_L = Teams.objects.filter(editions=currentedition, grp='L').order_by('pos')
+    team_rev = Teams.objects.filter(editions=currentedition, rev=1).order_by('-coef')
+    teamdb = Teamsdb.objects.all()
+    teamdb_WC = Teamsdb.objects.filter(world_id=1, is_club=1)
+    teamdb_EN = Teamsdb.objects.filter(fed='ENG').order_by('id')
+    teamdb_ES = Teamsdb.objects.filter(fed='ESP').order_by('id')
+    teamdb_IT = Teamsdb.objects.filter(fed='ITA').order_by('id')
+    teamdb_DE = Teamsdb.objects.filter(fed='DEU').order_by('id')
+    teamdb_FR = Teamsdb.objects.filter(fed='FRA').order_by('id')
+    teamdb_PT = Teamsdb.objects.filter(fed='POR').order_by('id')
+    teamdb_ND = Teamsdb.objects.filter(fed='NED').order_by('id')
+#    teamdb_1st = Teamsdb.objects.filter(teams__editions=currentedition,teams__pos=1).order_by('teams__grp')
+#    teamdb_1stA = Teamsdb.objects.get(teams__editions=currentedition,teams__pos=1,teams__grp='A')
+#    teamdb_1stB = Teamsdb.objects.get(teams__editions=currentedition,teams__pos=1,teams__grp='B')
+#    teamdb_1stC = Teamsdb.objects.get(teams__editions=currentedition,teams__pos=1,teams__grp='C')
+#    teamdb_1stD = Teamsdb.objects.get(teams__editions=currentedition,teams__pos=1,teams__grp='D')
+#    teamdb_1stE = Teamsdb.objects.get(teams__editions=currentedition,teams__pos=1,teams__grp='E')
+#    teamdb_1stF = Teamsdb.objects.get(teams__editions=currentedition,teams__pos=1,teams__grp='F')
+#    teamdb_1stG = Teamsdb.objects.get(teams__editions=currentedition,teams__pos=1,teams__grp='G')
+#    teamdb_1stH = Teamsdb.objects.get(teams__editions=currentedition,teams__pos=1,teams__grp='H')
+#    teamdb_1stI = Teamsdb.objects.get(teams__editions=currentedition,teams__pos=1,teams__grp='I')
+#    teamdb_1stJ = Teamsdb.objects.get(teams__editions=currentedition,teams__pos=1,teams__grp='J')
+#    teamdb_1stK = Teamsdb.objects.get(teams__editions=currentedition,teams__pos=1,teams__grp='K')
+#    teamdb_1stL = Teamsdb.objects.get(teams__editions=currentedition,teams__pos=1,teams__grp='L')
+#    teamdb_2nd = Teamsdb.objects.filter(teams__editions=currentedition,teams__pos=2).order_by('teams__grp')
+#    teamdb_2ndA = Teamsdb.objects.filter(teams__editions=currentedition,teams__pos=2).order_by('teams__grp').exclude(teams__grp='A').exclude(fed=teamdb_1stA.fed)
+#    teamdb_2ndB = Teamsdb.objects.filter(teams__editions=currentedition,teams__pos=2).order_by('teams__grp').exclude(teams__grp='B').exclude(fed=teamdb_1stB.fed)
+#    teamdb_2ndC = Teamsdb.objects.filter(teams__editions=currentedition,teams__pos=2).order_by('teams__grp').exclude(teams__grp='C').exclude(fed=teamdb_1stC.fed)
+#    teamdb_2ndD = Teamsdb.objects.filter(teams__editions=currentedition,teams__pos=2).order_by('teams__grp').exclude(teams__grp='D').exclude(fed=teamdb_1stD.fed)
+#    teamdb_2ndE = Teamsdb.objects.filter(teams__editions=currentedition,teams__pos=2).order_by('teams__grp').exclude(teams__grp='E').exclude(fed=teamdb_1stE.fed)
+#    teamdb_2ndF = Teamsdb.objects.filter(teams__editions=currentedition,teams__pos=2).order_by('teams__grp').exclude(teams__grp='F').exclude(fed=teamdb_1stF.fed)
+#    teamdb_2ndG = Teamsdb.objects.filter(teams__editions=currentedition,teams__pos=2).order_by('teams__grp').exclude(teams__grp='G').exclude(fed=teamdb_1stG.fed)
+#    teamdb_2ndH = Teamsdb.objects.filter(teams__editions=currentedition,teams__pos=2).order_by('teams__grp').exclude(teams__grp='H').exclude(fed=teamdb_1stH.fed)
+#    teamdb_2ndI = Teamsdb.objects.filter(teams__editions=currentedition,teams__pos=2).order_by('teams__grp').exclude(teams__grp='I').exclude(fed=teamdb_1stI.fed)
+#    teamdb_2ndJ = Teamsdb.objects.filter(teams__editions=currentedition,teams__pos=2).order_by('teams__grp').exclude(teams__grp='J').exclude(fed=teamdb_1stJ.fed)
+#    teamdb_2ndK = Teamsdb.objects.filter(teams__editions=currentedition,teams__pos=2).order_by('teams__grp').exclude(teams__grp='K').exclude(fed=teamdb_1stK.fed)
+#    teamdb_2ndL = Teamsdb.objects.filter(teams__editions=currentedition,teams__pos=2).order_by('teams__grp').exclude(teams__grp='L').exclude(fed=teamdb_1stL.fed)
+    teamPO_1 = Teamsdb.objects.filter(teams__id=140) | Teamsdb.objects.filter(teams__id=148).order_by('teams__pos')
+    teamPO_2 = Teamsdb.objects.filter(teams__id=135) | Teamsdb.objects.filter(teams__id=155).order_by('teams__pos')
+    teamPO_3 = Teamsdb.objects.filter(teams__id=150) | Teamsdb.objects.filter(teams__id=138).order_by('teams__pos')
+    teamPO_4 = Teamsdb.objects.filter(teams__id=157) | Teamsdb.objects.filter(teams__id=158).order_by('teams__pos')
+    teamPO_5 = Teamsdb.objects.filter(teams__id=163) | Teamsdb.objects.filter(teams__id=161).order_by('teams__pos')
+    teamPO_6 = Teamsdb.objects.filter(teams__id=137) | Teamsdb.objects.filter(teams__id=144).order_by('teams__pos')
+    teamPO_7 = Teamsdb.objects.filter(teams__id=162) | Teamsdb.objects.filter(teams__id=147).order_by('teams__pos')
+    teamPO_8 = Teamsdb.objects.filter(teams__id=133) | Teamsdb.objects.filter(teams__id=143).order_by('teams__pos')
+    teamPO_9 = Teamsdb.objects.filter(teams__id=162) | Teamsdb.objects.filter(teams__id=151).order_by('teams__pos')
+    teamPO_A = Teamsdb.objects.filter(teams__id=162) | Teamsdb.objects.filter(teams__id=151).order_by('teams__pos')
+    teamPO_B = Teamsdb.objects.filter(teams__id=162) | Teamsdb.objects.filter(teams__id=151).order_by('teams__pos')
+    teamPO_C = Teamsdb.objects.filter(teams__id=162) | Teamsdb.objects.filter(teams__id=151).order_by('teams__pos')
+    teamPO_D = Teamsdb.objects.filter(teams__id=162) | Teamsdb.objects.filter(teams__id=151).order_by('teams__pos')
+    teamPO_E = Teamsdb.objects.filter(teams__id=162) | Teamsdb.objects.filter(teams__id=151).order_by('teams__pos')
+    teamPO_F = Teamsdb.objects.filter(teams__id=162) | Teamsdb.objects.filter(teams__id=151).order_by('teams__pos')
+    teamPO_G = Teamsdb.objects.filter(teams__id=162) | Teamsdb.objects.filter(teams__id=151).order_by('teams__pos')
+    teamRo16_1 = Teamsdb.objects.filter(teams__id=140) | Teamsdb.objects.filter(teams__id=134).order_by('teams__pos')
+    teamRo16_2 = Teamsdb.objects.filter(teams__id=158) | Teamsdb.objects.filter(teams__id=136).order_by('teams__pos')
+    teamRo16_3 = Teamsdb.objects.filter(teams__id=161) | Teamsdb.objects.filter(teams__id=142).order_by('teams__pos')
+    teamRo16_4 = Teamsdb.objects.filter(teams__id=144) | Teamsdb.objects.filter(teams__id=132).order_by('teams__pos')
+    teamRo16_5 = Teamsdb.objects.filter(teams__id=143) | Teamsdb.objects.filter(teams__id=152).order_by('teams__pos')
+    teamRo16_6 = Teamsdb.objects.filter(teams__id=155) | Teamsdb.objects.filter(teams__id=159).order_by('teams__pos')
+    teamRo16_7 = Teamsdb.objects.filter(teams__id=138) | Teamsdb.objects.filter(teams__id=160).order_by('teams__pos')
+    teamRo16_8 = Teamsdb.objects.filter(teams__id=162) | Teamsdb.objects.filter(teams__id=151).order_by('teams__pos')
+    teamQF = Teamsdb.objects.filter(teams__editions=33,teams__round__id=4).order_by('id')
+    teamQF_1 = Teamsdb.objects.filter(teams__id=138) | Teamsdb.objects.filter(teams__id=136).order_by('teams__pos')
+    teamQF_2 = Teamsdb.objects.filter(teams__id=151) | Teamsdb.objects.filter(teams__id=152).order_by('teams__pos')
+    teamQF_3 = Teamsdb.objects.filter(teams__id=155) | Teamsdb.objects.filter(teams__id=134).order_by('teams__pos')
+    teamQF_4 = Teamsdb.objects.filter(teams__id=142) | Teamsdb.objects.filter(teams__id=144).order_by('teams__pos')
+    teamSF_1 = Teamsdb.objects.filter(teams__id=155) | Teamsdb.objects.filter(teams__id=136).order_by('teams__pos')
+    teamSF_2 = Teamsdb.objects.filter(teams__id=144) | Teamsdb.objects.filter(teams__id=152).order_by('teams__pos')
+    team3rd = Teamsdb.objects.filter(teams__id=155) | Teamsdb.objects.filter(teams__id=152).order_by('teams__pos')
+    teamW = Teamsdb.objects.filter(teams__id=155) | Teamsdb.objects.filter(teams__id=152).order_by('teams__pos')
+    print('team_L: ', team_L)
+
+    forecast = Forecasts.objects.all()
+    form = ForecastsForm
+    form2 = PlayersForm
+
+    tims = Teams.objects.filter(editions=currentedition)
+    shild = tims.values('id').annotate(
+        Pts=Sum(F('ptsgs') + F('ptsko')),
+        Name=F('teamsdb__name'),
+        Short=F('teamsdb__short'),
+        euro=F('teamsdb__euro_id'),
+    ).order_by('-Pts')
+
+
+#-----------------
+# Associar pronòstics existents a items oberts
+    active_forecasts = Forecasts.objects.filter(
+        f_player=plyr,
+        f_isactive=1,
+        items__open__lt=time,
+        items__close__gt=time
+    )
+
+    forecast_map = {
+        f.items_id: f
+        for f in active_forecasts
+    }
+
+#------------------
+# prioritats
+
+    now7 = timezone.now() + timedelta(days=0)
+
+    for item in items:
+        item.my_forecast = forecast_map.get(item.id)
+        item.urgency = "secondary"
+        if item.close <= now7 + timedelta(hours=24):
+            item.urgency = "danger"
+        elif item.close <= now7 + timedelta(hours=72):
+            item.urgency = "warning"
+
+
+#------------------
+
+
+    if request.method == 'GET':
+        print('enviando formulario forecast')
+        return render(request, 'forecasts5.html', {
+            'forecast': forecast,
+            'item': items,
+            'fixture': fixture,
+            'team': team,
+            'team_2': team_2,
+            'team_3': team_3,
+            'team_A': team_A,
+            'team_B': team_B,
+            'team_C': team_C,
+            'team_D': team_D,
+            'team_E': team_E,
+            'team_F': team_F,
+            'team_G': team_G,
+            'team_H': team_H,
+            'team_I': team_I,
+            'team_J': team_J,
+            'team_K': team_K,
+            'team_L': team_L,
+            'teamdb_WC': teamdb_WC,
+            'teamdb_EN': teamdb_EN,
+            'teamdb_ES': teamdb_ES,
+            'teamdb_IT': teamdb_IT,
+            'teamdb_DE': teamdb_DE,
+            'teamdb_FR': teamdb_FR,
+            'teamdb_PT': teamdb_PT,
+            'teamdb_ND': teamdb_ND,
+#            'teamdb_1st': teamdb_1st,
+#            'teamdb_1stA': teamdb_1stA,
+#            'teamdb_1stB': teamdb_1stB,
+#            'teamdb_1stC': teamdb_1stC,
+#            'teamdb_1stD': teamdb_1stD,
+#            'teamdb_1stE': teamdb_1stE,
+#            'teamdb_1stF': teamdb_1stF,
+#            'teamdb_1stG': teamdb_1stG,
+#            'teamdb_1stH': teamdb_1stH,
+#            'teamdb_1stI': teamdb_1stI,
+#            'teamdb_1stJ': teamdb_1stJ,
+#            'teamdb_1stK': teamdb_1stK,
+#            'teamdb_1stL': teamdb_1stL,
+#            'teamdb_2nd': teamdb_2nd,
+#            'teamdb_2ndA': teamdb_2ndA,
+#            'teamdb_2ndB': teamdb_2ndB,
+#            'teamdb_2ndC': teamdb_2ndC,
+#            'teamdb_2ndD': teamdb_2ndD,
+#            'teamdb_2ndE': teamdb_2ndE,
+#            'teamdb_2ndF': teamdb_2ndF,
+#            'teamdb_2ndG': teamdb_2ndG,
+#            'teamdb_2ndH': teamdb_2ndH,
+#            'teamdb_2ndI': teamdb_2ndI,
+#            'teamdb_2ndJ': teamdb_2ndJ,
+#            'teamdb_2ndK': teamdb_2ndK,
+#            'teamdb_2ndL': teamdb_2ndL,
+            'teamPO_1': teamPO_1,
+            'teamPO_2': teamPO_2,
+            'teamPO_3': teamPO_3,
+            'teamPO_4': teamPO_4,
+            'teamPO_5': teamPO_5,
+            'teamPO_6': teamPO_6,
+            'teamPO_7': teamPO_7,
+            'teamPO_8': teamPO_8,
+            'teamPO_9': teamPO_9,
+            'teamPO_A': teamPO_A,
+            'teamPO_B': teamPO_B,
+            'teamPO_C': teamPO_C,
+            'teamPO_D': teamPO_D,
+            'teamPO_E': teamPO_E,
+            'teamPO_F': teamPO_F,
+            'teamPO_G': teamPO_G,
+            'teamRo16_1': teamRo16_1,
+            'teamRo16_2': teamRo16_2,
+            'teamRo16_3': teamRo16_3,
+            'teamRo16_4': teamRo16_4,
+            'teamRo16_5': teamRo16_5,
+            'teamRo16_6': teamRo16_6,
+            'teamRo16_7': teamRo16_7,
+            'teamRo16_8': teamRo16_8,
+            'teamQF': teamQF,
+            'teamQF_1': teamQF_1,
+            'teamQF_2': teamQF_2,
+            'teamQF_3': teamQF_3,
+            'teamQF_4': teamQF_4,
+            'teamSF_1': teamSF_1,
+            'teamSF_2': teamSF_2,
+            'teamW': teamW,
+            'team3rd': team3rd,
+            'team_rev': team_rev,
+            'teamdb': teamdb,
+            'form': form,
+            'form2': form2,
+            'shild': shild,
+            'username': username,
+            'email': email,
+        })
+    else:
+        print(request.POST)
+        print('new forecast')
+        try:
+            print('try')
+            playersedition = Players.objects.filter(editions=currentedition)
+            print('playersedition', playersedition)
+            playeredition = playersedition.get(p_email=request.POST['p_email'])
+            print('playeredition', playeredition)
+            playerid = getattr(playeredition, 'id')
+            edition = getattr(getattr(playeredition, 'editions'), 'id')
+#            players = Players.objects.get(p_email=request.POST['p_email'])
+            i = 0
+            v1 = request.POST.getlist('fvalue1')
+            v2 = request.POST.getlist('fvalue2')
+            v3 = request.POST.getlist('id')
+#            print(v3, v2, v1)
+            xmail = request.POST['p_email']
+            for x in v1:
+                if v1[i] == '':
+                    i = i + 1
+                    print('buit', i)
+
+                else:
+                    itemi = Items.objects.get(id=v3[i])
+#                    print(itemi)
+                    newforecast=Forecasts.objects.create(f_email=xmail, fvalue1=v1[i], fvalue2=v2[i], items=itemi, f_player=playeredition)
+#                    print(newforecast)
+                    newforecast.ts = timezone.now()
+                    try:
+                        print('inner try')
+                        zzz = Forecasts.objects.get(f_email=xmail, f_isactive=1, items=v3[i])
+#                        print(zzz)
+                        zzz.f_isactive = 0
+                        zzz.save()
+                    except Exception as error2:
+                        print('inner except: ', error2)
+
+                    newforecast.f_isactive = 1
+                    if v2[i] == '':
+                        newforecast.f1x2 = ''
+                    elif v1[i] == v2[i]:
+                        newforecast.f1x2 = 'x'
+                    elif v1[i] > v2[i]:
+                        newforecast.f1x2 = '1'
+                    elif v1[i] < v2[i]:
+                        newforecast.f1x2 = '2'
+                    else:
+                        newforecast.f1x2 = ''
+                    newforecast.save()
+                    i = i + 1
+                    print('saved')
+                    print('ple', i)
+
+            
+            return redirect('forecasts5')
+
+
+        except Exception as error:
+            print('except: ', error)
+            return render(request, 'forecasts5.html', {
+                'forecast': forecast,
+                'item': item,
+                'fixture': fixture,
+                'team': team,
+                'teamdb': teamdb,
+                'form': form,
+                'error': 'Player not registered. Try new email.',
+                'username': username,
+                'email': email,
+            })
+
+    print('Forecasted')
+    return render(request, 'forecast.html')
+
+# funcions de dades internes
 
 def proves(request):
 
-    print('Proves')
+    print('PROVES')
 
     currentedition = 37
     data = Items.objects.filter(editions=currentedition, value1__isnull=False).order_by('-dates').values_list('dates', flat=True).first()
@@ -1464,7 +2166,7 @@ def proves(request):
 # proves de detecció manca resuultats
 
     forecastsx2 = Forecasts.objects.filter(f_isactive=1, items__editions=currentedition, items__open__lte=timezone.now()).values_list('items__dates').annotate(
-        name=Concat(Substr('f_player__p_fname', 1, 1), Substr('f_player__p_lname', 1, 2), output_field=CharField()),
+        name=Concat(Substr('f_player__p_fname', 1, 1), Substr('f_player__p_lname', 1, 3), output_field=CharField()),
         emk=F('f_email'),
         cnt=Count('pk')
         ).order_by('f_email', 'items__dates')
@@ -1624,9 +2326,77 @@ def proves(request):
             'delta5': delta5,
             })
     
+# altres funcions antigues o de proves
+
+def apiresults(request):
+
+    print('API RESULTS')
+
+    uri = 'https://api.football-data.org/v4/competitions/2001/matches/'
+    headers = { 'X-Auth-Token': '3d6936d5fb044a3b925f7a9383b7d4d6' }
+
+    response = requests.get(uri, headers=headers)
+
+    print(response.json())
+    matches = response.json()['matches']
+    teams = Teams.objects.all()
+    teamsdb = Teamsdb.objects.all()
+    fixtures = Fixtures.objects.all()
+
+#    matches = response.json()['teams']
+#    print(json.dumps(matches, indent=4, sort_keys=True))
+    print(matches)
+
+    if request.method == 'GET':
+        return render(request, 'apiresults.html', {
+            'match': matches,
+            'teams':teams,
+            'teamsdb':teamsdb,
+            'fictures': fixtures,
+        })
+    
+def footballdata(request):
+
+    print('FOOTBALL DATA')
+
+    uri = 'https://api.football-data.org/v2/competitions/2001/teams/'
+    headers = { 'X-Auth-Token': '3d6936d5fb044a3b925f7a9383b7d4d6' }
+
+    response = requests.get(uri, headers=headers)
+
+#    matches = response.json()['matches']
+    matches = response.json()['teams']
+#    print(json.dumps(matches, indent=4, sort_keys=True))
+    print(matches)
+
+    if request.method == 'GET':
+        return render(request, 'footballdata.html', {
+            'match': matches,
+        })
+    
+def items(request):        
+
+    print('ITEMS')
+
+    item = Items.objects.all()
+    fixture = Fixtures.objects.all()
+    team = Teams.objects.all()
+    teamdb = Teamsdb.objects.all()
+    item1 = Items.objects.get(id=1)
+#    iteminfo = Playerdb.objects.get(id=pid)
+    form = ItemsForm
+
+    return render(request, 'items.html', {
+        'item': item,
+        'fixture': fixture,
+        'team': team,
+        'teamdb': teamdb,
+        'form': form,
+    })
+
 def proves2(request):
         
-    print('Proves2')
+    print('PROVES 2')
 
     currentedition = 37
     uri = 'https://api.football-data.org/v4/competitions/2001/matches/'
@@ -1679,3 +2449,4 @@ def proves2(request):
             'grups': grups,
             'scorers': scorers,
         })
+

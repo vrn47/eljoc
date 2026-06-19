@@ -22,15 +22,17 @@ from game import views1
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', views.index, name = 'index'),
+    path('index/', views.index, name = 'index'),
     path('login/', views.login, name = 'login'),
-    path('register/', views.register, name = 'register'),
+    path('register/', views.register5, name = 'register5'),
     path('about/', views.about, name = 'about'),
     path('playerinfo/', views.index, name = 'index'),
-    path('playerinfo/<int:pid>/', views.playerinfo, name = 'playerinfo'),
+    path('playerinfo/<int:pid>/', views.playerinfo5, name = 'playerinfo5'),
+
     path('items/', views1.items, name = 'items'),
-    path('forecasts/', views1.forecasts, name = 'forecasts'),
-    path('forecasts2/', views1.forecasts2, name = 'forecasts2'),
+    path('forecasts/', views1.forecasts5, name = 'forecasts5'),
+    path('lateforecasts/', views1.lateforecasts, name = 'lateforecasts'),
+    path('forecasts5/', views1.forecasts, name = 'forecasts'),
     path('standings/', views1.standings, name = 'standings'),
     path('statistics/', views1.statistics, name = 'statistics'),
     path('footballdata/', views1.footballdata, name = 'footballdata'),
@@ -41,6 +43,10 @@ urlpatterns = [
     path('communities/', views1.communities, name = 'communities'),
     path('proves/', views1.proves, name = 'proves'),
     path('proves2/', views1.proves2, name = 'proves2'),
-    path('casa/', views0.casa, name = 'casa')
+    path('casa/', views0.casa, name = 'casa'),
+
+    path('', views.access5, name='access5'),
+    path('register5/', views.register, name='register'),
+    path('playerinfo5/<int:pid>/', views.playerinfo, name = 'playerinfo'),
 
 ]

@@ -198,7 +198,7 @@ class Forecasts(models.Model):
 
 class Items(models.Model):
     dates = models.ForeignKey(Dates, models.DO_NOTHING, blank=True, null=True)
-    editions = models.ForeignKey('Seasons', models.DO_NOTHING, blank=True, null=True)
+    editions = models.ForeignKey('Editions', models.DO_NOTHING, blank=True, null=True)
     times = models.ForeignKey('Times', models.DO_NOTHING, blank=True, null=True)
     fields = models.ForeignKey(Fields, models.DO_NOTHING, blank=True, null=True)
     fixtures = models.ForeignKey(Fixtures, models.DO_NOTHING, blank=True, null=True)

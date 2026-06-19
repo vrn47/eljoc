@@ -18,8 +18,8 @@
 </style>
 
 <div class="container2">
-  <img src="http://imatges.vrn47.cat/Logo/Euro-FormBanner24.png" style="width:100%;"">
-    <h1 class='centered'>Late forecasts</h1>
+  <img src="//imatges.vrn47.cat/Logo/Euro-FormBanner24.png" style="width:100%;"">
+    <h1 class='centered'>Forecasts</h1>
 </div>
 
 
@@ -33,18 +33,33 @@
           {{error}}
         </div>
 
-        <div class="form-floating mb-3">
-          <input type="email" name="p_email" id="p_email" class="form-control" placeholder="" required>
-          <label for="p_email"><i class="bi-at"> Email: </i></label>
-          <div class="helptext"></div>
+        <small>
+          ✅ Forecasted -- 🔴 Urgent -- 🟠 Soon -- ⚪ Open
+        </small>
+
+        <div class="form-floating mt-2 mb-3 card card-body border rounded {% if email %} border-primary bg-primary bg-opacity-10  {% else %} border-danger bg-danger bg-opacity-10 {% endif %}">
+          <div class="row gx-2">
+            {% if email %} ✅ {% else %} 🔴 {% endif %}Player 
+          </div>
+          <div class="row mt-1">
+            <div class="form-floating col gx-2">
+          
+              <input type="email" name="p_email" id="p_email" class="form-control" value="{{ email }}">
+              <label for="p_email"><i class="bi-at"> Email: </i></label>
+              <div class="helptext"></div>
+            </div>
+          </div>
         </div>
         {% for item in item %}
         {% csrf_token %}
-        <div class="card card-body">
+
+        <div class="card card-body border rounded {% if item.my_forecast %} border-primary bg-primary bg-opacity-10 {% elif item.urgency == 'danger' %} border-danger bg-danger bg-opacity-10 {% elif item.urgency == 'warning' %} border-warning bg-warning bg-opacity-10 {% endif %}">
           <div class="row gx-2">
             {% if item.fields.id == 2 %}
+            {% if item.my_forecast %} ✅ {% elif item.urgency == 'danger' %} 🔴 {% elif item.urgency == 'warning' %} 🟠 {% else %} ⚪ {% endif %}
             {{ item.close|date:"Y/m/d H:i" }} :: {{ item.fixtures.localteam.teamsdb.name}} {% if item.fixtures.localteam.teamsdb.alphabet == 1 %} ({{item.fixtures.localteam.teamsdb.short}}) {% endif %} vs. {{ item.fixtures.awayteam.teamsdb.name }} {% if item.fixtures.awayteam.teamsdb.alphabet == 1 %} ({{item.fixtures.awayteam.teamsdb.short}}) {% endif %}
             {% else %}
+            {% if item.my_forecast %} ✅ {% elif item.urgency == 'danger' %} 🔴 {% elif item.urgency == 'warning' %} 🟠 {% else %} ⚪ {% endif %}
             {{ item.close|date:"Y/m/d H:i" }}
             {% endif %}
           </div>
@@ -56,18 +71,18 @@
             </div>
             {% if item.fields.id == 2 %}
             <div class="form-floating col-md-5 gx-2">
-              <input type="number" name="fvalue1" id="fvalue1" class="form-control" placeholder="">
+              <input type="number" name="fvalue1" id="fvalue1" class="form-control" placeholder="" value="{% if item.my_forecast %}{{ item.my_forecast.fvalue1 }}{% endif %}">
               <label for="fvalue1">{{ item.description }} - Local</label>
               <div class="helptext"></div>
             </div>
             <div class="form-floating col-md-5 gx-2">
-              <input type="number" name="fvalue2" id="fvalue2" class="form-control" placeholder="">
+              <input type="number" name="fvalue2" id="fvalue2" class="form-control" placeholder="" value="{% if item.my_forecast %}{{ item.my_forecast.fvalue2 }}{% endif %}">
               <label for="fvalue2">Visitor</label>
               <div class="helptext"></div>
             </div>
             {% elif item.fields.id == 3 %}
             <div class="form-floating col-md-9 gx-2">
-              <input type="text" name="fvalue1" id="fvalue1" class="form-control" placeholder="">
+              <input type="text" name="fvalue1" id="fvalue1" class="form-control" placeholder="" value="{% if item.my_forecast %}{{ item.my_forecast.fvalue1 }}{% endif %}">
               <label for="fvalue1">{{ item.description }}</label>
               <div class="helptext"></div>
             </div>
@@ -90,90 +105,91 @@
             {% else %}
             <div class="form-floating col-md-9 gx-2">
               <select name="fvalue1" id="fvalue1" class="form-select" placeholder="">
+<!--  value="{% if item.my_forecast %}{{ item.my_forecast.fvalue1 }}{% endif %}" deleted from line above-->
                 <option selected></option>
                 {% if item.list == 1 %}
                   {% for team in team %}
-                  <option value="{{team.teamsdb.name}}">{{team.teamsdb.name}} ({{team.coef}}) {% if team.teamsdb.alphabet == 1 %} - {{team.teamsdb.short}} {% endif %}</option>
+                  <option value="{{team.teamsdb.name}}" {% if item.my_forecast and item.my_forecast.fvalue1 == team.teamsdb.name %} selected {% endif %}>{{team.teamsdb.name}} ({{team.coef}}) {% if team.teamsdb.alphabet == 1 %} - {{team.teamsdb.short}} {% endif %}</option>
                   {% endfor %}
                 {% endif %}
                 {% if item.list == 2 %}
                   {% for team_2 in team_2 %}
-                  <option value="{{team_2.teamsdb.name}}">{{team_2.teamsdb.name}} ({{team_2.coef}}) {% if team_2.teamsdb.alphabet == 1 %} - {{team_2.teamsdb.short}} {% endif %}</option>
+                  <option value="{{team_2.teamsdb.name}}" {% if item.my_forecast and item.my_forecast.fvalue1 == team_2.teamsdb.name %} selected {% endif %}>{{team_2.teamsdb.name}} ({{team_2.coef}}) {% if team_2.teamsdb.alphabet == 1 %} - {{team_2.teamsdb.short}} {% endif %}</option>
                   {% endfor %}
                 {% endif %}
                 {% if item.list == 3 %}
                   {% for team_3 in team_3 %}
-                  <option value="{{team_3.teamsdb.name}}">{{team_3.teamsdb.name}} ({{team_3.coef}}) {% if team_3.teamsdb.alphabet == 1 %} - {{team_3.teamsdb.short}} {% endif %}</option>
+                  <option value="{{team_3.teamsdb.name}}" {% if item.my_forecast and item.my_forecast.fvalue1 == team_3.teamsdb.name %} selected {% endif %}>{{team_3.teamsdb.name}} ({{team_3.coef}}) {% if team_3.teamsdb.alphabet == 1 %} - {{team_3.teamsdb.short}} {% endif %}</option>
                   {% endfor %}
                 {% endif %}
                 {% if item.list == 4 %}
                   {% for team_rev in team_rev %}
-                  <option value="{{team_rev.teamsdb.name}}">{{team_rev.teamsdb.name}} ({{team_rev.coef}}) {% if team_rev.teamsdb.alphabet == 1 %} - {{team_rev.teamsdb.short}} {% endif %}</option>
+                  <option value="{{team_rev.teamsdb.name}}" {% if item.my_forecast and item.my_forecast.fvalue1 == team_rev.teamsdb.name %} selected {% endif %}>{{team_rev.teamsdb.name}} ({{team_rev.coef}}) {% if team_rev.teamsdb.alphabet == 1 %} - {{team_rev.teamsdb.short}} {% endif %}</option>
                   {% endfor %}
                 {% endif %}
                 {% if item.list == 7 %}
                   {% for team_A in team_A %}
-                  <option value="{{team_A.teamsdb.name}}">{{team_A.teamsdb.name}} ({{team_A.coef}}) {% if team_A.teamsdb.alphabet == 1 %} - {{team_A.teamsdb.short}} {% endif %}</option>
+                  <option value="{{team_A.teamsdb.name}}" {% if item.my_forecast and item.my_forecast.fvalue1 == team_A.teamsdb.name %} selected {% endif %}>{{team_A.teamsdb.name}} ({{team_A.coef}}) {% if team_A.teamsdb.alphabet == 1 %} - {{team_A.teamsdb.short}} {% endif %}</option>
                   {% endfor %}
                 {% endif %}
                 {% if item.list == 8 %}
                   {% for team_B in team_B %}
-                  <option value="{{team_B.teamsdb.name}}">{{team_B.teamsdb.name}} ({{team_B.coef}}) {% if team_B.teamsdb.alphabet == 1 %} - {{team_B.teamsdb.short}} {% endif %}</option>
+                  <option value="{{team_B.teamsdb.name}}" {% if item.my_forecast and item.my_forecast.fvalue1 == team_B.teamsdb.name %} selected {% endif %}>{{team_B.teamsdb.name}} ({{team_B.coef}}) {% if team_B.teamsdb.alphabet == 1 %} - {{team_B.teamsdb.short}} {% endif %}</option>
                   {% endfor %}
                 {% endif %}
                 {% if item.list == 9 %}
                   {% for team_C in team_C %}
-                  <option value="{{team_C.teamsdb.name}}">{{team_C.teamsdb.name}} ({{team_C.coef}}) {% if team_C.teamsdb.alphabet == 1 %} - {{team_C.teamsdb.short}} {% endif %}</option>
+                  <option value="{{team_C.teamsdb.name}}" {% if item.my_forecast and item.my_forecast.fvalue1 == team_C.teamsdb.name %} selected {% endif %}>{{team_C.teamsdb.name}} ({{team_C.coef}}) {% if team_C.teamsdb.alphabet == 1 %} - {{team_C.teamsdb.short}} {% endif %}</option>
                   {% endfor %}
                 {% endif %}
                 {% if item.list == 10 %}
                   {% for team_D in team_D %}
-                  <option value="{{team_D.teamsdb.name}}">{{team_D.teamsdb.name}} ({{team_D.coef}}) {% if team_D.teamsdb.alphabet == 1 %} - {{team_D.teamsdb.short}} {% endif %}</option>
+                  <option value="{{team_D.teamsdb.name}}" {% if item.my_forecast and item.my_forecast.fvalue1 == team_D.teamsdb.name %} selected {% endif %}>{{team_D.teamsdb.name}} ({{team_D.coef}}) {% if team_D.teamsdb.alphabet == 1 %} - {{team_D.teamsdb.short}} {% endif %}</option>
                   {% endfor %}
                 {% endif %}
                 {% if item.list == 11 %}
                   {% for team_E in team_E %}
-                  <option value="{{team_E.teamsdb.name}}">{{team_E.teamsdb.name}} ({{team_E.coef}}) {% if team_E.teamsdb.alphabet == 1 %} - {{team_E.teamsdb.short}} {% endif %}</option>
+                  <option value="{{team_E.teamsdb.name}}" {% if item.my_forecast and item.my_forecast.fvalue1 == team_E.teamsdb.name %} selected {% endif %}>{{team_E.teamsdb.name}} ({{team_E.coef}}) {% if team_E.teamsdb.alphabet == 1 %} - {{team_E.teamsdb.short}} {% endif %}</option>
                   {% endfor %}
                 {% endif %}
                 {% if item.list == 12 %}
                   {% for team_F in team_F %}
-                  <option value="{{team_F.teamsdb.name}}">{{team_F.teamsdb.name}} ({{team_F.coef}}) {% if team_F.teamsdb.alphabet == 1 %} - {{team_F.teamsdb.short}} {% endif %}</option>
+                  <option value="{{team_F.teamsdb.name}}" {% if item.my_forecast and item.my_forecast.fvalue1 == team_F.teamsdb.name %} selected {% endif %}>{{team_F.teamsdb.name}} ({{team_F.coef}}) {% if team_F.teamsdb.alphabet == 1 %} - {{team_F.teamsdb.short}} {% endif %}</option>
                   {% endfor %}
                 {% endif %}
                 {% if item.list == 13 %}
                   {% for team_G in team_G %}
-                  <option value="{{team_G.teamsdb.name}}">{{team_G.teamsdb.name}} ({{team_G.coef}}) {% if team_G.teamsdb.alphabet == 1 %} - {{team_G.teamsdb.short}} {% endif %}</option>
+                  <option value="{{team_G.teamsdb.name}}" {% if item.my_forecast and item.my_forecast.fvalue1 == team_G.teamsdb.name %} selected {% endif %}>{{team_G.teamsdb.name}} ({{team_G.coef}}) {% if team_G.teamsdb.alphabet == 1 %} - {{team_G.teamsdb.short}} {% endif %}</option>
                   {% endfor %}
                 {% endif %}
                 {% if item.list == 14 %}
                   {% for team_H in team_H %}
-                  <option value="{{team_H.teamsdb.name}}">{{team_H.teamsdb.name}} ({{team_H.coef}}) {% if team_H.teamsdb.alphabet == 1 %} - {{team_H.teamsdb.short}} {% endif %}</option>
+                  <option value="{{team_H.teamsdb.name}}" {% if item.my_forecast and item.my_forecast.fvalue1 == team_H.teamsdb.name %} selected {% endif %}>{{team_H.teamsdb.name}} ({{team_H.coef}}) {% if team_H.teamsdb.alphabet == 1 %} - {{team_H.teamsdb.short}} {% endif %}</option>
                   {% endfor %}
                 {% endif %}
                 {% if item.list == 15 %}
                   {% for team_I in team_I %}
-                  <option value="{{team_I.teamsdb.name}}">{{team_I.teamsdb.name}} ({{team_I.coef}}) {% if team_I.teamsdb.alphabet == 1 %} - {{team_I.teamsdb.short}} {% endif %}</option>
+                  <option value="{{team_I.teamsdb.name}}" {% if item.my_forecast and item.my_forecast.fvalue1 == team_I.teamsdb.name %} selected {% endif %}>{{team_I.teamsdb.name}} ({{team_I.coef}}) {% if team_I.teamsdb.alphabet == 1 %} - {{team_I.teamsdb.short}} {% endif %}</option>
                   {% endfor %}
                 {% endif %}
                 {% if item.list == 16 %}
                   {% for team_J in team_J %}
-                  <option value="{{team_J.teamsdb.name}}">{{team_J.teamsdb.name}} ({{team_J.coef}}) {% if team_J.teamsdb.alphabet == 1 %} - {{team_J.teamsdb.short}} {% endif %}</option>
+                  <option value="{{team_J.teamsdb.name}}" {% if item.my_forecast and item.my_forecast.fvalue1 == team_J.teamsdb.name %} selected {% endif %}>{{team_J.teamsdb.name}} ({{team_J.coef}}) {% if team_J.teamsdb.alphabet == 1 %} - {{team_J.teamsdb.short}} {% endif %}</option>
                   {% endfor %}
                 {% endif %}
                 {% if item.list == 17 %}
                   {% for team_K in team_K %}
-                  <option value="{{team_K.teamsdb.name}}">{{team_K.teamsdb.name}} ({{team_K.coef}}) {% if team_K.teamsdb.alphabet == 1 %} - {{team_K.teamsdb.short}} {% endif %}</option>
+                  <option value="{{team_K.teamsdb.name}}" {% if item.my_forecast and item.my_forecast.fvalue1 == team_K.teamsdb.name %} selected {% endif %}>{{team_K.teamsdb.name}} ({{team_K.coef}}) {% if team_K.teamsdb.alphabet == 1 %} - {{team_K.teamsdb.short}} {% endif %}</option>
                   {% endfor %}
                 {% endif %}
                 {% if item.list == 18 %}
                   {% for team_L in team_L %}
-                  <option value="{{team_L.teamsdb.name}}">{{team_L.teamsdb.name}} ({{team_L.coef}}) {% if team_L.teamsdb.alphabet == 1 %} - {{team_L.teamsdb.short}} {% endif %}</option>
+                  <option value="{{team_L.teamsdb.name}}" {% if item.my_forecast and item.my_forecast.fvalue1 == team_L.teamsdb.name %} selected {% endif %}>{{team_L.teamsdb.name}} ({{team_L.coef}}) {% if team_L.teamsdb.alphabet == 1 %} - {{team_L.teamsdb.short}} {% endif %}</option>
                   {% endfor %}
                 {% endif %}
                 {% if item.list == 19 %}
                   {% for team in team %}
-                  <option value="{{team.teamsdb.name}}">{{team.teamsdb.name}} ({{team.coef}}) {% if team.teamsdb.alphabet == 1 %} - {{team.teamsdb.short}} {% endif %}</option>
+                  <option value="{{team.teamsdb.name}}" {% if item.my_forecast and item.my_forecast.fvalue1 == team.teamsdb.name %} selected {% endif %}>{{team.teamsdb.name}} ({{team.coef}}) {% if team.teamsdb.alphabet == 1 %} - {{team.teamsdb.short}} {% endif %}</option>
                   {% endfor %}
                 {% endif %}
                 {% if item.list == 1400 %}
@@ -413,12 +429,12 @@
                 {% endif %}
                 {% if item.list == 69 %}
                   {% for team3rd in team3rd %}
-                  <option value="{{team3rd.name}}">{{team3rd.name}} {% if team3rd.teamsdb.alphabet == 1 %} - {{team3rd.teamsdb.short}} {% endif %} </option>
+                  <option value="{{team3rd.name}}" {% if item.my_forecast and item.my_forecast.fvalue1 == team3rd.teamsdb.name %} selected {% endif %}>{{team3rd.name}} {% if team3rd.teamsdb.alphabet == 1 %} - {{team3rd.teamsdb.short}} {% endif %} </option>
                   {% endfor %}
                 {% endif %}
                 {% if item.list == 70 %}
                   {% for teamW in teamW %}
-                  <option value="{{teamW.name}}">{{teamW.name}} {% if teamW.teamsdb.alphabet == 1 %} - {{teamW.teamsdb.short}} {% endif %} </option>
+                  <option value="{{teamW.name}}" {% if item.my_forecast and item.my_forecast.fvalue1 == teamW.teamsdb.name %} selected {% endif %}>{{teamW.name}} {% if teamW.teamsdb.alphabet == 1 %} - {{teamW.teamsdb.short}} {% endif %} </option>
                   {% endfor %}
                 {% endif %}
               </select>
@@ -441,6 +457,6 @@
       </form>
     </div>
   </div>
-  </main>
+</main>
 
   {% endblock %}
