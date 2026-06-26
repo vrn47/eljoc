@@ -1,37 +1,32 @@
-{% extends 'base_pdb.html' %}
+{% extends 'base_pdb_next.html' %}
+
+{% block banner %}
+
+<div class="eljoc-banner">
+    <img src="//imatges.vrn47.cat/Logo/BannerElJoc.png" class="eljoc-banner-img">
+    <span class="eljoc-banner-title shadow">El Joc</span>
+    <span class="eljoc-banner-title bronze">El Joc</span>
+    <span class="eljoc-banner-title bronze2">El Joc</span>
+    <span class="eljoc-banner-title bronze3">El Joc</span>
+    <span class="eljoc-banner-title bronze4">El Joc</span>
+    <span class="eljoc-banner-title silver">El Joc</span>
+    <span class="eljoc-banner-title silver2">El Joc</span>
+    <span class="eljoc-banner-title silver3">El Joc</span>
+    <span class="eljoc-banner-title silver4">El Joc</span>
+    <span class="eljoc-banner-title gold">El Joc</span>
+</div>
+
+{% endblock %}
 
 {% block content %}
 
-<style>
-    .container2 {
-        position: relative;
-        text-align: center;
-        color: white;
-    }
-
-    .centered {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-    }
-</style>
-
-<div class="container2">
-    <img src="http://imatges.vrn47.cat/Logo/Euro-FormBanner24.png" style="width:100%;"">
-    <h1 class='centered'>El Joc</h1>
-</div>
-
-<main class=" container">
-    <div class="row">
-        <div class="col-md-8 offset-md-2 mt-5">
-            <div class="row">
-                <a class="btn btn-primary" href="/login/">Login</a>
-            </div>
-            <div class="row mt-5">
-                <a class="btn btn-info" href="/register/">Register</a>
-            </div>
-        </div>
+<main class="eljoc-container col-md-8 offset-md-2">
+    <div class="row mt-5">
+        <a class="btn btn-gold" href="/login/">Login</a>
     </div>
-    </main>
-    {% endblock %}
+    <div class="row mt-5">
+        <a class="btn btn-silver" href="/register/">Register</a>
+    </div>
+</main>
+
+{% endblock %}

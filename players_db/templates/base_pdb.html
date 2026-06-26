@@ -18,7 +18,7 @@
       <a class="navbar-brand" href="/">
         <img src="//imatges.vrn47.cat/Logo/LogoElJocDEF.png" alt="Logo" width="30" height="30"
           class="d-inline-block align-text-top">
-        <text> El Joc</text>
+        <span> El Joc</span>
       </a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup"
         aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
@@ -37,6 +37,12 @@
       </div>
     </div>
   </nav>
+
+  {% block banner1 %}
+  {% endblock %}
+
+  {% block banner %}
+  {% endblock %}
 
   {% block content %}
   {% endblock %}

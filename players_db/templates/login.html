@@ -6,7 +6,6 @@
   .container2 {
     position: relative;
     text-align: center;
-    color: white;
   }
 
   .centered {
@@ -15,11 +14,71 @@
     left: 50%;
     transform: translate(-50%, -50%);
   }
+
+  .btn-gold {
+      background: linear-gradient(135deg, #f4d03f, #d4af37);
+      border: 0px solid #b8860b;
+      color: #222;
+  }
+
+  .btn-gold:hover {
+      background: linear-gradient(135deg, #d4af37, #f4d03f);
+      border-color: #a67c00;
+      color: white;
+  }
+
+  .btn-silver {
+      background: linear-gradient(135deg, #eeeeee, #c0c0c0);
+      border: 0px solid #9aa0a6;
+      color: #222;
+  }
+
+  .btn-silver:hover {
+      background: linear-gradient(135deg, #c0c0c0, #eeeeee);
+      border-color: #909090;
+      color: white;
+  }
+
+  .btn-bronze {
+      background: linear-gradient(135deg, #d9985f, #b87333);
+      border-color: 0px solid #a05a2c;
+      color: #222;
+  }
+
+  .btn-bronze:hover {
+      background: linear-gradient(135deg, #b87333, #d9985f);
+      border-color: #8c4f24;
+      color: white;
+  }
+
+  .banner-title {
+    color: #ffd700;
+    font-size: 3rem;
+    font-weight: 800;
+
+    background: linear-gradient(
+        180deg,
+        #fff4a0 0%,
+        #ffd700 30%,
+        #d4af37 60%,
+        #a67c00 100%
+    );
+
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+
+    text-shadow:
+      1px 1px 0 #c0c0c0,
+      2px 2px 0 #9f9f9f,
+      3px 3px 0 #b87333,
+      5px 5px 7px rgba(0,0,0,.45);
+  }
+
 </style>
 
 <div class="container2">
-  <img src="http://imatges.vrn47.cat/Logo/Euro-FormBanner24.png" style="width:100%;"">
-    <h1 class='centered'>Login</h1>
+  <img src="//imatges.vrn47.cat/Logo/BannerElJoc.png" style="width:100%; max-height:150px;">
+    <h1 class='centered banner-title'>Login</h1>
 </div>
 
 <main class=" container">
@@ -35,14 +94,14 @@
           <label for="email">Write your email: </label>
         </div>
 
-        <button class="btn btn-primary">
+        <button class="btn btn-gold">
           Login
         </button>
       </form>
       {% if error %}
         <form action="{% url 'register' %}" class="card card-body">
           {% csrf_token %}
-          <button class="btn btn-info">
+          <button class="btn btn-gold">
             Register
           </button>
         </form>
