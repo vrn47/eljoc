@@ -333,7 +333,7 @@
                 {% endif %}
                 {% if item.list == 53 %}
                   {% for teamPO_1 in teamPO_1 %}
-                  <option value="{{teamPO_1.name}}">{{teamPO_1.name}}</option>
+                  <option value="{{teamPO_1.name}}">{{teamPO_1.name}} {% if teamPO_1.teamsdb.alphabet == 1 %} - {{teamPO_1.teamsdb.short}} {% endif %}</option>
                   {% endfor %}
                 {% endif %}
                 {% if item.list == 54 %}
