@@ -1,70 +1,24 @@
-{% extends 'base_pdb.html' %}
+{% extends 'base_pdb_next.html' %}
+
+{% block banner %}
+
+<div class="eljoc-banner">
+    <img src="//imatges.vrn47.cat/Logo/BannerElJoc.png" class="eljoc-banner-img">
+    <span class="eljoc-banner-title shadow">Profile</span>
+    <span class="eljoc-banner-title bronze">Profile</span>
+    <span class="eljoc-banner-title silver">Profile</span>
+    <span class="eljoc-banner-title gold">Profile</span>
+</div>
+
+{% endblock %}
 
 {% block content %}
 
-<style>
-    .container2 {
-        position: relative;
-        text-align: center;
-        color: white;
-    }
-
-    .centered {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-    }
-    
-    .btn-gold {
-        background: linear-gradient(135deg, #f4d03f, #d4af37);
-        border: 0px solid #b8860b;
-        color: #222;
-    }
-
-    .btn-gold:hover {
-        background: linear-gradient(135deg, #d4af37, #f4d03f);
-        border-color: #a67c00;
-        color: white;
-    }
-
-    .btn-silver {
-        background: linear-gradient(135deg, #eeeeee, #c0c0c0);
-        border: 0px solid #9aa0a6;
-        color: #222;
-    }
-
-    .btn-silver:hover {
-        background: linear-gradient(135deg, #c0c0c0, #eeeeee);
-        border-color: #909090;
-        color: white;
-    }
-
-    .btn-bronze {
-        background: linear-gradient(135deg, #d9985f, #b87333);
-        border-color: 0px solid #a05a2c;
-        color: #222;
-    }
-
-    .btn-bronze:hover {
-        background: linear-gradient(135deg, #b87333, #d9985f);
-        border-color: #8c4f24;
-        color: white;
-    }
-
-</style>
-
-<div class="container2">
-  <img src="//imatges.vrn47.cat/Logo/Euro-FormBanner24.png" style="width:100%;"">
-    <h1 class='centered'>Player info</h1>
-</div>
-
-
 <main>
-    <div class="container">
-        <form method="POST" class="card card-body col-md-8 offset-md-2 mt-5">
+    <div class="eljoc-container col-md-6 offset-md-3">
+        <form method="POST" class="card card-body mt-5">
             <div class="row">
-                <div class="col-6 mt-1">
+                <div class="col-6">
                     {% csrf_token %}
                     <div class="form-floating mb-3">
                         <input type="email" name="email" id="email" class="form-control" value="{{ playerDB.email }}" readonly>
@@ -79,7 +33,7 @@
                         <label for="lname">Last name: </label>
                     </div>
                 </div>
-                <div class="col-3 mt-1">
+                <div class="col-3">
                     <div class="form-floating mb-3">
                         <input type="number" name="stars" id="stars" class="form-control" value="{{ playerDB.stars }}" readonly>
                         <label for="stars">Stars: </label>
@@ -93,61 +47,54 @@
                         <label for="id">Id: </label>
                     </div>
                 </div>
-                <div class="col-3 mt-1">
-                    <div class="mb-3">
-                        <img src="//imatges.vrn47.cat/Honours/Stars/v2/{{ playerDB.stars }}.png" width="60" height="60">
+                <div class="col-3">
+                    <div class="form-floating mb-3">
+                        <img src="//imatges.vrn47.cat/Honours/Stars/v2/{{ playerDB.stars }}.png" width="80" height="80">
                     </div>
                     <div class="form-floating mb-3">
-                        <img src="//imatges.vrn47.cat/Logo/LogoElJocDEF50.png" width="60" height="60">
+                        <img src="//imatges.vrn47.cat/Logo/LogoElJocDEF50.png" width="80" height="80">
                     </div>
-                    <div class="form-floating mb-3">
-                        <input type="number" name="winnable" id="winnable" class="form-control" value="{{ player.winnable }}" readonly>
-                        <label for="stars">Winnable: </label>
-                    </div>
+
                 </div>
             </div>
         </form>
 
-        <div class="container">
-            <div class="col-md-8 offset-md-2 mt-5">
-                <h3>Active editions</h3>
-
+        <div>
+            <div class="mt-5">
+                <h3>Ongoing editions</h3>
                 {% for card in edition_cards %}
-                <div class="card card-body mb-3">
+                <div class="card card-body">
                     <h5>{{ card.edition.name }}</h5>
-
                     {% if card.is_joined %}
-                        <p class="text-success mb-2">You are already registered for this edition.</p>
+                        <p class="text-success mb-2"><i class="bi bi-check2-square"> You are already registered for this edition.</i></p>
 
                         <form method="POST">
                             {% csrf_token %}
                             <input type="hidden" name="edition_id" value="{{ card.edition.id }}">
                             <button class="btn btn-gold col-md-12">
-                                Go to competition menu
+                                <i class="bi bi-play-circle"> Go to competition menu</i>
                             </button>
                         </form>
                     {% else %}
-                        <p class="text-muted mb-2">You are not registered for this edition yet.</p>
+                        <p class="text-muted mb-2"><i class="bi bi-x-square"> You are not registered for this edition yet.</i></p>
 
                         <form method="POST">
                             {% csrf_token %}
                             <input type="hidden" name="edition_id" value="{{ card.edition.id }}">
                             <button class="btn btn-silver col-md-12">
-                                Join
+                                <i class="bi bi-box-arrow-in-right"> Join</i>
                             </button>
                         </form>
                     {% endif %}
                 </div>
                 {% empty %}
                     <div class="card card-body">
-                        <p class="mb-0">There are no active editions right now.</p>
+                        <p class="text-danger mb-2"><i class="bi bi-ban"> There are no active editions right now.</i></p>
                     </div>
                 {% endfor %}
             </div>
-        </div>        
-        
+        </div>
     </div>
 </main>
 
-
-    {% endblock %}
+{% endblock %}

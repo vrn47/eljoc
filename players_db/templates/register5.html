@@ -1,61 +1,46 @@
-{% extends 'base_pdb.html' %}
+{% extends 'base_pdb_next.html' %}
+
+{% block banner %}
+
+<div class="eljoc-banner">
+    <img src="//imatges.vrn47.cat/Logo/BannerElJoc.png" class="eljoc-banner-img">
+    <span class="eljoc-banner-title shadow">Register</span>
+    <span class="eljoc-banner-title bronze">Register</span>
+    <span class="eljoc-banner-title silver">Register</span>
+    <span class="eljoc-banner-title gold">Register</span>
+</div>
+
+{% endblock %}
 
 {% block content %}
 
-<style>
-  .container2 {
-    position: relative;
-    text-align: center;
-    color: white;
-  }
-
-  .centered {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    size: 30px;
-  }
-</style>
-
-<div class="container2">
-  <img src="//imatges.vrn47.cat/Logo/Euro-FormBanner24.png" style="width:100%;"">
-    <h1 class='centered'>Register</h1>
-</div>
-
-
-<main class=" container">
-  <div class="row">
-    <div class="col-md-8 offset-md-2 mt-5">
-      <form method="POST" class="card card-body">
-
-        <div class="mb-3">
+<main class="eljoc-container col-md-6 offset-md-3">
+  <div class="row mt-5">
+      <form method="POST" class="card card-body txt-gold">
+        <div class="mb">
           {{error}}
         </div>
-
         {% csrf_token %}
+        <div class="form-floating mb-3">
+          <input type="email" name="email" id="email" class="form-control" placeholder="" value="{{ email }}" required>
+          <label for="email"><i class="bi bi-at"></i> Email: </label>
+          <div class="helptext"></div>
+        </div>
+        <div class="form-floating mb-3">
+          <input type="text" name="fname" id="fname" class="form-control" placeholder="" required>
+          <label for="fname"><i class="bi bi-person"></i> Name: </label>
+          <div class="helptext"></div>
+        </div>
+        <div class="form-floating mb-3">
+          <input type="text" name="lname" id="lname" class="form-control" placeholder="" required>
+          <label for="lname"><i class="bi bi-person-vcard"></i> Last name: </label>
+          <div class="helptext"></div>
+        </div>
 
-        <div class="form-floating mb-3">
-          <input type="email" name="email" id="email" class="form-control" placeholder="Write your email" value="{{ email }}" required>
-          <label for="email">Email: </label>
-          <div class="helptext"></div>
-        </div>
-        <div class="form-floating mb-3">
-          <input type="text" name="fname" id="fname" class="form-control" placeholder="Write your first name" required>
-          <label for="fname">Name: </label>
-          <div class="helptext"></div>
-        </div>
-        <div class="form-floating mb-3">
-          <input type="text" name="lname" id="lname" class="form-control" placeholder="Write your last name" required>
-          <label for="lname">Last name: </label>
-          <div class="helptext"></div>
-        </div>
-
-        <button class="btn btn-primary">
-          Register
+        <button class="btn btn-gold">
+          <i class="bi bi-send"> Send</i>
         </button>
       </form>
-    </div>
   </div>
 </main>
 

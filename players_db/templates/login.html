@@ -1,114 +1,43 @@
-{% extends 'base_pdb.html' %}
+{% extends 'base_pdb_next.html' %}
+
+{% block banner %}
+
+<div class="eljoc-banner">
+    <img src="//imatges.vrn47.cat/Logo/BannerElJoc.png" class="eljoc-banner-img">
+    <span class="eljoc-banner-title shadow">Login</span>
+    <span class="eljoc-banner-title bronze">Login</span>
+    <span class="eljoc-banner-title silver">Login</span>
+    <span class="eljoc-banner-title gold">Login</span>
+</div>
+
+{% endblock %}
 
 {% block content %}
 
-<style>
-  .container2 {
-    position: relative;
-    text-align: center;
-  }
-
-  .centered {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-  }
-
-  .btn-gold {
-      background: linear-gradient(135deg, #f4d03f, #d4af37);
-      border: 0px solid #b8860b;
-      color: #222;
-  }
-
-  .btn-gold:hover {
-      background: linear-gradient(135deg, #d4af37, #f4d03f);
-      border-color: #a67c00;
-      color: white;
-  }
-
-  .btn-silver {
-      background: linear-gradient(135deg, #eeeeee, #c0c0c0);
-      border: 0px solid #9aa0a6;
-      color: #222;
-  }
-
-  .btn-silver:hover {
-      background: linear-gradient(135deg, #c0c0c0, #eeeeee);
-      border-color: #909090;
-      color: white;
-  }
-
-  .btn-bronze {
-      background: linear-gradient(135deg, #d9985f, #b87333);
-      border-color: 0px solid #a05a2c;
-      color: #222;
-  }
-
-  .btn-bronze:hover {
-      background: linear-gradient(135deg, #b87333, #d9985f);
-      border-color: #8c4f24;
-      color: white;
-  }
-
-  .banner-title {
-    color: #ffd700;
-    font-size: 3rem;
-    font-weight: 800;
-
-    background: linear-gradient(
-        180deg,
-        #fff4a0 0%,
-        #ffd700 30%,
-        #d4af37 60%,
-        #a67c00 100%
-    );
-
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-
-    text-shadow:
-      1px 1px 0 #c0c0c0,
-      2px 2px 0 #9f9f9f,
-      3px 3px 0 #b87333,
-      5px 5px 7px rgba(0,0,0,.45);
-  }
-
-</style>
-
-<div class="container2">
-  <img src="//imatges.vrn47.cat/Logo/BannerElJoc.png" style="width:100%; max-height:150px;">
-    <h1 class='centered banner-title'>Login</h1>
-</div>
-
-<main class=" container">
-  <div class="row">
-    <div class="col-md-8 offset-md-2 mt-5">
-      <form method="POST" class="card card-body">
-        <div class="mb-3">
-          {{ error }}
-        </div>
+<main class="eljoc-container col-md-8 offset-md-2">
+  <div class="row mt-5">
+    <form method="POST" class="card card-body">
+      <div class="">
+        {{ error }}
+      </div>
+      {% csrf_token %}
+      <div class="form-floating mb-3 txt-gold">
+        <input type="email" name="email" id="email" class="form-control" placeholder="Write your email" required>
+        <label for="email"><i class="bi bi-at"></i> Write your email: </label>
+      </div>
+      <button class="btn btn-gold">
+        Login
+      </button>
+    </form>
+    {% if error %}
+      <form action="{% url 'register' %}" class="card card-body">
         {% csrf_token %}
-        <div class="form-floating mb-3">
-          <input type="email" name="email" id="email" class="form-control" placeholder="Write your email" required>
-          <label for="email">Write your email: </label>
-        </div>
-
-        <button class="btn btn-gold">
-          Login
+        <button class="btn btn-silver">
+          Register
         </button>
       </form>
-      {% if error %}
-        <form action="{% url 'register' %}" class="card card-body">
-          {% csrf_token %}
-          <button class="btn btn-gold">
-            Register
-          </button>
-        </form>
-      {% endif %}
-    </div>
+    {% endif %}
   </div>
-  </main>
+</main>
 
-
-  {% endblock %}
+{% endblock %}
