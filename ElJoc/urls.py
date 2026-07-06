@@ -26,8 +26,9 @@ urlpatterns = [
     path('login/', views.login, name = 'login'),
     path('register/', views.register5, name = 'register5'),
     path('about/', views.about, name = 'about'),
-    path('playerinfo/', views.index, name = 'index'),
-    path('playerinfo/<int:pid>/', views.playerinfo5, name = 'playerinfo5'),
+    path('history/', views.history, name = 'history'),
+    #path('playerinfo/', views.index, name = 'index'),
+    path('playerinfo/', views.playerinfo5, name = 'playerinfo5'),
 
     path('items/', views1.items, name = 'items'),
     path('forecasts/', views1.forecasts5, name = 'forecasts5'),
@@ -38,6 +39,7 @@ urlpatterns = [
     path('footballdata/', views1.footballdata, name = 'footballdata'),
     path('game/', views1.game, name = 'game'),
     path('oldforecasts/', views1.oldforecasts, name = 'oldforecasts'),
+    path('checkoldforecasts/', views1.checkoldforecasts, name = 'checkoldforecasts'),
     path('pointstable/', views1.pointstable, name = 'pointstable'),
     path('apiresults/', views1.apiresults, name = 'apiresults'),
     path('communities/', views1.communities, name = 'communities'),
@@ -48,5 +50,6 @@ urlpatterns = [
     path('', views.access5, name='access5'),
     path('register5/', views.register, name='register'),
     path('playerinfo5/<int:pid>/', views.playerinfo, name = 'playerinfo'),
+    path("logout/", views.logout, name="logout"),
 
 ]

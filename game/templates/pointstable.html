@@ -1,34 +1,28 @@
-{% extends 'base_g.html' %}
+{% extends 'base_g_next.html' %}
+
+{% block banner %}
+
+<div class="eljoc-banner">
+    <img src="//imatges.vrn47.cat/Logo/{{ banner }}" style="width:100%;" class="eljoc-banner-img">
+    <span class="eljoc-banner-title shadow">Points table</span>
+    <span class="eljoc-banner-title bronze">Points table</span>
+    <span class="eljoc-banner-title silver">Points table</span>
+    <span class="eljoc-banner-title gold">Points table</span>
+</div>
+
+{% endblock %}
 
 {% block content %}
 
 <style>
-    .container2 {
-        position: relative;
-        text-align: center;
-        color: white;
-    }
-
-    .centered {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-    }
-
     table, td, th {
-        border: blue 1px solid;
+        border: goldenrod 1px solid;
         font-size: xx-small;        
     }
-
 </style>
-<main>
-    <div class="container2">
-        <img src="http://imatges.vrn47.cat/Logo/Euro-FormBanner24.png" style="width:100%;"">
-        <h1 class='centered'>Points table</h1>
-    </div>
 
-    <div class="mt-5">
+<main>
+    <div class="card card-body mt-4">
         {% csrf_token %}
         {{ forecasts_html|safe }}
     </div>

@@ -151,7 +151,7 @@
         color: goldenrod;
       }
 
-      .navbar {
+     .navbar {
         background: #ffffff00;
         border-top: 10px solid;
         border-image: linear-gradient(
@@ -183,7 +183,7 @@
         letter-spacing: .5px;
       }
 
-      .eljoc-logo {
+       .eljoc-logo {
         display: flex;
         align-items: center;   /* centra verticalment logo i text */
         gap: 0.5rem;           /* separació entre logo i text */
@@ -207,10 +207,106 @@
         font-size: .8rem;
         font-weight: 700;
       }
-
+      
       .eljoc-explanation {
-          font-size: 0.6rem;
+        font-size: 0.6rem;
       }
+
+      .eljoc-subtitle {
+        font-size: 0.75em;
+      }
+
+      .eljoc-subtable {
+        width: 50%;
+      }
+
+      /* SVG */
+
+      .ranking-svg {
+          width: 100%;
+          height: auto;
+      }
+
+      .ranking-bg {
+          fill: #ffffff;
+      }
+
+      .ranking-grid-line {
+          stroke: #e2e2e2;
+          stroke-width: 1;
+      }
+
+      .ranking-rank-label {
+          font-size: 12px;
+          font-weight: 700;
+          fill: #666;
+          dominant-baseline: middle;
+          text-anchor: end;
+      }
+
+      .ranking-day-label {
+          font-size: 12px;
+          font-weight: 700;
+          fill: #222;
+          text-anchor: middle;
+      }
+
+      .ranking-player-label {
+          font-size: 12px;
+          font-weight: 700;
+      }
+
+      .ranking-text-gold { fill: #d4af37; }
+      .ranking-text-silver { fill: #888; }
+      .ranking-text-bronze { fill: #b87333; }
+      .ranking-text-normal { fill: #555; }
+
+      .ranking-point{
+        stroke:white;
+        stroke-width:2;
+      }
+
+      .ranking-point.ranking-gold{
+        fill:#d4af37;
+      }
+
+      .ranking-point.ranking-silver{
+        fill:#c0c0c0;
+      }
+
+      .ranking-point.ranking-bronze{
+        fill:#b87333;
+      }
+
+      .ranking-point.ranking-normal{
+        fill:#666666;
+      }
+
+      .ranking-line {
+        fill: none;              /* IMPORTANT: evita que SVG ompli la forma en negre */
+        stroke-width: 3;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+
+      .ranking-line.ranking-gold {
+        stroke: #d4af37;
+      }
+
+      .ranking-line.ranking-silver {
+        stroke: #c0c0c0;
+      }
+
+      .ranking-line.ranking-bronze {
+        stroke: #b87333;
+      }
+
+      .ranking-line.ranking-normal {
+        stroke: #999999;
+        stroke-width: 2;
+        opacity: .75;
+      }
+
 
     </style>
 
@@ -223,15 +319,21 @@
           <img src="//imatges.vrn47.cat/Logo/LogoElJocDEF.png" alt="Logo" class="eljoc-logo-img d-inline-block align-text-center">
           <span class="gold eljoc-navtitle eljoc-logo-title ms-2"> El Joc</span>
         </a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup"
-          aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+        {% if eljocsession_edition_id %}<a class="navbar-brand" href="/playerinfo"><span class="player-badge ms-4"> {{eljocsession_edition_name}}</span></a>{% endif %}
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
           <div class="navbar-nav ms-auto">
-            <a class="nav-link {% if request.resolver_match.url_name == 'about' %} active {% endif %}" href="/about" data-bs-toggle="tooltip" data-bs-placement="bottom" title="About">About</a>
-            <a class="nav-link {% if request.resolver_match.url_name == 'history' %} active {% endif %}" href="/history" data-bs-toggle="tooltip" data-bs-placement="bottom" title="History">History</a>
-            {% if eljocsession_username %} <a class="nav-link {% if request.resolver_match.url_name == 'playerinfo5' %} active {% endif %}" href="/playerinfo" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Profile"><span class="player-badge"><i class="bi bi-person-fill"></i>  {{ eljocsession_playerdb_id }}  {{ eljocsession_username }} </span></span> {% endif %}
+            <a class="nav-link {% if request.resolver_match.url_name == 'game' %} active {% endif %}" href="/game" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Game home"><img src="//imatges.vrn47.cat/Logo/LogoElJocDEF.png" width="17" height="17"</a>
+            <a class="nav-link {% if request.resolver_match.url_name == 'forecasts5' %} active {% endif %}" href="/forecasts" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Forecasts">🎯</a>
+            <a class="nav-link {% if request.resolver_match.url_name == 'standings' %} active {% endif %}" href="/standings" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Standings">🏆</a>
+            <a class="nav-link {% if request.resolver_match.url_name == 'statistics' %} active {% endif %}" href="/statistics" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Statistics">📊</a>
+            <a class="nav-link {% if request.resolver_match.url_name == 'oldforecasts' %} active {% endif %}" href="/oldforecasts" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Points">⭐</a>
+            <a class="nav-link {% if request.resolver_match.url_name == 'pointstable' %} active {% endif %}" href="/pointstable" data-bs-toggle="tooltip" data-bs-placement="bottom" title="History">📜</a>
+            <a class="nav-link {% if request.resolver_match.url_name == 'communities' %} active {% endif %}" href="/communities" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Communities">👥</a>
+            {% if eljocsession_username %} <a class="nav-link {% if request.resolver_match.url_name == 'playerinfo5' %} active {% endif %}" href="/playerinfo" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Profile"><span class="player-badge"><i class="bi bi-person-fill"></i>  {{ eljocsession_playerdb_id }}  {{ eljocsession_username }}</span></a>{% endif %}
             {% if eljocsession_username %} <a class="nav-link" href="/logout" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Logout"><i class="bi bi-box-arrow-right"></i></a> {% endif %}
           </div>
         </div>
@@ -261,5 +363,4 @@
     </script>
 
   </body>
-
 </html>

@@ -49,7 +49,7 @@
                 </div>
                 <div class="col-3">
                     <div class="form-floating mb-3">
-                        <img src="//imatges.vrn47.cat/Honours/Stars/v2/{{ playerDB.stars }}.png" width="80" height="80">
+                        <img src="//imatges.vrn47.cat/Honours/Stars/v2/{% if playerDB.stars %}{{ playerDB.stars }}{% else %}Xum{% endif %}.png" width="80" height="80">
                     </div>
                     <div class="form-floating mb-3">
                         <img src="//imatges.vrn47.cat/Logo/LogoElJocDEF50.png" width="80" height="80">

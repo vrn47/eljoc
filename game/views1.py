@@ -22,20 +22,21 @@ def game(request):
         
     print('GAME')
 
-    print("PLAYER:", request.session.get("player_id"))
-    print("EMAIL:", request.session.get("player_email"))
-    print("EDITION:", request.session.get("edition_id"))
+    print("PLAYER:", request.session.get("eljocsession_player_id"))
+    print("EMAIL:", request.session.get("eljocsession_player_email"))
+    print("EDITION:", request.session.get("eljocsession_edition_id"))
 
 # canvia l'edició en curs ja sigui manual en <<currentedition = 37>> o automàtic en <<currentedition = request.session.get('edition_id', 37)>>
 #   currentedition = 37
-    currentedition = request.session.get('edition_id', 37)
-    player_id = request.session.get("player_id")
+    currentedition = request.session.get('eljocsession_edition_id', 37)
+    player_id = request.session.get("eljocsession_player_id")
 
 # codi per mostrar el banner corresponent a la competició
     competition = Editions.objects.get(id=currentedition)
     competition_code = competition.competitions.id
     if competition_code == 1:
-        banner = "Euro-FormBanner24.png"
+        banner = "BannerElJoc.png"
+#        banner = "Euro-FormBanner24.png"
     elif competition_code == 2:
         banner = "UCL-FormBanner.jpg"
     elif competition_code == 3:
@@ -184,80 +185,8 @@ def game(request):
         )
     #    print('stats', stats)
 
-    # codi char.jss
-
-        stnd4 = items.values('f_player').annotate(
-            tot=Sum('points'),
-            tot2=Sum(('points'),filter=Q(items__dates__lt=data)),
-            fn=F('f_player__p_fname'),
-            ln=F('f_player__p_lname'),
-            name=Concat(Substr('f_player__p_fname', 1, 1), F('f_player__p_lname'), output_field=CharField()),
-            stars=F('f_player__playerdb_id__stars'),
-            dlt1=Sum(('points'),filter=Q(items__dates__lte=data)),
-            dlt2=Sum(('points'),filter=Q(items__dates__lte=data-1)),
-            dlt3=Sum(('points'),filter=Q(items__dates__lte=data-2)),
-            dlt4=Sum(('points'),filter=Q(items__dates__lte=data-3)),
-            dlt5=Sum(('points'),filter=Q(items__dates__lte=data-4)),
-            rank0=Window(expression=Rank(),order_by=F('tot').desc()),
-            rank1=Window(expression=Rank(),order_by=F('tot2').desc()),
-        ).order_by('-tot', '-tot2', '-stars', 'fn')
-    #    print('stnd4', stnd4)
-
-        stats4 = stnd4.aggregate(
-            maxdlt1=Max('dlt1'),
-            mindlt1=Min('dlt1'),
-            avgdlt1=Avg('dlt1'),
-            sumdlt1=Sum('dlt1'),
-            cntdlt1=Count('dlt1'),
-            maxdlt2=Max('dlt2'),
-            mindlt2=Min('dlt2'),
-            avgdlt2=Avg('dlt2'),
-            sumdlt2=Sum('dlt2'),
-            cntdlt2=Count('dlt2'),
-            maxdlt3=Max('dlt3'),
-            mindlt3=Min('dlt3'),
-            avgdlt3=Avg('dlt3'),
-            sumdlt3=Sum('dlt3'),
-            cntdlt3=Count('dlt3'),
-            maxdlt4=Max('dlt4'),
-            mindlt4=Min('dlt4'),
-            avgdlt4=Avg('dlt4'),
-            sumdlt4=Sum('dlt4'),
-            cntdlt4=Count('dlt4'),
-            maxdlt5=Max('dlt5'),
-            mindlt5=Min('dlt5'),
-            avgdlt5=Avg('dlt5'),
-            sumdlt5=Sum('dlt5'),
-            cntdlt5=Count('dlt5'),
-        )
-
-        days = [data4, data3, data2, data1, data0]
-        nicks = list(stnd4.values_list('name', flat=True))
-        delta1 = list(stnd4.values_list('dlt1', flat=True))
-        delta2 = list(stnd4.values_list('dlt2', flat=True))
-        delta3 = list(stnd4.values_list('dlt3', flat=True))
-        delta4 = list(stnd4.values_list('dlt4', flat=True))
-        delta5 = list(stnd4.values_list('dlt5', flat=True))
-        print('delta1', delta1)
-
-
-        listdelta = np.array(nicks)
-        mida = listdelta.size
-        print('mida', mida)
-        listdelta = np.append(listdelta, delta1)
-        listdelta = np.append(listdelta, delta2)
-        listdelta = np.append(listdelta, delta3)
-        listdelta = np.append(listdelta, delta4)
-        listdelta = np.append(listdelta, delta5)
-    # compte que el 44 d'aquí sota és el nombre de jugadors actius
-        listdelta = np.reshape(listdelta, (6, mida))
-        listdelta = np.transpose(listdelta)
-        print('listdelta', listdelta)
-##        print('datax0', list(np.flip(listdelta[41])))
-##        print('label0', listdelta[41][0])
-
-#------------------
-# prioritats
+        #------------------
+        # prioritats
 
         now = timezone.now()
         pending_items_dashboard = list(pending_items[:5])
@@ -269,13 +198,249 @@ def game(request):
             elif item.close <= now + timedelta(hours=72):
                 item.urgency = "warning"
 
-#------------------
+        #------------------
+
+        """
+        # Evolució de la classificació - darrers 5 dies
+        #
+        # Objectiu:
+        # - Obternir els darrers 5 dies jugats.
+        # - Calcular els punts acumulats de cada jugador a cada dia.
+        # - Convertir els punts acumulats en posicions.
+        """
+
+        Pst = 5   # Quantitat de jugadors que surten a la gràfica
+
+        # 01 Extraiem les darreres 5 dates d'items
+        last_days = list(
+            Items.objects.filter(
+                editions=currentedition,
+                value1__isnull=False,
+            )
+            .order_by("-dates")
+            .values_list("dates", flat=True)
+            .distinct()[:5]
+        )
+
+        # 02 Ordenem dates de més antiga cap a més recent
+        last_days = sorted(last_days)
+
+        # 03 Calculem els punts acumulats fins a data d'avui.
+        ranking_by_day = {}
+        for day in last_days:
+            day_standings = Forecasts.objects.filter(
+                f_isactive=1,
+                items__editions=currentedition,
+                items__dates__lte=day,
+                ts__lte=timezone.now()
+            ).values(
+                "f_player",
+                "f_player__p_fname",
+                "f_player__p_lname",
+                "f_player__playerdb_id__stars"
+            ).annotate(
+                points=Sum("points"),
+                name=Concat(
+                    Substr("f_player__p_fname", 1, 1),
+                    F("f_player__p_lname"),
+                    output_field=CharField()
+                ),
+                stars=F("f_player__playerdb_id__stars")
+            ).order_by(
+                "-points",
+                "-stars",
+                "f_player__p_fname"
+            )
+
+            # 04 Assign ranking position.
+            ranking_by_day[day] = []
+            position = 1
+            for row in day_standings:
+                ranking_by_day[day].append({
+                    "player_id": row["f_player"],
+                    "name": row["name"],
+                    "points": row["points"] or 0,
+                    "rank": position,
+                    "stars": row["stars"] or 0
+                })
+                position += 1
+
+        """
+        # Preparar les dades per a la gràfica.
+        #
+        # La gràfica necessita una línia per jugador i cada jugador té:
+        # - nom (tipus VRoig)
+        # - punts acumulats dels 5 dies
+        # - ranking dels 5 dies
+        """
+
+        players_chart = {}
+        for day in last_days:
+            for row in ranking_by_day[day]:
+                player_id = row["player_id"]
+                if player_id not in players_chart:
+                    players_chart[player_id] = {
+                        "name": row["name"],
+                        "points": [],
+                        "ranks": []
+                    }
+                players_chart[player_id]["points"].append(row["points"])
+                players_chart[player_id]["ranks"].append(row["rank"])
+
+        """
+        # Seleccionar només el top 10 per a simplificar la gràfica i fer-la més llegible
+        # Later we can add:
+        # - current user always visible
+        # - top 5 only
+        # - podium only
+        """
+        current_day = last_days[-1]
+        current_top_players = [
+            row["player_id"]
+            for row in ranking_by_day[current_day][:Pst]
+        ]
+        ranking_chart_data = [
+            players_chart[player_id]
+            for player_id in current_top_players
+        ]
+
+        print("RANKING CHART DAYS:", last_days)
+        print("RANKING CHART DATA:", ranking_chart_data)
+
+        """
+        # Estructura final de la gràfica que prepara les dades per mostrar-les.
+        # Mantenim la lògica de dades separades de la lògica gràfica.
+        #
+        # Per cada jugador, calculem:
+        # - posició actual
+        # - moviment de posició +/-
+        # - podi: viaualització en mode El Joc gold/silver/bronze/normal
+        """
+
+        ranking_chart = []
+        for player in ranking_chart_data:
+            current_rank = player["ranks"][-1]
+            first_rank = player["ranks"][0]
+            movement = first_rank - current_rank
+            best_rank = min(player["ranks"])
+            worst_rank = max(player["ranks"])
+            current_points = player["points"][-1]
+            if current_rank == 1:
+                medal_class = "gold"
+            elif current_rank == 2:
+                medal_class = "silver"
+            elif current_rank == 3:
+                medal_class = "bronze"
+            else:
+                medal_class = "normal"
+
+            ranking_chart.append({
+                "name": player["name"],
+                "ranks": player["ranks"],
+                "points": player["points"],
+                "current_rank": current_rank,
+                "movement": movement,
+                "medal_class": medal_class,
+            })
+
+        # Sort by current ranking position.
+        ranking_chart = sorted(
+            ranking_chart,
+            key=lambda x: x["current_rank"]
+        )
+
+        print("RANKING CHART:", ranking_chart)
+
+        # SVG constants: defineixen l'àrea útil de la gràfica reservant espai
+        POSITIONS = Pst   # Nombre de jugadors a la gràfica
+        SVG_WIDTH = 900
+        SVG_HEIGHT = 360
+        LEFT_MARGIN = 90   #Espai per a les posicions #1, #2, etc. a l'esquerra
+        RIGHT_MARGIN = 160    #Espai per posar el nom del jugador a la dreta
+        TOP_MARGIN = 60    #Espai per als dies a dalt
+        BOTTOM_MARGIN = 35
+
+        CHART_WIDTH = SVG_WIDTH - LEFT_MARGIN - RIGHT_MARGIN
+        CHAR_HEIGHT = SVG_HEIGHT - TOP_MARGIN - BOTTOM_MARGIN
+
+        # Tenim 5 dies. La distància entre dies és l'amplada útil dividida pel nombre d'intervals. Amb 5 dies hi ha 4 intervals.
+        DAY_STEP = CHART_WIDTH / (len(last_days) - 1)
+        # Mostrem Top 10. La posició 1 és a dalt i la 10 a baix. Entre 1 i 10 hi ha 9 intervals.
+        RANK_STEP = CHAR_HEIGHT / (POSITIONS - 1)
+
+        # SVG grid: # Preparem les línies horitzontals de la graella. Cada línia correspon a una posició del rànquing.
+        ranking_grid = []
+
+        for rank in range(1, 11):
+            y = TOP_MARGIN + (rank - 1) * RANK_STEP
+
+            ranking_grid.append({
+                "rank": rank,
+                "y": round(y, 2)
+            })
+
+        # SVG day labels: Preparem la posició X dels dies. Així el template no ha de calcular res.
+        ranking_day_labels = []
+
+        for i, day in enumerate(last_days):
+            x = LEFT_MARGIN + i * DAY_STEP
+
+            ranking_day_labels.append({
+                "day": day,
+                "x": round(x, 2),
+                "y": 38
+            })
+
+        # SVG player lines and points. Per cada jugador:
+        # - convertim cada rank en una coordenada x/y
+        # - preparem els punts individuals
+        # - preparem el text per a la polyline
+        # - preparem la posició del nom del jugador a la dreta
+
+        for player in ranking_chart:
+
+            svg_points = []
+
+            for i, rank in enumerate(player["ranks"]):
+
+                # X depèn del dia.
+                x = LEFT_MARGIN + i * DAY_STEP
+
+                # Y depèn de la posició.
+                # Rank 1 queda a dalt; rank 10 queda a baix.
+                y = TOP_MARGIN + (rank - 1) * RANK_STEP
+
+                svg_points.append({
+                    "x": round(x, 2),
+                    "y": round(y, 2),
+                    "rank": rank
+                })
+
+            # IMPORTANT: Aquestes línies han d'anar fora del bucle de ranks. Si les posem dins, la línia es recalcula mentre encara no tenim tots els punts del jugador.
+            player["svg_points"] = svg_points
+
+            # String que utilitza SVG per dibuixar la línia. Exemple: "90,60 252.5,60 415,60 577.5,60 740,60"
+            player["svg_polyline_points"] = " ".join(
+                f"{point['x']},{point['y']}"
+                for point in svg_points
+            )
+
+            # Posició del nom del jugador, just a la dreta de l'últim punt.
+            player["svg_label_x"] = round(svg_points[-1]["x"] + 16, 2)
+            player["svg_label_y"] = round(svg_points[-1]["y"] + 4, 2)
+
+
+        print("RANKING GRID:", ranking_grid)
+        print("RANKING DAY LABELS:", ranking_day_labels)
+        print("RANKING CHART SVG:", ranking_chart)
+
+
+    #------------------
 
         return render(request, 'game.html', {
                 'standings': stnd5,
                 'stats': stats,
                 'data': data0,
-                'labels': days,
                 'competition': competition,
                 'banner': banner,
                 'pending_items': pending_items_dashboard,
@@ -291,99 +456,20 @@ def game(request):
                 'warning_pct': warning_pct,
                 'normal_pct': normal_pct,
                 'username': username,
-##                'datax0': list(np.flip(listdelta[0])),
-##                'datax1': list(np.flip(listdelta[1])),
-##                'datax2': list(np.flip(listdelta[2])),
-##                'datax3': list(np.flip(listdelta[3])),
-##                'datax4': list(np.flip(listdelta[4])),
-##                'datax5': list(np.flip(listdelta[5])),
-##                'datax6': list(np.flip(listdelta[6])),
-##                'datax7': list(np.flip(listdelta[7])),
-##                'datax8': list(np.flip(listdelta[8])),
-##                'datax9': list(np.flip(listdelta[9])),
-##                'datax10': list(np.flip(listdelta[10])),
-##                'datax11': list(np.flip(listdelta[11])),
-##                'datax12': list(np.flip(listdelta[12])),
-##                'datax13': list(np.flip(listdelta[13])),
-##                'datax14': list(np.flip(listdelta[14])),
-##                'datax15': list(np.flip(listdelta[15])),
-##                'datax16': list(np.flip(listdelta[16])),
-##                'datax17': list(np.flip(listdelta[17])),
-##                'datax18': list(np.flip(listdelta[18])),
-##                'datax19': list(np.flip(listdelta[19])),
-##                'datax20': list(np.flip(listdelta[20])),
-##                'datax21': list(np.flip(listdelta[21])),
-##                'datax22': list(np.flip(listdelta[22])),
-##                'datax23': list(np.flip(listdelta[23])),
-##                'datax24': list(np.flip(listdelta[24])),
-##                'datax25': list(np.flip(listdelta[25])),
-##                'datax26': list(np.flip(listdelta[26])),
-##                'datax27': list(np.flip(listdelta[27])),
-##                'datax28': list(np.flip(listdelta[28])),
-##                'datax29': list(np.flip(listdelta[29])),
-##                'datax30': list(np.flip(listdelta[30])),
-##                'datax31': list(np.flip(listdelta[31])),
-##                'datax32': list(np.flip(listdelta[32])),
-##                'datax33': list(np.flip(listdelta[33])),
-##                'datax34': list(np.flip(listdelta[34])),
-##                'datax35': list(np.flip(listdelta[35])),
-##                'datax36': list(np.flip(listdelta[36])),
-##                'datax37': list(np.flip(listdelta[37])),
-##                'datax38': list(np.flip(listdelta[38])),
-##                'datax39': list(np.flip(listdelta[39])),
-##                'datax40': list(np.flip(listdelta[40])),
-##                'datax41': list(np.flip(listdelta[41])),
-##                'label0': listdelta[0][0],
-##                'label1': listdelta[1][0],
-##                'label2': listdelta[2][0],
-##                'label3': listdelta[3][0],
-##                'label4': listdelta[4][0],
-##                'label5': listdelta[5][0],
-##                'label6': listdelta[6][0],
-##                'label7': listdelta[7][0],
-##                'label8': listdelta[8][0],
-##                'label9': listdelta[9][0],
-##                'label10': listdelta[10][0],
-##                'label11': listdelta[11][0],
-##                'label12': listdelta[12][0],
-##                'label13': listdelta[13][0],
-##                'label14': listdelta[14][0],
-##                'label15': listdelta[15][0],
-##                'label16': listdelta[16][0],
-##                'label17': listdelta[17][0],
-##                'label18': listdelta[18][0],
-##                'label19': listdelta[19][0],
-##                'label20': listdelta[20][0],
-##                'label21': listdelta[21][0],
-##                'label22': listdelta[22][0],
-##                'label23': listdelta[23][0],
-##                'label24': listdelta[24][0],
-##                'label25': listdelta[25][0],
-##                'label26': listdelta[26][0],
-##                'label27': listdelta[27][0],
-##                'label28': listdelta[28][0],
-##                'label29': listdelta[29][0],
-##                'label30': listdelta[30][0],
-##                'label31': listdelta[31][0],
-##                'label32': listdelta[32][0],
-##                'label33': listdelta[33][0],
-##                'label34': listdelta[34][0],
-##                'label35': listdelta[35][0],
-##                'label36': listdelta[36][0],
-##                'label37': listdelta[37][0],
-##                'label38': listdelta[38][0],
-##                'label39': listdelta[39][0],
-##                'label40': listdelta[40][0],
-##                'label41': listdelta[41][0],
+                "ranking_chart_days": last_days,
+                "ranking_chart_data": ranking_chart_data,
+                "ranking_chart": ranking_chart,
+                "ranking_grid": ranking_grid,
+                "ranking_day_labels": ranking_day_labels,
             })
 
 def forecasts(request):
 
     print('FORECASTS')
 
-    print("PLAYER:", request.session.get("player_id"))
-    print("EMAIL:", request.session.get("player_email"))
-    print("EDITION:", request.session.get("edition_id"))
+    print("PLAYER:", request.session.get("eljocsession_player_id"))
+    print("EMAIL:", request.session.get("eljocsession_player_email"))
+    print("EDITION:", request.session.get("eljocsession_edition_id"))
 
     currentedition = 37
     time = timezone.now()
@@ -659,14 +745,14 @@ def lateforecasts(request):
 
     print('LATE FORECASTS')
 
-    print("PLAYER:", request.session.get("player_id"))
-    print("EMAIL:", request.session.get("player_email"))
-    print("EDITION:", request.session.get("edition_id"))
+    print("PLAYER:", request.session.get("eljocsession_player_id"))
+    print("EMAIL:", request.session.get("eljocsession_player_email"))
+    print("EDITION:", request.session.get("eljocsession_edition_id"))
 
 # canvia l'edició en curs ja sigui manual en <<currentedition = 37>> o automàtic en <<currentedition = request.session.get('edition_id', 37)>>
 #   currentedition = 37
-    currentedition = request.session.get('edition_id', 37)
-    player_id = request.session.get("player_id")
+    currentedition = request.session.get('eljocsession_edition_id', 37)
+    player_id = request.session.get("eljocsession_player_id")
 
 # codi per mostrar el banner corresponent a la competició
     competition = Editions.objects.get(id=currentedition)
@@ -971,9 +1057,9 @@ def standings(request):
 
     print('STANDINGS')   
         
-    print("PLAYER:", request.session.get("player_id"))
-    print("EMAIL:", request.session.get("player_email"))
-    print("EDITION:", request.session.get("edition_id"))
+    print("PLAYER:", request.session.get("eljocsession_player_id"))
+    print("EMAIL:", request.session.get("eljocsession_player_email"))
+    print("EDITION:", request.session.get("eljocsession_edition_id"))
 
 #   data editions and items, gap is diff from first item on current competition to 0.
 #   offset value is 0 for world cup (32 teams), 38 for old UCL (groups), 83 for Euro, 116 for new UCL (league), 204 for new WC (48 teams)
@@ -983,14 +1069,15 @@ def standings(request):
 
 # canvia l'edició en curs ja sigui manual en <<currentedition = 37>> o automàtic en <<currentedition = request.session.get('edition_id', 37)>>
 #   currentedition = 37
-    currentedition = request.session.get('edition_id', 37)
-    player_id = request.session.get("player_id")
+    currentedition = request.session.get('eljocsession_edition_id', 37)
+    player_id = request.session.get("eljocsession_player_id")
 
 # codi per mostrar el banner corresponent a la competició
     competition = Editions.objects.get(id=currentedition)
     competition_code = competition.competitions.id
     if competition_code == 1:
-        banner = "Euro-FormBanner24.png"
+        banner = "BannerElJoc.png"
+#        banner = "Euro-FormBanner24.png"
     elif competition_code == 2:
         banner = "UCL-FormBanner.jpg"
     elif competition_code == 3:
@@ -1090,9 +1177,9 @@ def statistics(request):
     print('STATISTICS')
         
     print('Game')
-    print("PLAYER:", request.session.get("player_id"))
-    print("EMAIL:", request.session.get("player_email"))
-    print("EDITION:", request.session.get("edition_id"))
+    print("PLAYER:", request.session.get("eljocsession_player_id"))
+    print("EMAIL:", request.session.get("eljocsession_player_email"))
+    print("EDITION:", request.session.get("eljocsession_edition_id"))
     
 #    data editions and items, gap is diff from first item on current competition to 0.
 #   offset value is 0 for world cup (32 teams), 38 for old UCL (groups), 83 for Euro, 116 for new UCL (league), 204 for new WC (48 teams)
@@ -1100,14 +1187,15 @@ def statistics(request):
 
 # canvia l'edició en curs ja sigui manual en <<currentedition = 37>> o automàtic en <<currentedition = request.session.get('edition_id', 37)>>
 #   currentedition = 37
-    currentedition = request.session.get('edition_id', 37)
-    player_id = request.session.get("player_id")
+    currentedition = request.session.get('eljocsession_edition_id', 37)
+    player_id = request.session.get("eljocsession_player_id")
 
 # codi per mostrar el banner corresponent a la competició
     competition = Editions.objects.get(id=currentedition)
     competition_code = competition.competitions.id
     if competition_code == 1:
-        banner = "Euro-FormBanner24.png"
+        banner = "BannerElJoc.png"
+#        banner = "Euro-FormBanner24.png"
     elif competition_code == 2:
         banner = "UCL-FormBanner.jpg"
     elif competition_code == 3:
@@ -1325,21 +1413,22 @@ def oldforecasts(request):
 
     print('OLD FORECASTS')
 
-    print("PLAYER:", request.session.get("player_id"))
-    print("EMAIL:", request.session.get("player_email"))
-    print("EDITION:", request.session.get("edition_id"))
+    print("PLAYER:", request.session.get("eljocsession_player_id"))
+    print("EMAIL:", request.session.get("eljocsession_player_email"))
+    print("EDITION:", request.session.get("eljocsession_edition_id"))
 
 # canvia l'edició en curs ja sigui manual en <<currentedition = 37>> o automàtic en <<currentedition = request.session.get('edition_id', 37)>>
 #   currentedition = 37
-    currentedition = request.session.get('edition_id', 37)
-    player_id = request.session.get("player_id")
-    email = request.session.get('player_email')
+    currentedition = request.session.get('eljocsession_edition_id', 37)
+    player_id = request.session.get("eljocsession_player_id")
+    email = request.session.get('eljocsession_player_email')
 
 # codi per mostrar el banner corresponent a la competició
     competition = Editions.objects.get(id=currentedition)
     competition_code = competition.competitions.id
     if competition_code == 1:
-        banner = "Euro-FormBanner24.png"
+        banner = "BannerElJoc.png"
+#        banner = "Euro-FormBanner24.png"
     elif competition_code == 2:
         banner = "UCL-FormBanner.jpg"
     elif competition_code == 3:
@@ -1451,21 +1540,22 @@ def pointstable(request):
     print('POINTS TABLE')
 
     print('Game')
-    print("PLAYER:", request.session.get("player_id"))
-    print("EMAIL:", request.session.get("player_email"))
-    print("EDITION:", request.session.get("edition_id"))
+    print("PLAYER:", request.session.get("eljocsession_player_id"))
+    print("EMAIL:", request.session.get("eljocsession_player_email"))
+    print("EDITION:", request.session.get("eljocsession_edition_id"))
 
 # canvia l'edició en curs ja sigui manual en <<currentedition = 37>> o automàtic en <<currentedition = request.session.get('edition_id', 37)>>
 #   currentedition = 37
-    currentedition = request.session.get('edition_id', 37)
-    player_id = request.session.get("player_id")
-    email = request.session.get('player_email')
+    currentedition = request.session.get('eljocsession_edition_id', 37)
+    player_id = request.session.get("eljocsession_player_id")
+    email = request.session.get('eljocsession_player_email')
 
 # codi per mostrar el banner corresponent a la competició
     competition = Editions.objects.get(id=currentedition)
     competition_code = competition.competitions.id
     if competition_code == 1:
-        banner = "Euro-FormBanner24.png"
+        banner = "BannerElJoc.png"
+#        banner = "Euro-FormBanner24.png"
     elif competition_code == 2:
         banner = "UCL-FormBanner.jpg"
     elif competition_code == 3:
@@ -1525,21 +1615,22 @@ def communities(request):
     print('COMMUNITIES')
         
     print('Game')
-    print("PLAYER:", request.session.get("player_id"))
-    print("EMAIL:", request.session.get("player_email"))
-    print("EDITION:", request.session.get("edition_id"))
+    print("PLAYER:", request.session.get("eljocsession_player_id"))
+    print("EMAIL:", request.session.get("eljocsession_player_email"))
+    print("EDITION:", request.session.get("eljocsession_edition_id"))
 
 # canvia l'edició en curs ja sigui manual en <<currentedition = 37>> o automàtic en <<currentedition = request.session.get('edition_id', 37)>>
 #   currentedition = 37
-    currentedition = request.session.get('edition_id', 37)
-    player_id = request.session.get("player_id")
-    email = request.session.get('player_email')
+    currentedition = request.session.get('eljocsession_edition_id', 37)
+    player_id = request.session.get("eljocsession_player_id")
+    email = request.session.get('eljocsession_player_email')
 
 # codi per mostrar el banner corresponent a la competició
     competition = Editions.objects.get(id=currentedition)
     competition_code = competition.competitions.id
     if competition_code == 1:
-        banner = "Euro-FormBanner24.png"
+        banner = "BannerElJoc.png"
+#        banner = "Euro-FormBanner24.png"
     elif competition_code == 2:
         banner = "UCL-FormBanner.jpg"
     elif competition_code == 3:
@@ -1652,15 +1743,30 @@ def forecasts5(request):
     print('FORECASTS 5')
 
     print('Game')
-    print("PLAYER:", request.session.get("player_id"))
-    print("EMAIL:", request.session.get("player_email"))
-    print("EDITION:", request.session.get("edition_id"))
+    print("PLAYER:", request.session.get("eljocsession_player_id"))
+    print("EMAIL:", request.session.get("eljocsession_player_email"))
+    print("EDITION:", request.session.get("eljocsession_edition_id"))
 
 # canvia l'edició en curs de forma manual ja sigui directe en <<currentedition = 37>> o automàtic en <<currentedition = request.session.get('edition_id', 37)>>
 #   currentedition = 37
-    currentedition = request.session.get('edition_id', 37)
-    player_id = request.session.get("player_id")
-    email = request.session.get('player_email')
+    currentedition = request.session.get('eljocsession_edition_id', 37)
+    player_id = request.session.get("eljocsession_player_id")
+    email = request.session.get('eljocsession_player_email')
+
+# codi per mostrar el banner corresponent a la competició
+    competition = Editions.objects.get(id=currentedition)
+    competition_code = competition.competitions.id
+    if competition_code == 1:
+        banner = "BannerElJoc.png"
+#        banner = "Euro-FormBanner24.png"
+    elif competition_code == 2:
+        banner = "UCL-FormBanner.jpg"
+    elif competition_code == 3:
+        banner = "Euro-FormBanner2024.png"
+    else:
+        banner = "UCL-FormBanner.jpg"
+    
+    print("Banner:", banner)
 
 #-----------------
 # Username info
@@ -1745,23 +1851,23 @@ def forecasts5(request):
     teamPO_E = Teamsdb.objects.filter(teams__id=191) | Teamsdb.objects.filter(teams__id=193).order_by('teams__pos')
     teamPO_F = Teamsdb.objects.filter(teams__id=170) | Teamsdb.objects.filter(teams__id=211).order_by('teams__pos')
     teamPO_G = Teamsdb.objects.filter(teams__id=179) | Teamsdb.objects.filter(teams__id=212).order_by('teams__pos')
-    teamRo16_1 = Teamsdb.objects.filter(teams__id=140) | Teamsdb.objects.filter(teams__id=134).order_by('teams__pos')
-    teamRo16_2 = Teamsdb.objects.filter(teams__id=158) | Teamsdb.objects.filter(teams__id=136).order_by('teams__pos')
-    teamRo16_3 = Teamsdb.objects.filter(teams__id=161) | Teamsdb.objects.filter(teams__id=142).order_by('teams__pos')
-    teamRo16_4 = Teamsdb.objects.filter(teams__id=144) | Teamsdb.objects.filter(teams__id=132).order_by('teams__pos')
-    teamRo16_5 = Teamsdb.objects.filter(teams__id=143) | Teamsdb.objects.filter(teams__id=152).order_by('teams__pos')
-    teamRo16_6 = Teamsdb.objects.filter(teams__id=155) | Teamsdb.objects.filter(teams__id=159).order_by('teams__pos')
-    teamRo16_7 = Teamsdb.objects.filter(teams__id=138) | Teamsdb.objects.filter(teams__id=160).order_by('teams__pos')
-    teamRo16_8 = Teamsdb.objects.filter(teams__id=162) | Teamsdb.objects.filter(teams__id=151).order_by('teams__pos')
+    teamRo16_1 = Teamsdb.objects.filter(teams__id=194) | Teamsdb.objects.filter(teams__id=175).order_by('teams__pos')
+    teamRo16_2 = Teamsdb.objects.filter(teams__id=199) | Teamsdb.objects.filter(teams__id=168).order_by('teams__pos')
+    teamRo16_3 = Teamsdb.objects.filter(teams__id=173) | Teamsdb.objects.filter(teams__id=195).order_by('teams__pos')
+    teamRo16_4 = Teamsdb.objects.filter(teams__id=181) | Teamsdb.objects.filter(teams__id=171).order_by('teams__pos')
+    teamRo16_5 = Teamsdb.objects.filter(teams__id=172) | Teamsdb.objects.filter(teams__id=169).order_by('teams__pos')
+    teamRo16_6 = Teamsdb.objects.filter(teams__id=182) | Teamsdb.objects.filter(teams__id=176).order_by('teams__pos')
+    teamRo16_7 = Teamsdb.objects.filter(teams__id=170) | Teamsdb.objects.filter(teams__id=193).order_by('teams__pos')
+    teamRo16_8 = Teamsdb.objects.filter(teams__id=185) | Teamsdb.objects.filter(teams__id=179).order_by('teams__pos')
     teamQF = Teamsdb.objects.filter(teams__editions=33,teams__round__id=4).order_by('id')
-    teamQF_1 = Teamsdb.objects.filter(teams__id=138) | Teamsdb.objects.filter(teams__id=136).order_by('teams__pos')
-    teamQF_2 = Teamsdb.objects.filter(teams__id=151) | Teamsdb.objects.filter(teams__id=152).order_by('teams__pos')
-    teamQF_3 = Teamsdb.objects.filter(teams__id=155) | Teamsdb.objects.filter(teams__id=134).order_by('teams__pos')
-    teamQF_4 = Teamsdb.objects.filter(teams__id=142) | Teamsdb.objects.filter(teams__id=144).order_by('teams__pos')
-    teamSF_1 = Teamsdb.objects.filter(teams__id=155) | Teamsdb.objects.filter(teams__id=136).order_by('teams__pos')
-    teamSF_2 = Teamsdb.objects.filter(teams__id=144) | Teamsdb.objects.filter(teams__id=152).order_by('teams__pos')
-    team3rd = Teamsdb.objects.filter(teams__id=155) | Teamsdb.objects.filter(teams__id=152).order_by('teams__pos')
-    teamW = Teamsdb.objects.filter(teams__id=155) | Teamsdb.objects.filter(teams__id=152).order_by('teams__pos')
+    teamQF_1 = Teamsdb.objects.filter(teams__id=0) | Teamsdb.objects.filter(teams__id=0).order_by('teams__pos')
+    teamQF_2 = Teamsdb.objects.filter(teams__id=0) | Teamsdb.objects.filter(teams__id=0).order_by('teams__pos')
+    teamQF_3 = Teamsdb.objects.filter(teams__id=0) | Teamsdb.objects.filter(teams__id=0).order_by('teams__pos')
+    teamQF_4 = Teamsdb.objects.filter(teams__id=0) | Teamsdb.objects.filter(teams__id=0).order_by('teams__pos')
+    teamSF_1 = Teamsdb.objects.filter(teams__id=0) | Teamsdb.objects.filter(teams__id=0).order_by('teams__pos')
+    teamSF_2 = Teamsdb.objects.filter(teams__id=0) | Teamsdb.objects.filter(teams__id=0).order_by('teams__pos')
+    team3rd = Teamsdb.objects.filter(teams__id=0) | Teamsdb.objects.filter(teams__id=0).order_by('teams__pos')
+    teamW = Teamsdb.objects.filter(teams__id=0) | Teamsdb.objects.filter(teams__id=0).order_by('teams__pos')
 
     forecast = Forecasts.objects.all()
     form = ForecastsForm
@@ -1810,6 +1916,7 @@ def forecasts5(request):
     if request.method == 'GET':
         print('enviando formulario forecast')
         return render(request, 'forecasts5.html', {
+            'banner': banner,
             'forecast': forecast,
             'item': items,
             'fixture': fixture,
@@ -2324,6 +2431,111 @@ def proves(request):
             'delta4': delta4,
             'delta5': delta5,
             })
+    
+def checkoldforecasts(request):
+
+    print('CHECK OLD FORECASTS')
+
+    print("PLAYER:", request.session.get("eljocsession_player_id"))
+    print("EMAIL:", request.session.get("eljocsession_player_email"))
+    print("EDITION:", request.session.get("eljocsession_edition_id"))
+
+# canvia l'edició en curs ja sigui manual en <<currentedition = 37>> o automàtic en <<currentedition = request.session.get('edition_id', 37)>>
+#   currentedition = 37
+    currentedition = request.session.get('eljocsession_edition_id', 37)
+    player_id = request.session.get("eljocsession_player_id")
+    email = request.session.get('eljocsession_player_email')
+
+# codi per mostrar el banner corresponent a la competició
+    competition = Editions.objects.get(id=currentedition)
+    competition_code = competition.competitions.id
+    if competition_code == 1:
+        banner = "BannerElJoc.png"
+#        banner = "Euro-FormBanner24.png"
+    elif competition_code == 2:
+        banner = "UCL-FormBanner.jpg"
+    elif competition_code == 3:
+        banner = "Euro-FormBanner2024.png"
+    else:
+        banner = "UCL-FormBanner.jpg"
+    
+    print("Banner:", banner)
+
+#-----------------
+# Username info
+
+    plyr = Players.objects.get(id=player_id)
+
+    username = (
+        plyr.p_fname[0].upper() +
+        plyr.p_lname.capitalize()
+    )
+
+#-----------------
+
+    players = Players.objects.all()
+    formP = PlayersForm
+
+    if request.method == 'GET':
+
+        # test amb dades directes sense filtres
+        forecasts = Forecasts.objects.filter(items__editions=currentedition, f_email=email, f_isactive=1, ).order_by('items_id')
+        player = Players.objects.get(editions=currentedition, p_email=email)
+        items = Items.objects.filter(editions=currentedition)
+        teams = Teams.objects.all()
+        teamsDB = Teamsdb.objects.all()
+        scores = Scores.objects.all
+        dates = Dates.objects.all
+        rounds = Rounds.objects.all
+        stages = Stages.objects.all
+        formF = ForecastsForm
+        # test end
+
+        return render(request, 'checkoldforecasts.html', {
+            'players': players,
+            'form': formP,
+            'competition': competition,
+            'banner': banner,
+            'username': username,
+            'email': email,
+            'forecasts': forecasts,
+            'form': formF,
+            'player': player,
+            'items': items,
+            'teams': teams,
+            'teamsDB': teamsDB,
+            'scores': scores,
+            'dates': dates,
+            'rounds': rounds,
+            'stages': stages,
+        })
+    else:
+        forecasts = Forecasts.objects.filter(items__editions=currentedition, f_email=request.POST['mail'], f_isactive=1, ).order_by('items_id')
+        player = Players.objects.get(editions=currentedition, p_email=request.POST['mail'])
+        items = Items.objects.filter(editions=currentedition)
+        teams = Teams.objects.all()
+        teamsDB = Teamsdb.objects.all()
+        scores = Scores.objects.all
+        dates = Dates.objects.all
+        rounds = Rounds.objects.all
+        stages = Stages.objects.all
+        formF = ForecastsForm
+        return render(request, 'checkoldforecasts.html', {
+            'forecasts': forecasts,
+            'form': formF,
+            'player': player,
+            'items': items,
+            'teams': teams,
+            'teamsDB': teamsDB,
+            'scores': scores,
+            'dates': dates,
+            'rounds': rounds,
+            'stages': stages,
+            'competition': competition,
+            'banner': banner,
+            'username': username,
+            'email': email,
+        })
     
 # altres funcions antigues o de proves
 

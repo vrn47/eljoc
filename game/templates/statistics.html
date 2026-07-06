@@ -1,56 +1,25 @@
-{% extends 'base_g.html' %}
+{% extends 'base_g_next.html' %}
+
+{% block banner %}
+
+<div class="eljoc-banner">
+    <img src="//imatges.vrn47.cat/Logo/{{ banner }}" style="width:100%;" class="eljoc-banner-img">
+    <span class="eljoc-banner-title shadow">Statistics</span>
+    <span class="eljoc-banner-title bronze">Statistics</span>
+    <span class="eljoc-banner-title silver">Statistics</span>
+    <span class="eljoc-banner-title gold">Statistics</span>
+</div>
+
+{% endblock %}
 
 {% block content %}
 
-<style>
-    .container2 {
-        position: relative;
-        text-align: center;
-        color: white;
-    }
-
-    .centered {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-    }
-
-    .center {
-        margin-left: auto;
-        margin-right: auto;
-    }
-
-    .titolcella {
-        background-color: black;
-        color: white;
-        font-weight: bold;
-    }
-
-    .subtable {
-        width: 50%;
-    }
-
-    .subtitle {
-        font-size: 0.75em;
-    }
-    
-    .explanation {
-        font-size: 0.6em;
-    }
-
-</style>
-
-<div class="container2">
-    <img src="http://imatges.vrn47.cat/Logo/Euro-FormBanner24.png" style="width:100%;"">
-    <h1 class='centered'>Statistics</h1>
-</div>
-
 <main class="container">
     <!-- Day summary table -->
-      <table class="table table-striped table-hover center offset-md-2 mt-5" style="width:75%">
+    <div class="card card-body mt-4">
+        <table class="table table-striped table-hover center">
         <thead>
-            <tr><th colspan="7" style="text-align: center" class="titolcella">STATISTICS DAY {{data0}}</th></tr>
+            <tr><th colspan="7" style="text-align: center"><h4>Statistics day {{data0}}</h4></th></tr>
             <tr style="text-align: center">
                 <th scope="col">Top pts</th>
                 <th scope="col">Max pts</th>
@@ -72,268 +41,278 @@
                 <td scope="row">{{ remaining.pts }}</td>
             </tr>
             <tr style="text-align: center">
-                <td scope="col" class="explanation">Total points available to win this day</td>
-                <td scope="col" class="explanation">Maximum points scored by a player for this day</td>
-                <td scope="col" class="explanation">Average points scored by all players for this day</td>
-                <td scope="col" class="explanation">Minimum points scored by a player for this day</td>
-                <td scope="col" class="explanation">Total points scored by all players for this day</td>
-                <td scope="col" class="explanation">Number of players that submited a forecast for this day</td>
-                <td scope="col" class="explanation">Quantity of points still available to be awarded</td>
+                <td scope="col" class="eljoc-explanation">Total points available to win this day</td>
+                <td scope="col" class="eljoc-explanation">Maximum points scored by a player for this day</td>
+                <td scope="col" class="eljoc-explanation">Average points scored by all players for this day</td>
+                <td scope="col" class="eljoc-explanation">Minimum points scored by a player for this day</td>
+                <td scope="col" class="eljoc-explanation">Total points scored by all players for this day</td>
+                <td scope="col" class="eljoc-explanation">Number of players that submited a forecast for this day</td>
+                <td scope="col" class="eljoc-explanation">Quantity of points still available to be awarded</td>
             </tr>
         </tbody>
-      </table>
+        </table>
+    </div>
 
     <!-- Evolution table -->
-    <table class="table table-striped table-hover">
-        <thead>
-            <tr><th colspan="8" style="text-align: center" class="titolcella">EVOLUTION DAY {{data0}}</th></tr>
-            <tr>
-                <th scope="col"></th>
-                <th scope="col"></th>
-                <th scope="col"></th>
-                <th scope="col" class="subtitle">{{dates0.name}}</th>
-                <th scope="col" class="subtitle">{{dates1.name}}</th>
-                <th scope="col" class="subtitle">{{dates2.name}}</th>
-                <th scope="col" class="subtitle">{{dates3.name}}</th>
-                <th scope="col" class="subtitle">{{dates4.name}}</th>
-            </tr>
-            <tr>
-                <th scope="col">△▽</th>
-                <th scope="col"></th>
-                <th scope="col">Player</th>
-                <th scope="col">Day {{data0}}</th>
-                <th scope="col">Day {{data1}}</th>
-                <th scope="col">Day {{data2}}</th>
-                <th scope="col">Day {{data3}}</th>
-                <th scope="col">Day {{data4}}</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for standings4 in standings4 %}
+    <div class="card card-body mt-4">
+        <table class="table table-striped table-hover center">
+            <thead>
+                <tr><th colspan="8" style="text-align: center"><h4>Evolution day {{data0}}</h4></th></tr>
                 <tr>
-                    <td scope="row">{{standings4.rank0}} {% if standings4.rank0 == standings4.rank1 %} ≡ {% elif standings4.rank1 > standings4.rank0 %} ▲ {% elif standings4.rank0 > standings4.rank1 %} ▼ {% else %} . {% endif %}</td>
-                    <td scope="row"><img src="http://imatges.vrn47.cat/Honours/Stars/v2/{{ standings4.stars }}.png" width="20" height="20"></td>
-                    <th scope="row">{{ standings4.fn|slice:1 }}{{ standings4.ln }}</th>
-                    <td scope="row">{% if standings4.dlt1 == stats4.maxdlt1 %} <b>{{ standings4.dlt1 }}✨</b> {% elif standings4.dlt1 == stats4.mindlt1 %} <b><FONT COLOR="#ff0000">{{ standings4.dlt1 }}⚠️</b> {% elif standings4.dlt1 > stats4.avgdlt1 %} <FONT COLOR="#008000">{{ standings4.dlt1 }} {% elif standings4.dlt1 < stats4.avgdlt1 %} <FONT COLOR="#FFA500">{{ standings4.dlt1 }} {% else %} {{ standings4.dlt1 }} {% endif %} </td>
-                    <td scope="row">{% if standings4.dlt2 == stats4.maxdlt2 %} <b>{{ standings4.dlt2 }}✨</b> {% elif standings4.dlt2 == stats4.mindlt2 %} <b><FONT COLOR="#ff0000">{{ standings4.dlt2 }}⚠️</b> {% elif standings4.dlt2 > stats4.avgdlt2 %} <FONT COLOR="#008000">{{ standings4.dlt2 }} {% elif standings4.dlt2 < stats4.avgdlt2 %} <FONT COLOR="#FFA500">{{ standings4.dlt2 }} {% else %} {{ standings4.dlt2 }} {% endif %} </td>
-                    <td scope="row">{% if standings4.dlt3 == stats4.maxdlt3 %} <b>{{ standings4.dlt3 }}✨</b> {% elif standings4.dlt3 == stats4.mindlt3 %} <b><FONT COLOR="#ff0000">{{ standings4.dlt3 }}⚠️</b> {% elif standings4.dlt3 > stats4.avgdlt3 %} <FONT COLOR="#008000">{{ standings4.dlt3 }} {% elif standings4.dlt3 < stats4.avgdlt3 %} <FONT COLOR="#FFA500">{{ standings4.dlt3 }} {% else %} {{ standings4.dlt3 }} {% endif %} </td>
-                    <td scope="row">{% if standings4.dlt4 == stats4.maxdlt4 %} <b>{{ standings4.dlt4 }}✨</b> {% elif standings4.dlt4 == stats4.mindlt4 %} <b><FONT COLOR="#ff0000">{{ standings4.dlt4 }}⚠️</b> {% elif standings4.dlt4 > stats4.avgdlt4 %} <FONT COLOR="#008000">{{ standings4.dlt4 }} {% elif standings4.dlt4 < stats4.avgdlt4 %} <FONT COLOR="#FFA500">{{ standings4.dlt4 }} {% else %} {{ standings4.dlt4 }} {% endif %} </td>
-                    <td scope="row">{% if standings4.dlt5 == stats4.maxdlt5 %} <b>{{ standings4.dlt5 }}✨</b> {% elif standings4.dlt5 == stats4.mindlt5 %} <b><FONT COLOR="#ff0000">{{ standings4.dlt5 }}⚠️</b> {% elif standings4.dlt5 > stats4.avgdlt5 %} <FONT COLOR="#008000">{{ standings4.dlt5 }} {% elif standings4.dlt5 < stats4.avgdlt5 %} <FONT COLOR="#FFA500">{{ standings4.dlt5 }} {% else %} {{ standings4.dlt5 }} {% endif %} </td>
+                    <th scope="col"></th>
+                    <th scope="col"></th>
+                    <th scope="col"></th>
+                    <th scope="col" class="eljoc-subtitle">{{dates0.name}}</th>
+                    <th scope="col" class="eljoc-subtitle">{{dates1.name}}</th>
+                    <th scope="col" class="eljoc-subtitle">{{dates2.name}}</th>
+                    <th scope="col" class="eljoc-subtitle">{{dates3.name}}</th>
+                    <th scope="col" class="eljoc-subtitle">{{dates4.name}}</th>
                 </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+                <tr>
+                    <th scope="col">△▽</th>
+                    <th scope="col"></th>
+                    <th scope="col">Player</th>
+                    <th scope="col">Day {{data0}}</th>
+                    <th scope="col">Day {{data1}}</th>
+                    <th scope="col">Day {{data2}}</th>
+                    <th scope="col">Day {{data3}}</th>
+                    <th scope="col">Day {{data4}}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for standings4 in standings4 %}
+                    <tr>
+                        <td scope="row">{{standings4.rank0}} {% if standings4.rank0 == standings4.rank1 %} ≡ {% elif standings4.rank1 > standings4.rank0 %} ▲ {% elif standings4.rank0 > standings4.rank1 %} ▼ {% else %} . {% endif %}</td>
+                        <td scope="row"><img src="http://imatges.vrn47.cat/Honours/Stars/v2/{{ standings4.stars }}.png" width="20" height="20"></td>
+                        <th scope="row">{{ standings4.fn|slice:1 }}{{ standings4.ln }}</th>
+                        <td scope="row">{% if standings4.dlt1 == stats4.maxdlt1 %} <b>{{ standings4.dlt1 }}✨</b> {% elif standings4.dlt1 == stats4.mindlt1 %} <b><FONT COLOR="#ff0000">{{ standings4.dlt1 }}⚠️</b> {% elif standings4.dlt1 > stats4.avgdlt1 %} <FONT COLOR="#008000">{{ standings4.dlt1 }} {% elif standings4.dlt1 < stats4.avgdlt1 %} <FONT COLOR="#FFA500">{{ standings4.dlt1 }} {% else %} {{ standings4.dlt1 }} {% endif %} </td>
+                        <td scope="row">{% if standings4.dlt2 == stats4.maxdlt2 %} <b>{{ standings4.dlt2 }}✨</b> {% elif standings4.dlt2 == stats4.mindlt2 %} <b><FONT COLOR="#ff0000">{{ standings4.dlt2 }}⚠️</b> {% elif standings4.dlt2 > stats4.avgdlt2 %} <FONT COLOR="#008000">{{ standings4.dlt2 }} {% elif standings4.dlt2 < stats4.avgdlt2 %} <FONT COLOR="#FFA500">{{ standings4.dlt2 }} {% else %} {{ standings4.dlt2 }} {% endif %} </td>
+                        <td scope="row">{% if standings4.dlt3 == stats4.maxdlt3 %} <b>{{ standings4.dlt3 }}✨</b> {% elif standings4.dlt3 == stats4.mindlt3 %} <b><FONT COLOR="#ff0000">{{ standings4.dlt3 }}⚠️</b> {% elif standings4.dlt3 > stats4.avgdlt3 %} <FONT COLOR="#008000">{{ standings4.dlt3 }} {% elif standings4.dlt3 < stats4.avgdlt3 %} <FONT COLOR="#FFA500">{{ standings4.dlt3 }} {% else %} {{ standings4.dlt3 }} {% endif %} </td>
+                        <td scope="row">{% if standings4.dlt4 == stats4.maxdlt4 %} <b>{{ standings4.dlt4 }}✨</b> {% elif standings4.dlt4 == stats4.mindlt4 %} <b><FONT COLOR="#ff0000">{{ standings4.dlt4 }}⚠️</b> {% elif standings4.dlt4 > stats4.avgdlt4 %} <FONT COLOR="#008000">{{ standings4.dlt4 }} {% elif standings4.dlt4 < stats4.avgdlt4 %} <FONT COLOR="#FFA500">{{ standings4.dlt4 }} {% else %} {{ standings4.dlt4 }} {% endif %} </td>
+                        <td scope="row">{% if standings4.dlt5 == stats4.maxdlt5 %} <b>{{ standings4.dlt5 }}✨</b> {% elif standings4.dlt5 == stats4.mindlt5 %} <b><FONT COLOR="#ff0000">{{ standings4.dlt5 }}⚠️</b> {% elif standings4.dlt5 > stats4.avgdlt5 %} <FONT COLOR="#008000">{{ standings4.dlt5 }} {% elif standings4.dlt5 < stats4.avgdlt5 %} <FONT COLOR="#FFA500">{{ standings4.dlt5 }} {% else %} {{ standings4.dlt5 }} {% endif %} </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 
     <!-- Tables teams stats -->
 
-    <table class="table table-striped table-hover">
-        <thead>
-            <tr><th colspan="2" style="text-align: center" class="titolcella">TEAMS STATS {{data0}}</th></tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td class="subtable">
-                    <table class="table table-striped table-hover">
-                        <thead>
-                            <tr>
-                                <th colspan="5" style="text-align: center" class="titolcella">BEST</th>
-                            </tr>
-                            <tr>
-                                <td colspan="5" style="text-align: center" class="explanation">Team with more points in all competition matches (win 3 pts, draw, 1 pt, loss 0 pts).<br>
-                                Goals difference factor is 0.01 / Goals for factor is 0.0001</td>
-                            </tr>
-                            <tr>
-                                <th scope="col">Rank</th>
-                                <th scope="col">Logo</th>
-                                <th scope="col">Name</th>
-                                {% if competition == 1 or competition == 3 %}<th scope="col">Flag</th>{% endif %}
-                                <th scope="col">Points</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for best in best %}
+    <div class="card card-body mt-4">
+        <table class="table table-striped table-hover">
+            <thead>
+                <tr><th colspan="2" style="text-align: center"><h4>Teams stats day {{data0}}</h4></th></tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="eljoc-subtable">
+                        <table class="table table-striped table-hover">
+                            <thead>
                                 <tr>
-                                    <td scope="row">{{forloop.counter}}</td>
-                                    <td scope="row">{% if competition == 1 or competition == 3 %}<img src="https://api.fifa.com/api/v3/picture/associations-sq-2/{{ best.Short }}" width="25" height="25">{% elif competition == 2 %}<img src="https://img.uefa.com/imgml/TP/teams/logos/140x140/{{ best.euro }}.png" width="25" height="25"></td>{% endif %}
-                                    <td scope="row">{{best.Name}}</td>
-                                    {% if competition == 1 or competition == 3 %}<td scope="row"><img src="https://api.fifa.com/api/v3/picture/flags-sq-4/{{ best.Short }}" width="25" height="17"></td>{% endif %}
-                                    <td scope="row">{{best.Pts}}</td>
+                                    <th colspan="5" style="text-align: center"><h5>BEST</h5></th>
                                 </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </td>
-                <td class="subtable">
-                    <table class="table table-striped table-hover">
-                        <thead>
-                            <tr>
-                                <th colspan="5" style="text-align: center" class="titolcella">WORST</th>
-                            </tr>
-                            <tr>
-                                <td colspan="5" style="text-align: center" class="explanation">Team with less points in group stage competition matches (win 3 pts, draw, 1 pt, loss 0 pts).<br>
-                                Goals difference factor is 0.01 / Goals for factor is 0.0001</td>
-                            </tr>
-                            <tr>
-                                <th scope="col">Rank</th>
-                                <th scope="col">Logo</th>
-                                <th scope="col">Name</th>
-                                {% if competition == 1 or competition == 3 %}<th scope="col">Flag</th>{% endif %}
-                                <th scope="col">Points</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for worst in worst %}
                                 <tr>
-                                    <td scope="row">{{forloop.counter}}</td>
-                                    <td scope="row">{% if competition == 1 or competition == 3 %}<img src="https://api.fifa.com/api/v3/picture/associations-sq-2/{{ worst.Short }}" width="25" height="25">{% elif competition == 2 %}<img src="https://img.uefa.com/imgml/TP/teams/logos/140x140/{{ worst.euro }}.png" width="25" height="25"></td>{% endif %}
-                                    <td scope="row">{{worst.Name}}</td>
-                                    {% if competition == 1 or competition == 3 %}<td scope="row"><img src="https://api.fifa.com/api/v3/picture/flags-sq-4/{{ worst.Short }}" width="25" height="17"></td>{% endif %}
-                                    <td scope="row">{{worst.Pts}}</td>
+                                    <td colspan="5" style="text-align: center" class="eljoc-explanation">Team with more points in all competition matches (win 3 pts, draw, 1 pt, loss 0 pts).<br>
+                                    Goals difference factor is 0.01 / Goals for factor is 0.0001</td>
                                 </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </td>
-            </tr>
-            <tr>
-                <td colspan="2">
-                    <table class="table table-striped table-hover">
-                        <thead>
-                            <tr>
-                                <th colspan="7" style="text-align: center" class="titolcella">CRASH</th>
-                            </tr>
-                            <tr>
-                                <td colspan="7" style="text-align: center" class="explanation">Club with lowest coefficient not classified for Round of 16.</td>
-                            </tr>
-                            <tr>
-                                <th scope="col">Rank</th>
-                                <th scope="col">Logo</th>
-                                <th scope="col">Name</th>
-                                {% if competition == 1 or competition == 3 %}<th scope="col">Flag</th>{% endif %}
-                                <th scope="col">Coefficient</th>
-                                <th scope="col">League rank</th>
-                                <th scope="col">Points</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for crash in crash %}
                                 <tr>
-                                    <td scope="row">{{forloop.counter}}</td>
-                                    <td scope="row">{% if competition == 1 or competition == 3 %}<img src="https://api.fifa.com/api/v3/picture/associations-sq-2/{{ crash.Short }}" width="25" height="25">{% elif competition == 2 %}<img src="https://img.uefa.com/imgml/TP/teams/logos/140x140/{{ crash.euro }}.png" width="25" height="25"></td>{% endif %}
-                                    <td scope="row">{{crash.Name}}</td>
-                                    {% if competition == 1 or competition == 3 %}<td scope="row"><img src="https://api.fifa.com/api/v3/picture/flags-sq-4/{{ crash.Short }}" width="25" height="17"></td>{% endif %}
-                                    <td scope="row">{{crash.Coef}}</td>
-                                    <td scope="row">{{crash.Rnk}}</td>
-                                    <td scope="row">{{crash.Pts}}</td>
+                                    <th scope="col">Rank</th>
+                                    <th scope="col">Logo</th>
+                                    <th scope="col">Name</th>
+                                    {% if competition == 1 or competition == 3 %}<th scope="col">Flag</th>{% endif %}
+                                    <th scope="col">Points</th>
                                 </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </td>
-            </tr>
-            <tr>
-                <td class="subtable">
-                    <table class="table table-striped table-hover">
-                        <thead>
-                            <tr>
-                                <th colspan="6" style="text-align: center" class="titolcella">SURPRISE GROUP STAGE</th>
-                            </tr>
-                            <tr>
-                                <td colspan="6" style="text-align: center" class="explanation">Team with best surprise ranking in group stage competition matches (win 3 pts, draw, 1 pt, loss 0 pts).<br>
-                                Goals difference factor is 0.01 / Goals for factor is 0.0001<br>
-                                Surprise ranking only applies to unseeded teams and multiplies coefficient and points in this group stage.</td>
-                            </tr>
-                            <tr>
-                                <th scope="col">Rank</th>
-                                <th scope="col">Logo</th>
-                                <th scope="col">Name</th>
-                                {% if competition == 1 or competition == 3 %}<th scope="col">Flag</th>{% endif %}
-                                <th scope="col">Coef</th>
-                                <th scope="col">Points</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for revGS in revGS %}
+                            </thead>
+                            <tbody>
+                                {% for best in best %}
+                                    <tr>
+                                        <td scope="row">{{forloop.counter}}</td>
+                                        <td scope="row">{% if competition == 1 or competition == 3 %}<img src="https://api.fifa.com/api/v3/picture/associations-sq-2/{{ best.Short }}" width="25" height="25">{% elif competition == 2 %}<img src="https://img.uefa.com/imgml/TP/teams/logos/140x140/{{ best.euro }}.png" width="25" height="25"></td>{% endif %}
+                                        <td scope="row">{{best.Name}}</td>
+                                        {% if competition == 1 or competition == 3 %}<td scope="row"><img src="https://api.fifa.com/api/v3/picture/flags-sq-4/{{ best.Short }}" width="25" height="17"></td>{% endif %}
+                                        <td scope="row">{{best.Pts}}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </td>
+                    <td class="eljoc-subtable">
+                        <table class="table table-striped table-hover">
+                            <thead>
                                 <tr>
-                                    <td scope="row">{{forloop.counter}}</td>
-                                    <td scope="row">{% if competition == 1 or competition == 3 %}<img src="https://api.fifa.com/api/v3/picture/associations-sq-2/{{ revGS.Short }}" width="25" height="25">{% elif competition == 2 %}<img src="https://img.uefa.com/imgml/TP/teams/logos/140x140/{{ revGS.euro }}.png" width="25" height="25"></td>{% endif %}
-                                    <td scope="row">{{revGS.Name}}</td>
-                                    {% if competition == 1 or competition == 3 %}<td scope="row"><img src="https://api.fifa.com/api/v3/picture/flags-sq-4/{{ revGS.Short }}" width="25" height="17"></td>{% endif %}
-                                    <td scope="row">{{revGS.Coef}}</td>
-                                    <td scope="row">{{revGS.Pts}}</td>
+                                    <th colspan="5" style="text-align: center"><h5>WORST</h5></th>
                                 </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </td>
-                <td class="subtable">
-                    <table class="table table-striped table-hover">
-                        <thead>
-                            <tr>
-                                <th colspan="6" style="text-align: center" class="titolcella">SURPRISE COMPETITION</th>
-                            </tr>
-                            <tr>
-                                <td colspan="6" style="text-align: center" class="explanation">Team with best surprise ranking in all competition matches (win 3 pts, draw, 1 pt, loss 0 pts).<br>
-                                Goals difference factor is 0.01 / Goals for factor is 0.0001<br>
-                                Surprise ranking only applies to unseeded teams and multiplies coefficient and total points in the competition.</td>
-                            </tr>
-                            <tr>
-                                <th scope="col">Rank</th>
-                                <th scope="col">Logo</th>
-                                <th scope="col">Name</th>
-                                {% if competition == 1 or competition == 3 %}<th scope="col">Flag</th>{% endif %}
-                                <th scope="col">Coef</th>
-                                <th scope="col">Points</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for rev in rev %}
                                 <tr>
-                                    <td scope="row">{{forloop.counter}}</td>
-                                    <td scope="row">{% if competition == 1 or competition == 3 %}<img src="https://api.fifa.com/api/v3/picture/associations-sq-2/{{ rev.Short }}" width="25" height="25">{% elif competition == 2 %}<img src="https://img.uefa.com/imgml/TP/teams/logos/140x140/{{ rev.euro }}.png" width="25" height="25"></td>{% endif %}
-                                    <td scope="row">{{rev.Name}}</td>
-                                    {% if competition == 1 or competition == 3 %}<td scope="row"><img src="https://api.fifa.com/api/v3/picture/flags-sq-4/{{ rev.Short }}" width="25" height="17"></td>{% endif %}
-                                    <td scope="row">{{rev.Coef}}</td>
-                                    <td scope="row">{{rev.Pts}}</td>
+                                    <td colspan="5" style="text-align: center" class="eljoc-explanation">Team with less points in group stage competition matches (win 3 pts, draw, 1 pt, loss 0 pts).<br>
+                                    Goals difference factor is 0.01 / Goals for factor is 0.0001</td>
                                 </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </td>
-            </tr>
-        </tbody>
-    </table>
+                                <tr>
+                                    <th scope="col">Rank</th>
+                                    <th scope="col">Logo</th>
+                                    <th scope="col">Name</th>
+                                    {% if competition == 1 or competition == 3 %}<th scope="col">Flag</th>{% endif %}
+                                    <th scope="col">Points</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for worst in worst %}
+                                    <tr>
+                                        <td scope="row">{{forloop.counter}}</td>
+                                        <td scope="row">{% if competition == 1 or competition == 3 %}<img src="https://api.fifa.com/api/v3/picture/associations-sq-2/{{ worst.Short }}" width="25" height="25">{% elif competition == 2 %}<img src="https://img.uefa.com/imgml/TP/teams/logos/140x140/{{ worst.euro }}.png" width="25" height="25"></td>{% endif %}
+                                        <td scope="row">{{worst.Name}}</td>
+                                        {% if competition == 1 or competition == 3 %}<td scope="row"><img src="https://api.fifa.com/api/v3/picture/flags-sq-4/{{ worst.Short }}" width="25" height="17"></td>{% endif %}
+                                        <td scope="row">{{worst.Pts}}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <table class="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th colspan="7" style="text-align: center"><h5>CRASH</h5></th>
+                                </tr>
+                                <tr>
+                                    <td colspan="7" style="text-align: center" class="eljoc-explanation">Club with lowest coefficient not classified for Round of 16.</td>
+                                </tr>
+                                <tr>
+                                    <th scope="col">Rank</th>
+                                    <th scope="col">Logo</th>
+                                    <th scope="col">Name</th>
+                                    {% if competition == 1 or competition == 3 %}<th scope="col">Flag</th>{% endif %}
+                                    <th scope="col">Coefficient</th>
+                                    <th scope="col">League rank</th>
+                                    <th scope="col">Points</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for crash in crash %}
+                                    <tr>
+                                        <td scope="row">{{forloop.counter}}</td>
+                                        <td scope="row">{% if competition == 1 or competition == 3 %}<img src="https://api.fifa.com/api/v3/picture/associations-sq-2/{{ crash.Short }}" width="25" height="25">{% elif competition == 2 %}<img src="https://img.uefa.com/imgml/TP/teams/logos/140x140/{{ crash.euro }}.png" width="25" height="25"></td>{% endif %}
+                                        <td scope="row">{{crash.Name}}</td>
+                                        {% if competition == 1 or competition == 3 %}<td scope="row"><img src="https://api.fifa.com/api/v3/picture/flags-sq-4/{{ crash.Short }}" width="25" height="17"></td>{% endif %}
+                                        <td scope="row">{{crash.Coef}}</td>
+                                        <td scope="row">{{crash.Rnk}}</td>
+                                        <td scope="row">{{crash.Pts}}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="eljoc-subtable">
+                        <table class="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th colspan="6" style="text-align: center"><h5>SURPRISE GROUP STAGE</h5></th>
+                                </tr>
+                                <tr>
+                                    <td colspan="6" style="text-align: center" class="eljoc-explanation">Team with best surprise ranking in group stage competition matches (win 3 pts, draw, 1 pt, loss 0 pts).<br>
+                                    Goals difference factor is 0.01 / Goals for factor is 0.0001<br>
+                                    Surprise ranking only applies to unseeded teams and multiplies coefficient and points in this group stage.</td>
+                                </tr>
+                                <tr>
+                                    <th scope="col">Rank</th>
+                                    <th scope="col">Logo</th>
+                                    <th scope="col">Name</th>
+                                    {% if competition == 1 or competition == 3 %}<th scope="col">Flag</th>{% endif %}
+                                    <th scope="col">Coef</th>
+                                    <th scope="col">Points</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for revGS in revGS %}
+                                    <tr>
+                                        <td scope="row">{{forloop.counter}}</td>
+                                        <td scope="row">{% if competition == 1 or competition == 3 %}<img src="https://api.fifa.com/api/v3/picture/associations-sq-2/{{ revGS.Short }}" width="25" height="25">{% elif competition == 2 %}<img src="https://img.uefa.com/imgml/TP/teams/logos/140x140/{{ revGS.euro }}.png" width="25" height="25"></td>{% endif %}
+                                        <td scope="row">{{revGS.Name}}</td>
+                                        {% if competition == 1 or competition == 3 %}<td scope="row"><img src="https://api.fifa.com/api/v3/picture/flags-sq-4/{{ revGS.Short }}" width="25" height="17"></td>{% endif %}
+                                        <td scope="row">{{revGS.Coef}}</td>
+                                        <td scope="row">{{revGS.Pts}}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </td>
+                    <td class="eljoc-subtable">
+                        <table class="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th colspan="6" style="text-align: center"><h5>SURPRISE COMPETITION</h5></th>
+                                </tr>
+                                <tr>
+                                    <td colspan="6" style="text-align: center" class="eljoc-explanation">Team with best surprise ranking in all competition matches (win 3 pts, draw, 1 pt, loss 0 pts).<br>
+                                    Goals difference factor is 0.01 / Goals for factor is 0.0001<br>
+                                    Surprise ranking only applies to unseeded teams and multiplies coefficient and total points in the competition.</td>
+                                </tr>
+                                <tr>
+                                    <th scope="col">Rank</th>
+                                    <th scope="col">Logo</th>
+                                    <th scope="col">Name</th>
+                                    {% if competition == 1 or competition == 3 %}<th scope="col">Flag</th>{% endif %}
+                                    <th scope="col">Coef</th>
+                                    <th scope="col">Points</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for rev in rev %}
+                                    <tr>
+                                        <td scope="row">{{forloop.counter}}</td>
+                                        <td scope="row">{% if competition == 1 or competition == 3 %}<img src="https://api.fifa.com/api/v3/picture/associations-sq-2/{{ rev.Short }}" width="25" height="25">{% elif competition == 2 %}<img src="https://img.uefa.com/imgml/TP/teams/logos/140x140/{{ rev.euro }}.png" width="25" height="25"></td>{% endif %}
+                                        <td scope="row">{{rev.Name}}</td>
+                                        {% if competition == 1 or competition == 3 %}<td scope="row"><img src="https://api.fifa.com/api/v3/picture/flags-sq-4/{{ rev.Short }}" width="25" height="17"></td>{% endif %}
+                                        <td scope="row">{{rev.Coef}}</td>
+                                        <td scope="row">{{rev.Pts}}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
 
     <!-- Tables players stats -->
 
-    <table class="table table-striped table-hover mt-5">
-        <thead>
-            <tr>
-                <th scope="col">#</th>
-                <th scope="col">Name</th>
-                <th scope="col">Team</th>
-                <th scope="col"></th>
-                <th scope="col">Goals</th>
-                <th scope="col">Assists</th>
-                <th scope="col">Matches played</th>
-                <th scope="col">Penalties</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for scorers in scorers %}
+    <div class="card card-body mt-4">
+        <table class="table table-striped table-hover">
+            <thead>
                 <tr>
-                    <td scope="row">{{forloop.counter}}</td>
-                    <td>{{scorers.player.firstName}} {{scorers.player.lastName}}</td>
-                    <td>{{scorers.team.tla}}</td>
-                    <td><img src="{{scorers.team.crest}}" width="30" height="30"></td>
-                    <td>{{scorers.goals}}</td>
-                    <td>{{scorers.assists}}</td>
-                    <td>{{scorers.playedMatches}}</td>
-                    <td>{{scorers.penalties}}</td>
+                    <th colspan="8" style="text-align: center"><h4>Player stats day {{data0}}</h4></th>
                 </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Team</th>
+                    <th scope="col"></th>
+                    <th scope="col">Goals</th>
+                    <th scope="col">Assists</th>
+                    <th scope="col">Matches played</th>
+                    <th scope="col">Penalties</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for scorers in scorers %}
+                    <tr>
+                        <td scope="row">{{forloop.counter}}</td>
+                        <td>{{scorers.player.firstName}} {{scorers.player.lastName}}</td>
+                        <td>{{scorers.team.tla}}</td>
+                        <td><img src="{{scorers.team.crest}}" width="30" height="30"></td>
+                        <td>{{scorers.goals}}</td>
+                        <td>{{scorers.assists}}</td>
+                        <td>{{scorers.playedMatches}}</td>
+                        <td>{{scorers.penalties}}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
     </main>
     {% endblock %}

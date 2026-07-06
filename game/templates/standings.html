@@ -1,60 +1,54 @@
-{% extends 'base_g.html' %}
+{% extends 'base_g_next.html' %}
+
+{% block banner %}
+
+<div class="eljoc-banner">
+    <img src="//imatges.vrn47.cat/Logo/{{ banner }}" style="width:100%;" class="eljoc-banner-img">
+    <span class="eljoc-banner-title shadow">Standings</span>
+    <span class="eljoc-banner-title bronze">Standings</span>
+    <span class="eljoc-banner-title silver">Standings</span>
+    <span class="eljoc-banner-title gold">Standings</span>
+</div>
+
+{% endblock %}
 
 {% block content %}
 
-<style>
-    .container2 {
-      position: relative;
-      text-align: center;
-      color: white;
-    }
-    
-    .centered {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-    }
-    </style>
-
-<div class="container2">
-    <img src="//imatges.vrn47.cat/Logo/Euro-FormBanner24.png" style="width:100%;"">
-    <h1 class='centered'>Standings</h1>
-</div>
-
-<main class="container mt-5">
-  <table class="table table-striped table-hover">
-    <thead>
-      <tr>
-        <th scope="col">△▽</th>
-        <th scope="col"></th>
-        <th scope="col">Player</th>
-        <th scope="col">Points</th>
-        <th scope="col">∆</th>
-        <th scope="col">Prize</th>
-        {% if proves == 1 %}<th scope="col">Winnable</th>{% endif %}
-        {% if proves == 1 %}<th scope="col">WTest</th>{% endif %}
-        {% if proves == 1 %}<th scope="col">Sure</th>{% endif %}
-        {% if proves == 1 %}<th scope="col">Possible</th>{% endif %}
-      </tr>
-    </thead>
-    <tbody>
-      {% for standings in standings %}
+<main class="container">
+  <div class="card card-body mt-4">
+    <table class="table table-striped table-hover">
+      <thead>
         <tr>
-          <td scope="row">{{standings.rank0}} {% if standings.rank0 == standings.rank1 %} ≡ {% elif standings.rank1 > standings.rank0 %} ▲ {% elif standings.rank0 > standings.rank1 %} ▼ {% else %} . {% endif %} </td>
-          <td scope="row"><img src="//imatges.vrn47.cat/Honours/Stars/v2/{{ standings.stars }}.png" width="20" height="20"></td>
-          {% if standings.w == 0 %} <td scope="row"><s>{{ standings.fn|slice:1 }}{{ standings.ln }}</s></td> {% else %} <th scope="row">{{ standings.fn|slice:1 }}{{ standings.ln }} {% endif %}</th>
-          <th scope="row">{{ standings.tot }}</th>
-          <td scope="row">{% if standings.dlt1 == stats.maxdlt1 %} <b>{{ standings.dlt1 }}✨</b> {% elif standings.dlt1 == stats.mindlt1 %} <b><FONT COLOR="#ff0000">{{ standings.dlt1 }}⚠️</b> {% elif standings.dlt1 > stats.avgdlt1 %} <FONT COLOR="#008000">{{ standings.dlt1 }} {% elif standings.dlt1 < stats.avgdlt1 %} <FONT COLOR="#FFA500">{{ standings.dlt1 }} {% else %} {{ standings.dlt1 }} {% endif %} </td>
-          <td scope="row">{% if standings.p > 0 %} <img src="//imatges.vrn47.cat/Logo/LogoElJocDEF50.png" width="20" height="20"> {% endif %}{% if 0 > standings.p %} <img src="http://imatges.vrn47.cat/Honours/Stars/v2/000.png" width="20" height="20"> {% endif %}</td>
-          {% if proves == 1 %}<td scope="row">{% if standings.tot == first%} <img src="//imatges.vrn47.cat/Honours/Stars/v2/999.png" width="20" height="20"> {% elif standings.tot|add:remaining.pts >= first %} <img src="http://imatges.vrn47.cat/Honours/Stars/v2/999.png" width="20" height="20"> {{remaining.pts}} {% else %} <img src="http://imatges.vrn47.cat/Honours/Stars/v2/000.png" width="20" height="20"> {{remaining.pts}} {% endif %}</td>{% endif %}
-          {% if proves == 1 %}<td scope="row">{% if standings.tot == first%} <img src="//imatges.vrn47.cat/Honours/Stars/v2/999.png" width="20" height="20"> {{standings.sure}}+{{standings.limit}}={{standings.sure|add:standings.limit}} {% elif standings.tot|add:standings.limit|add:standings.sure >= first %} <img src="http://imatges.vrn47.cat/Honours/Stars/v2/999.png" width="20" height="20"> {{standings.sure}}+{{standings.limit}}={{standings.sure|add:standings.limit}} {% else %} <img src="http://imatges.vrn47.cat/Honours/Stars/v2/000.png" width="20" height="20">  {{standings.sure}}+{{standings.limit}}={{standings.sure|add:standings.limit}} {% endif %}</td>{% endif %}
-          {% if proves == 1 %}<td scope="row">{% if standings.tot == first%} {{standings.tot|add:standings.sure}} {% elif standings.tot|add:standings.limit|add:standings.sure >= first %} {{standings.tot|add:standings.sure}} {% else %}  {{standings.tot|add:standings.sure}} {% endif %}</td>{% endif %}
-          {% if proves == 1 %}<td scope="row">{% if standings.tot == first%} {{standings.tot|add:standings.limit|add:standings.sure}} {% elif standings.tot|add:standings.limit|add:standings.sure >= first %} {{standings.tot|add:standings.limit|add:standings.sure}} {% else %} {{standings.tot|add:standings.limit|add:standings.sure}} {% endif %}</td>{% endif %}
+          <th scope="col">△▽</th>
+          <th scope="col"></th>
+          <th scope="col">Player</th>
+          <th scope="col">Points</th>
+          <th scope="col">∆</th>
+          <th scope="col">Prize</th>
+          {% if proves == 1 %}<th scope="col">Winnable</th>{% endif %}
+          {% if proves == 1 %}<th scope="col">WTest</th>{% endif %}
+          {% if proves == 1 %}<th scope="col">Sure</th>{% endif %}
+          {% if proves == 1 %}<th scope="col">Possible</th>{% endif %}
         </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+      </thead>
+      <tbody>
+        {% for standings in standings %}
+          <tr>
+            <td scope="row">{{standings.rank0}} {% if standings.rank0 == standings.rank1 %} ≡ {% elif standings.rank1 > standings.rank0 %} ▲ {% elif standings.rank0 > standings.rank1 %} ▼ {% else %} . {% endif %} </td>
+            <td scope="row"><img src="//imatges.vrn47.cat/Honours/Stars/v2/{{ standings.stars }}.png" width="20" height="20"></td>
+            {% if standings.w == 0 %} <td scope="row"><s>{{ standings.fn|slice:1 }}{{ standings.ln }}</s></td> {% else %} <th scope="row">{{ standings.fn|slice:1 }}{{ standings.ln }} {% endif %}</th>
+            <th scope="row">{{ standings.tot }}</th>
+            <td scope="row">{% if standings.dlt1 == stats.maxdlt1 %} <b>{{ standings.dlt1 }}✨</b> {% elif standings.dlt1 == stats.mindlt1 %} <b><FONT COLOR="#ff0000">{{ standings.dlt1 }}⚠️</b> {% elif standings.dlt1 > stats.avgdlt1 %} <FONT COLOR="#008000">{{ standings.dlt1 }} {% elif standings.dlt1 < stats.avgdlt1 %} <FONT COLOR="#FFA500">{{ standings.dlt1 }} {% else %} {{ standings.dlt1 }} {% endif %} </td>
+            <td scope="row">{% if standings.p > 0 %} <img src="//imatges.vrn47.cat/Logo/LogoElJocDEF50.png" width="20" height="20"> {% endif %}{% if 0 > standings.p %} <img src="http://imatges.vrn47.cat/Honours/Stars/v2/000.png" width="20" height="20"> {% endif %}</td>
+            {% if proves == 1 %}<td scope="row">{% if standings.tot == first%} <img src="//imatges.vrn47.cat/Honours/Stars/v2/999.png" width="20" height="20"> {% elif standings.tot|add:remaining.pts >= first %} <img src="http://imatges.vrn47.cat/Honours/Stars/v2/999.png" width="20" height="20"> {{remaining.pts}} {% else %} <img src="http://imatges.vrn47.cat/Honours/Stars/v2/000.png" width="20" height="20"> {{remaining.pts}} {% endif %}</td>{% endif %}
+            {% if proves == 1 %}<td scope="row">{% if standings.tot == first%} <img src="//imatges.vrn47.cat/Honours/Stars/v2/999.png" width="20" height="20"> {{standings.sure}}+{{standings.limit}}={{standings.sure|add:standings.limit}} {% elif standings.tot|add:standings.limit|add:standings.sure >= first %} <img src="http://imatges.vrn47.cat/Honours/Stars/v2/999.png" width="20" height="20"> {{standings.sure}}+{{standings.limit}}={{standings.sure|add:standings.limit}} {% else %} <img src="http://imatges.vrn47.cat/Honours/Stars/v2/000.png" width="20" height="20">  {{standings.sure}}+{{standings.limit}}={{standings.sure|add:standings.limit}} {% endif %}</td>{% endif %}
+            {% if proves == 1 %}<td scope="row">{% if standings.tot == first%} {{standings.tot|add:standings.sure}} {% elif standings.tot|add:standings.limit|add:standings.sure >= first %} {{standings.tot|add:standings.sure}} {% else %}  {{standings.tot|add:standings.sure}} {% endif %}</td>{% endif %}
+            {% if proves == 1 %}<td scope="row">{% if standings.tot == first%} {{standings.tot|add:standings.limit|add:standings.sure}} {% elif standings.tot|add:standings.limit|add:standings.sure >= first %} {{standings.tot|add:standings.limit|add:standings.sure}} {% else %} {{standings.tot|add:standings.limit|add:standings.sure}} {% endif %}</td>{% endif %}
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 
 </main>
 
