@@ -18,27 +18,389 @@ from datetime import timedelta
 
 # Create your views here.
 
+# Funcions internes
+
+def build_ranking_evolution_chart(currentedition, num_days, num_players, mode):
+    """
+    Build data for the ranking evolution SVG chart.
+
+    Parameters
+    ----------
+    currentedition:
+        Current edition id.
+
+    num_days:
+        Number of played days shown in the chart.
+
+    num_players:
+        Number of players shown in the chart.
+
+    mode:
+        "rank"   -> show ranking position evolution.
+        "points" -> show cumulative points evolution.
+
+    Returns
+    -------
+    Dictionary with:
+    - chart_days
+    - chart_day_labels
+    - chart_grid
+    - chart_players
+    """
+
+    # ------------------------------------------------------------
+    # 01 Get last played days
+    # ------------------------------------------------------------
+
+    last_days = list(
+        Items.objects.filter(
+            editions=currentedition,
+            value1__isnull=False,
+        )
+        .order_by("-dates")
+        .values_list("dates", flat=True)
+        .distinct()[:num_days]
+    )
+
+    last_days = sorted(last_days)
+
+    # If there are not enough days, return empty chart data.
+    if not last_days:
+        return {
+            "chart_days": [],
+            "chart_day_labels": [],
+            "chart_grid": [],
+            "chart_players": [],
+        }
+
+    # ------------------------------------------------------------
+    # 02 Calculate cumulative standings by day
+    # ------------------------------------------------------------
+
+    ranking_by_day = {}
+
+    for day in last_days:
+        day_standings = Forecasts.objects.filter(
+            f_isactive=1,
+            items__editions=currentedition,
+            items__dates__lte=day,
+            ts__lte=timezone.now()
+        ).values(
+            "f_player",
+            "f_player__p_fname",
+            "f_player__p_lname",
+            "f_player__playerdb_id__stars"
+        ).annotate(
+            points=Sum("points"),
+            name=Concat(
+                Substr("f_player__p_fname", 1, 1),
+                F("f_player__p_lname"),
+                output_field=CharField()
+            ),
+            stars=F("f_player__playerdb_id__stars")
+        ).order_by(
+            "-points",
+            "-stars",
+            "f_player__p_fname"
+        )
+
+        ranking_by_day[day] = []
+
+        position = 1
+
+        for row in day_standings:
+            ranking_by_day[day].append({
+                "player_id": row["f_player"],
+                "name": row["name"],
+                "points": row["points"] or 0,
+                "rank": position,
+                "stars": row["stars"] or 0,
+            })
+
+            position += 1
+
+    # ------------------------------------------------------------
+    # 03 Convert day-based data into player-based data
+    # ------------------------------------------------------------
+
+    players_chart = {}
+
+    for day in last_days:
+        for row in ranking_by_day[day]:
+            player_id = row["player_id"]
+
+            if player_id not in players_chart:
+                players_chart[player_id] = {
+                    "name": row["name"],
+                    "points": [],
+                    "ranks": [],
+                }
+
+            players_chart[player_id]["points"].append(row["points"])
+            players_chart[player_id]["ranks"].append(row["rank"])
+
+    # ------------------------------------------------------------
+    # 04 Select current top players
+    # ------------------------------------------------------------
+
+    current_day = last_days[-1]
+
+    current_top_players = [
+        row["player_id"]
+        for row in ranking_by_day[current_day][:num_players]
+    ]
+
+    chart_players = [
+        players_chart[player_id]
+        for player_id in current_top_players
+    ]
+
+    # ------------------------------------------------------------
+    # 05 Prepare final chart structure
+    # ------------------------------------------------------------
+
+    ranking_chart = []
+
+    for player in chart_players:
+        current_rank = player["ranks"][-1]
+        first_rank = player["ranks"][0]
+
+        movement = first_rank - current_rank
+
+        if current_rank == 1:
+            medal_class = "gold"
+        elif current_rank == 2:
+            medal_class = "silver"
+        elif current_rank == 3:
+            medal_class = "bronze"
+        else:
+            medal_class = "normal"
+
+        ranking_chart.append({
+            "name": player["name"],
+            "ranks": player["ranks"],
+            "points": player["points"],
+            "current_rank": current_rank,
+            "current_points": player["points"][-1],
+            "movement": movement,
+            "medal_class": medal_class,
+        })
+
+    ranking_chart = sorted(
+        ranking_chart,
+        key=lambda x: x["current_rank"]
+    )
+
+    # ------------------------------------------------------------
+    # 06 SVG layout constants
+    # The chart height grows with the number of players shown. This avoids compressing the ranking lines when num_players > 10.
+    # ------------------------------------------------------------
+
+    SVG_WIDTH = 900
+    # SVG_HEIGHT = 360
+
+    LEFT_MARGIN = 90
+    RIGHT_MARGIN = 160
+    TOP_MARGIN = 60
+    BOTTOM_MARGIN = 35
+
+    ROW_HEIGHT = 30
+
+    visible_players = len(ranking_chart)
+
+    # Minimum height for 10 players.
+    # If we show more than 10 players, the chart becomes taller.
+    CHART_HEIGHT = max(270, (visible_players - 1) * ROW_HEIGHT)
+
+    SVG_HEIGHT = TOP_MARGIN + CHART_HEIGHT + BOTTOM_MARGIN
+
+    CHART_WIDTH = SVG_WIDTH - LEFT_MARGIN - RIGHT_MARGIN
+
+    DAY_STEP = CHART_WIDTH / (len(last_days) - 1) if len(last_days) > 1 else 0
+
+
+    # CHART_WIDTH = SVG_WIDTH - LEFT_MARGIN - RIGHT_MARGIN
+    # CHART_HEIGHT = SVG_HEIGHT - TOP_MARGIN - BOTTOM_MARGIN
+
+    # DAY_STEP = CHART_WIDTH / (len(last_days) - 1) if len(last_days) > 1 else 0
+
+    # ------------------------------------------------------------
+    # 07 Define Y scale depending on chart mode
+    # ------------------------------------------------------------
+
+    if mode == "points":
+        all_values = []
+
+        for player in ranking_chart:
+            all_values.extend(player["points"])
+
+        min_value = min(all_values)
+        max_value = max(all_values)
+
+        # Afegim un marge visual sobre i sota de cada valor real per evitar que les línies toquin la part superior o inferior de la gràfica.
+        padding = 0
+        min_axis = min_value - padding
+        max_axis = max_value + padding
+        value_range = max_axis - min_axis
+
+        # Avoid division by zero if all players have same points.
+        if value_range == 0:
+            value_range = 1
+
+        def get_y(value):
+            """
+            Convert points into SVG Y coordinate.
+
+            Higher points should appear higher in the chart.
+            """
+            return TOP_MARGIN + ((max_value - value) / value_range) * CHART_HEIGHT
+
+        # ------------------------------------------------------------
+        # Build a clean vertical axis.
+        #
+        # Instead of showing every point value, show only a few ticks.
+        # Example: 210, 215, 220, 225, 230, 235, 240
+        # ------------------------------------------------------------
+        grid_step = 5
+
+        min_grid = (min_axis // grid_step) * grid_step
+        max_grid = ((max_axis + grid_step - 1) // grid_step) * grid_step
+
+        grid_values = list(
+            range(
+                int(min_grid),
+                int(max_grid) + 1,
+                grid_step
+            )
+        )
+
+    else:
+        # Default mode: ranking position.
+        mode = "rank"
+
+        max_rank = visible_players
+        RANK_STEP = CHART_HEIGHT / (max_rank - 1) if max_rank > 1 else 1
+        grid_values = list(range(1, max_rank + 1))
+
+        def get_y(value):
+            """
+            Convert ranking position into SVG Y coordinate.
+
+            Rank #1 appears at the top.
+            """
+            return TOP_MARGIN + (value - 1) * RANK_STEP
+
+        grid_values = list(range(1, max_rank + 1))
+
+    # ------------------------------------------------------------
+    # 08 SVG grid
+    # ------------------------------------------------------------
+
+    chart_grid = []
+
+    for value in grid_values:
+        if mode == "rank":
+            label = f"#{value}"
+        else:
+            label = str(value)
+
+        chart_grid.append({
+            "value": value,
+            "label": label,
+            "y": round(get_y(value), 2),
+        })
+
+    # ------------------------------------------------------------
+    # 09 SVG day labels
+    # ------------------------------------------------------------
+
+    chart_day_labels = []
+
+    for i, day in enumerate(last_days):
+        x = LEFT_MARGIN + i * DAY_STEP
+
+        chart_day_labels.append({
+            "day": day,
+            "x": round(x, 2),
+            "y": 38,
+        })
+
+    # ------------------------------------------------------------
+    # 10 SVG player lines and points
+    # ------------------------------------------------------------
+
+    for player in ranking_chart:
+        svg_points = []
+
+        values = player["ranks"] if mode == "rank" else player["points"]
+
+        for i, value in enumerate(values):
+            x = LEFT_MARGIN + i * DAY_STEP
+            y = get_y(value)
+
+            svg_points.append({
+                "x": round(x, 2),
+                "y": round(y, 2),
+                "value": value,
+            })
+
+        player["svg_points"] = svg_points
+
+        player["svg_polyline_points"] = " ".join(
+            f"{point['x']},{point['y']}"
+            for point in svg_points
+        )
+
+        player["svg_label_x"] = round(svg_points[-1]["x"] + 16, 2)
+        player["svg_label_y"] = round(svg_points[-1]["y"] + 4, 2)
+
+    # ------------------------------------------------------------
+    # 11 Return chart data
+    # ------------------------------------------------------------
+
+    return {
+        "chart_days": last_days,
+        "chart_day_labels": chart_day_labels,
+        "chart_grid": chart_grid,
+        "chart_players": ranking_chart,
+        "chart_mode": mode,
+        "chart_svg_width": SVG_WIDTH,
+        "chart_svg_height": SVG_HEIGHT,
+    }
+
+# Funcions de creació de pàgines
+
 def game(request):
         
     print('GAME')
+
+    # verificació de sessió oberta via get() perquè, si la clau no existeix, retorna None en lloc de provocar un KeyError.
+    session = request.session.get("eljocsession_playerdb_id")
+    if session is None:
+        # Eliminem qualsevol resta d'una sessió incompleta.
+        request.session.flush()
+        # Tornem l'usuari a la pàgina d'accés.
+        return redirect("access5")
+    # fi verificació de sessió
 
     print("PLAYER:", request.session.get("eljocsession_player_id"))
     print("EMAIL:", request.session.get("eljocsession_player_email"))
     print("EDITION:", request.session.get("eljocsession_edition_id"))
 
-# canvia l'edició en curs ja sigui manual en <<currentedition = 37>> o automàtic en <<currentedition = request.session.get('edition_id', 37)>>
-#   currentedition = 37
+    # canvia l'edició en curs ja sigui manual en <<currentedition = 37>> o automàtic en <<currentedition = request.session.get('edition_id', 37)>>
+    #   currentedition = 37
     currentedition = request.session.get('eljocsession_edition_id', 37)
     player_id = request.session.get("eljocsession_player_id")
 
-# codi per mostrar el banner corresponent a la competició
+    # codi per mostrar el banner corresponent a la competició
     competition = Editions.objects.get(id=currentedition)
     competition_code = competition.competitions.id
     if competition_code == 1:
         banner = "BannerElJoc.png"
-#        banner = "Euro-FormBanner24.png"
+    #    banner = "Euro-FormBanner24.png"
     elif competition_code == 2:
-        banner = "UCL-FormBanner.jpg"
+        banner = "BannerElJoc.png"
+    #    banner = "UCL-FormBanner.jpg"
     elif competition_code == 3:
         banner = "Euro-FormBanner2024.png"
     else:
@@ -46,8 +408,8 @@ def game(request):
     
     print("Banner:", banner)
 
-#-----------------
-# Username info
+    #-----------------
+    # Username info
 
     plyr = Players.objects.get(id=player_id)
 
@@ -56,10 +418,10 @@ def game(request):
         plyr.p_lname.capitalize()
     )
 
-#-----------------
+    #-----------------
 
-#---------------------
-# codi per a PENDING forecasts
+    #---------------------
+    # codi per a PENDING forecasts
 
     pending_items = []
     pending_count = 0
@@ -85,8 +447,8 @@ def game(request):
     for item in pending_items[:5]:
         print(item.id, item.description, item.open, item.close)
 
-#---------------------
-# barra de progrés
+    #---------------------
+    # barra de progrés
     now = timezone.now()
 
     open_items = Items.objects.filter(
@@ -113,7 +475,9 @@ def game(request):
     if open_items_count > 0:
         progress_pct = round(completed_count * 100 / open_items_count)
 
-    print("progrés:", progress_pct)
+    print("progrés %:", progress_pct)
+    print("open qty:", open_items_count)
+    print("completed qty:", completed_count)
 
     urgent_count = pending_items.filter(
         close__lte=now + timedelta(hours=24)
@@ -131,27 +495,53 @@ def game(request):
     warning_pct = round(warning_count * 100 / open_items_count) if open_items_count else 0
     normal_pct = max(0, 100 - completed_pct - urgent_pct - warning_pct)
 
-    print("progrés:", progress_pct, urgent_pct, warning_pct, normal_pct)
+    print("status %:", progress_pct, urgent_pct, warning_pct, normal_pct)
 
 
-#---------------------
+    #---------------------
 
-#   suprimir el "+1" quan arrenqui la competició.
+    #   suprimir el "+1" quan arrenqui la competició.
     data = Items.objects.filter(editions=currentedition, value1__isnull=False).order_by('-dates').values_list('dates', flat=True).first()
     print('data', data)
-#   offset value is 0 for world cup (32 teams), 38 for old UCL (groups), 83 for Euro, 116 for new UCL (league), 204 for new WC (48 teams)
-    data0 = data - 204
-    data1 = data - 205
-    data2 = data - 206
-    data3 = data - 207
-    data4 = data - 208
+
+    #   gap value is 0 for world cup (32 teams), 38 for old UCL (groups), 83 for Euro, 116 for new UCL (league), 204 for new WC (48 teams)
+    print('torneig', competition_code)
+    if competition_code == 2:
+        gap = 116
+    elif competition_code == 1:
+        gap = 204
+    elif competition_code == 3:
+        gap = 83
+
+    print('gap', gap)
+    print('data', data)
+
+    data0 = data - gap
+    data1 = data0 - 1
+    data2 = data1 - 1
+    data3 = data2 - 1
+    data4 = data3 - 1
     print('data0', data0)
     if data0 == 0:
             return render(request, 'game.html', {
-            'data': data-204,
-            'pending_items': pending_items[:5],
-            'pending_count': pending_count,
-            })
+                'data': data-gap,
+                'pending_items': pending_items[:5],
+                'competition': competition,
+                'banner': banner,
+                'pending_count': pending_count,
+                'open_items_count': open_items_count,
+                'completed_count': completed_count,
+                'progress_pct': progress_pct,
+                'urgent_count': urgent_count,
+                'warning_count': warning_count,
+                'normal_count': normal_count,
+                'completed_pct': completed_pct,
+                'urgent_pct': urgent_pct,
+                'warning_pct': warning_pct,
+                'normal_pct': normal_pct,
+                'username': username,
+
+                })
 
     else:
         items = Forecasts.objects.filter(items__editions=currentedition, f_isactive=1, ts__lte=timezone.now(),items__dates__lte=data)
@@ -200,272 +590,73 @@ def game(request):
 
         #------------------
 
-        """
-        # Evolució de la classificació - darrers 5 dies
-        #
-        # Objectiu:
-        # - Obternir els darrers 5 dies jugats.
-        # - Calcular els punts acumulats de cada jugador a cada dia.
-        # - Convertir els punts acumulats en posicions.
-        """
-
-        Pst = 5   # Quantitat de jugadors que surten a la gràfica
-
-        # 01 Extraiem les darreres 5 dates d'items
-        last_days = list(
-            Items.objects.filter(
-                editions=currentedition,
-                value1__isnull=False,
-            )
-            .order_by("-dates")
-            .values_list("dates", flat=True)
-            .distinct()[:5]
+        # Test gràfica 1 via funció
+        ranking_evolution1 = build_ranking_evolution_chart(
+            currentedition=currentedition,
+            num_days=5,
+            num_players=5,
+            mode="rank"   # rank or points
+        )
+        
+        # Test gràfica 2 via funció
+        ranking_evolution = build_ranking_evolution_chart(
+            currentedition=currentedition,
+            num_days=5,
+            num_players=5,
+            mode="points"   # rank or points
         )
 
-        # 02 Ordenem dates de més antiga cap a més recent
-        last_days = sorted(last_days)
-
-        # 03 Calculem els punts acumulats fins a data d'avui.
-        ranking_by_day = {}
-        for day in last_days:
-            day_standings = Forecasts.objects.filter(
-                f_isactive=1,
-                items__editions=currentedition,
-                items__dates__lte=day,
-                ts__lte=timezone.now()
-            ).values(
-                "f_player",
-                "f_player__p_fname",
-                "f_player__p_lname",
-                "f_player__playerdb_id__stars"
-            ).annotate(
-                points=Sum("points"),
-                name=Concat(
-                    Substr("f_player__p_fname", 1, 1),
-                    F("f_player__p_lname"),
-                    output_field=CharField()
-                ),
-                stars=F("f_player__playerdb_id__stars")
-            ).order_by(
-                "-points",
-                "-stars",
-                "f_player__p_fname"
-            )
-
-            # 04 Assign ranking position.
-            ranking_by_day[day] = []
-            position = 1
-            for row in day_standings:
-                ranking_by_day[day].append({
-                    "player_id": row["f_player"],
-                    "name": row["name"],
-                    "points": row["points"] or 0,
-                    "rank": position,
-                    "stars": row["stars"] or 0
-                })
-                position += 1
-
-        """
-        # Preparar les dades per a la gràfica.
-        #
-        # La gràfica necessita una línia per jugador i cada jugador té:
-        # - nom (tipus VRoig)
-        # - punts acumulats dels 5 dies
-        # - ranking dels 5 dies
-        """
-
-        players_chart = {}
-        for day in last_days:
-            for row in ranking_by_day[day]:
-                player_id = row["player_id"]
-                if player_id not in players_chart:
-                    players_chart[player_id] = {
-                        "name": row["name"],
-                        "points": [],
-                        "ranks": []
-                    }
-                players_chart[player_id]["points"].append(row["points"])
-                players_chart[player_id]["ranks"].append(row["rank"])
-
-        """
-        # Seleccionar només el top 10 per a simplificar la gràfica i fer-la més llegible
-        # Later we can add:
-        # - current user always visible
-        # - top 5 only
-        # - podium only
-        """
-        current_day = last_days[-1]
-        current_top_players = [
-            row["player_id"]
-            for row in ranking_by_day[current_day][:Pst]
-        ]
-        ranking_chart_data = [
-            players_chart[player_id]
-            for player_id in current_top_players
-        ]
-
-        print("RANKING CHART DAYS:", last_days)
-        print("RANKING CHART DATA:", ranking_chart_data)
-
-        """
-        # Estructura final de la gràfica que prepara les dades per mostrar-les.
-        # Mantenim la lògica de dades separades de la lògica gràfica.
-        #
-        # Per cada jugador, calculem:
-        # - posició actual
-        # - moviment de posició +/-
-        # - podi: viaualització en mode El Joc gold/silver/bronze/normal
-        """
-
-        ranking_chart = []
-        for player in ranking_chart_data:
-            current_rank = player["ranks"][-1]
-            first_rank = player["ranks"][0]
-            movement = first_rank - current_rank
-            best_rank = min(player["ranks"])
-            worst_rank = max(player["ranks"])
-            current_points = player["points"][-1]
-            if current_rank == 1:
-                medal_class = "gold"
-            elif current_rank == 2:
-                medal_class = "silver"
-            elif current_rank == 3:
-                medal_class = "bronze"
-            else:
-                medal_class = "normal"
-
-            ranking_chart.append({
-                "name": player["name"],
-                "ranks": player["ranks"],
-                "points": player["points"],
-                "current_rank": current_rank,
-                "movement": movement,
-                "medal_class": medal_class,
-            })
-
-        # Sort by current ranking position.
-        ranking_chart = sorted(
-            ranking_chart,
-            key=lambda x: x["current_rank"]
-        )
-
-        print("RANKING CHART:", ranking_chart)
-
-        # SVG constants: defineixen l'àrea útil de la gràfica reservant espai
-        POSITIONS = Pst   # Nombre de jugadors a la gràfica
-        SVG_WIDTH = 900
-        SVG_HEIGHT = 360
-        LEFT_MARGIN = 90   #Espai per a les posicions #1, #2, etc. a l'esquerra
-        RIGHT_MARGIN = 160    #Espai per posar el nom del jugador a la dreta
-        TOP_MARGIN = 60    #Espai per als dies a dalt
-        BOTTOM_MARGIN = 35
-
-        CHART_WIDTH = SVG_WIDTH - LEFT_MARGIN - RIGHT_MARGIN
-        CHAR_HEIGHT = SVG_HEIGHT - TOP_MARGIN - BOTTOM_MARGIN
-
-        # Tenim 5 dies. La distància entre dies és l'amplada útil dividida pel nombre d'intervals. Amb 5 dies hi ha 4 intervals.
-        DAY_STEP = CHART_WIDTH / (len(last_days) - 1)
-        # Mostrem Top 10. La posició 1 és a dalt i la 10 a baix. Entre 1 i 10 hi ha 9 intervals.
-        RANK_STEP = CHAR_HEIGHT / (POSITIONS - 1)
-
-        # SVG grid: # Preparem les línies horitzontals de la graella. Cada línia correspon a una posició del rànquing.
-        ranking_grid = []
-
-        for rank in range(1, 11):
-            y = TOP_MARGIN + (rank - 1) * RANK_STEP
-
-            ranking_grid.append({
-                "rank": rank,
-                "y": round(y, 2)
-            })
-
-        # SVG day labels: Preparem la posició X dels dies. Així el template no ha de calcular res.
-        ranking_day_labels = []
-
-        for i, day in enumerate(last_days):
-            x = LEFT_MARGIN + i * DAY_STEP
-
-            ranking_day_labels.append({
-                "day": day,
-                "x": round(x, 2),
-                "y": 38
-            })
-
-        # SVG player lines and points. Per cada jugador:
-        # - convertim cada rank en una coordenada x/y
-        # - preparem els punts individuals
-        # - preparem el text per a la polyline
-        # - preparem la posició del nom del jugador a la dreta
-
-        for player in ranking_chart:
-
-            svg_points = []
-
-            for i, rank in enumerate(player["ranks"]):
-
-                # X depèn del dia.
-                x = LEFT_MARGIN + i * DAY_STEP
-
-                # Y depèn de la posició.
-                # Rank 1 queda a dalt; rank 10 queda a baix.
-                y = TOP_MARGIN + (rank - 1) * RANK_STEP
-
-                svg_points.append({
-                    "x": round(x, 2),
-                    "y": round(y, 2),
-                    "rank": rank
-                })
-
-            # IMPORTANT: Aquestes línies han d'anar fora del bucle de ranks. Si les posem dins, la línia es recalcula mentre encara no tenim tots els punts del jugador.
-            player["svg_points"] = svg_points
-
-            # String que utilitza SVG per dibuixar la línia. Exemple: "90,60 252.5,60 415,60 577.5,60 740,60"
-            player["svg_polyline_points"] = " ".join(
-                f"{point['x']},{point['y']}"
-                for point in svg_points
-            )
-
-            # Posició del nom del jugador, just a la dreta de l'últim punt.
-            player["svg_label_x"] = round(svg_points[-1]["x"] + 16, 2)
-            player["svg_label_y"] = round(svg_points[-1]["y"] + 4, 2)
-
-
-        print("RANKING GRID:", ranking_grid)
-        print("RANKING DAY LABELS:", ranking_day_labels)
-        print("RANKING CHART SVG:", ranking_chart)
+        print("RANKING GRID:", ranking_evolution1["chart_grid"])
+        print("RANKING DAY LABELS:", ranking_evolution1["chart_day_labels"])
+        print("RANKING CHART SVG:", ranking_evolution1["chart_players"])
 
 
     #------------------
 
         return render(request, 'game.html', {
-                'standings': stnd5,
-                'stats': stats,
-                'data': data0,
-                'competition': competition,
-                'banner': banner,
-                'pending_items': pending_items_dashboard,
-                'pending_count': pending_count,
-                'open_items_count': open_items_count,
-                'completed_count': completed_count,
-                'progress_pct': progress_pct,
-                'urgent_count': urgent_count,
-                'warning_count': warning_count,
-                'normal_count': normal_count,
-                'completed_pct': completed_pct,
-                'urgent_pct': urgent_pct,
-                'warning_pct': warning_pct,
-                'normal_pct': normal_pct,
-                'username': username,
-                "ranking_chart_days": last_days,
-                "ranking_chart_data": ranking_chart_data,
-                "ranking_chart": ranking_chart,
-                "ranking_grid": ranking_grid,
-                "ranking_day_labels": ranking_day_labels,
+            'standings': stnd5,
+            'stats': stats,
+            'data': data0,
+            'competition': competition,
+            'banner': banner,
+            'pending_items': pending_items_dashboard,
+            'pending_count': pending_count,
+            'open_items_count': open_items_count,
+            'completed_count': completed_count,
+            'progress_pct': progress_pct,
+            'urgent_count': urgent_count,
+            'warning_count': warning_count,
+            'normal_count': normal_count,
+            'completed_pct': completed_pct,
+            'urgent_pct': urgent_pct,
+            'warning_pct': warning_pct,
+            'normal_pct': normal_pct,
+            'username': username,
+            "ranking_chart_days1": ranking_evolution1["chart_days"],
+            "ranking_chart1": ranking_evolution1["chart_players"],
+            "ranking_grid1": ranking_evolution1["chart_grid"],
+            "ranking_day_labels1": ranking_evolution1["chart_day_labels"],
+            "ranking_chart_days": ranking_evolution["chart_days"],
+            "ranking_day_labels": ranking_evolution["chart_day_labels"],
+            "ranking_grid": ranking_evolution["chart_grid"],
+            "ranking_chart": ranking_evolution["chart_players"],
+            "ranking_chart_mode": ranking_evolution["chart_mode"],
+            "chart_svg_height": ranking_evolution["chart_svg_height"],
+            "chart_svg_width": ranking_evolution["chart_svg_width"]
             })
 
 def forecasts(request):
 
     print('FORECASTS')
+
+    # verificació de sessió oberta via get() perquè, si la clau no existeix, retorna None en lloc de provocar un KeyError.
+    session = request.session.get("eljocsession_playerdb_id")
+    if session is None:
+        # Eliminem qualsevol resta d'una sessió incompleta.
+        request.session.flush()
+        # Tornem l'usuari a la pàgina d'accés.
+        return redirect("access5")
+    # fi verificació de sessió
 
     print("PLAYER:", request.session.get("eljocsession_player_id"))
     print("EMAIL:", request.session.get("eljocsession_player_email"))
@@ -477,7 +668,7 @@ def forecasts(request):
     item = Items.objects.filter(open__lt=time,close__gt=time).exclude(fields_id=1).exclude(fields_id=6)
     fixture = Fixtures.objects.all()
     team = Teams.objects.filter(editions=currentedition).order_by('coef')
-    team_2 = Teams.objects.filter(editions=currentedition, rev=0).order_by('coef')
+    team_2 = Teams.objects.filter(editions=currentedition, rev=1).order_by('coef')
     team_3 = Teams.objects.filter(editions=currentedition).order_by('-coef')
     team_A = Teams.objects.filter(editions=currentedition, grp='A').order_by('pos')
     team_B = Teams.objects.filter(editions=currentedition, grp='B').order_by('pos')
@@ -560,7 +751,8 @@ def forecasts(request):
     teamSF_2 = Teamsdb.objects.filter(teams__id=144) | Teamsdb.objects.filter(teams__id=152).order_by('teams__pos')
     team3rd = Teamsdb.objects.filter(teams__id=155) | Teamsdb.objects.filter(teams__id=152).order_by('teams__pos')
     teamW = Teamsdb.objects.filter(teams__id=155) | Teamsdb.objects.filter(teams__id=152).order_by('teams__pos')
-    # print('TeamQF: ', teamQF)
+    print('Team: ', team)
+    print('Crash: ', team_2)
 
     forecast = Forecasts.objects.all()
     form = ForecastsForm
@@ -744,6 +936,15 @@ def forecasts(request):
 def lateforecasts(request):
 
     print('LATE FORECASTS')
+
+    # verificació de sessió oberta via get() perquè, si la clau no existeix, retorna None en lloc de provocar un KeyError.
+    session = request.session.get("eljocsession_playerdb_id")
+    if session is None:
+        # Eliminem qualsevol resta d'una sessió incompleta.
+        request.session.flush()
+        # Tornem l'usuari a la pàgina d'accés.
+        return redirect("access5")
+    # fi verificació de sessió
 
     print("PLAYER:", request.session.get("eljocsession_player_id"))
     print("EMAIL:", request.session.get("eljocsession_player_email"))
@@ -1057,29 +1258,33 @@ def standings(request):
 
     print('STANDINGS')   
         
+    # verificació de sessió oberta via get() perquè, si la clau no existeix, retorna None en lloc de provocar un KeyError.
+    session = request.session.get("eljocsession_playerdb_id")
+    if session is None:
+        # Eliminem qualsevol resta d'una sessió incompleta.
+        request.session.flush()
+        # Tornem l'usuari a la pàgina d'accés.
+        return redirect("access5")
+    # fi verificació de sessió
+
     print("PLAYER:", request.session.get("eljocsession_player_id"))
     print("EMAIL:", request.session.get("eljocsession_player_email"))
     print("EDITION:", request.session.get("eljocsession_edition_id"))
 
-#   data editions and items, gap is diff from first item on current competition to 0.
-#   offset value is 0 for world cup (32 teams), 38 for old UCL (groups), 83 for Euro, 116 for new UCL (league), 204 for new WC (48 teams)
-    gap = 204
-#   proves as 0 means that standings do not show test items, as 1 they will appear.
-    proves = 0
-
-# canvia l'edició en curs ja sigui manual en <<currentedition = 37>> o automàtic en <<currentedition = request.session.get('edition_id', 37)>>
-#   currentedition = 37
+    # canvia l'edició en curs ja sigui manual en <<currentedition = 37>> o automàtic en <<currentedition = request.session.get('edition_id', 37)>>
+    #   currentedition = 37
     currentedition = request.session.get('eljocsession_edition_id', 37)
     player_id = request.session.get("eljocsession_player_id")
 
-# codi per mostrar el banner corresponent a la competició
+    # codi per mostrar el banner corresponent a la competició
     competition = Editions.objects.get(id=currentedition)
     competition_code = competition.competitions.id
     if competition_code == 1:
         banner = "BannerElJoc.png"
-#        banner = "Euro-FormBanner24.png"
+    #   banner = "Euro-FormBanner24.png"
     elif competition_code == 2:
-        banner = "UCL-FormBanner.jpg"
+        banner = "BannerElJoc.png"
+    #    banner = "UCL-FormBanner.jpg"
     elif competition_code == 3:
         banner = "Euro-FormBanner2024.png"
     else:
@@ -1087,8 +1292,8 @@ def standings(request):
     
     print("Banner:", banner)
 
-#-----------------
-# Username info
+    #-----------------
+    # Username info
 
     plyr = Players.objects.get(id=player_id)
 
@@ -1097,16 +1302,35 @@ def standings(request):
         plyr.p_lname.capitalize()
     )
 
-#-----------------
+    #   proves as 0 means that standings do not show test items, as 1 they will appear.
+    proves = 0
 
-
-#   suprimir el "+1" quan arrenqui la competició.
+    #-----------------
+    #   suprimir el "+1" quan arrenqui la competició.
     data = Items.objects.filter(editions=currentedition, value1__isnull=False).order_by('-dates').values_list('dates', flat=True).first()
     datafi = Items.objects.filter(editions=currentedition).order_by('-dates').values_list('dates', flat=True).first()
-    datafi0 = datafi - gap
-    print('datafi', datafi, gap, datafi0)
-    data0 = data - 204
-    print('data', data, 'data0', data0)
+    print('data', data)
+
+    #   gap value is 0 for world cup (32 teams), 38 for old UCL (groups), 83 for Euro, 116 for new UCL (league), 204 for new WC (48 teams)
+    print('torneig', competition_code)
+    if competition_code == 2:
+        gap = 116
+    elif competition_code == 1:
+        gap = 204
+    elif competition_code == 3:
+        gap = 83
+
+    print('gap', gap)
+    print('data', data)
+
+    data0 = data - gap
+    data1 = data0 - 1
+    data2 = data1 - 1
+    data3 = data2 - 1
+    data4 = data3 - 1
+    print('data0', data0)
+
+####---------------
 
     thisday = Items.objects.filter(editions=currentedition, dates=data).aggregate(
         pts=Sum(F('scores__s_max'))
@@ -1145,7 +1369,7 @@ def standings(request):
     ).order_by('-tot', '-tot2', '-stars', 'fn')
     print('stnd', stnd)
     first = list(stnd.values_list('tot', flat=True))
-    first = first[0]
+    first = first[0] if first else None
     print('first', first)
 
     stats = stnd.aggregate(
@@ -1176,15 +1400,19 @@ def statistics(request):
         
     print('STATISTICS')
         
-    print('Game')
+    # verificació de sessió oberta via get() perquè, si la clau no existeix, retorna None en lloc de provocar un KeyError.
+    session = request.session.get("eljocsession_playerdb_id")
+    if session is None:
+        # Eliminem qualsevol resta d'una sessió incompleta.
+        request.session.flush()
+        # Tornem l'usuari a la pàgina d'accés.
+        return redirect("access5")
+    # fi verificació de sessió
+
     print("PLAYER:", request.session.get("eljocsession_player_id"))
     print("EMAIL:", request.session.get("eljocsession_player_email"))
     print("EDITION:", request.session.get("eljocsession_edition_id"))
     
-#    data editions and items, gap is diff from first item on current competition to 0.
-#   offset value is 0 for world cup (32 teams), 38 for old UCL (groups), 83 for Euro, 116 for new UCL (league), 204 for new WC (48 teams)
-    gap = 204
-
 # canvia l'edició en curs ja sigui manual en <<currentedition = 37>> o automàtic en <<currentedition = request.session.get('edition_id', 37)>>
 #   currentedition = 37
     currentedition = request.session.get('eljocsession_edition_id', 37)
@@ -1197,7 +1425,8 @@ def statistics(request):
         banner = "BannerElJoc.png"
 #        banner = "Euro-FormBanner24.png"
     elif competition_code == 2:
-        banner = "UCL-FormBanner.jpg"
+        banner = "BannerElJoc.png"
+    #    banner = "UCL-FormBanner.jpg"
     elif competition_code == 3:
         banner = "Euro-FormBanner2024.png"
     else:
@@ -1215,20 +1444,31 @@ def statistics(request):
         plyr.p_lname.capitalize()
     )
 
-#-----------------
-
     competition = Editions.objects.filter(id=currentedition, is_active=1).order_by('id').values_list('competitions', flat=True).first()
-#    suprimir el "+1" quan arrenqui la competició.
+    #   suprimir el "+1" quan arrenqui la competició.
     data = Items.objects.filter(editions=currentedition, value1__isnull=False).order_by('-dates').values_list('dates', flat=True).first()
     datafi = Items.objects.filter(editions=currentedition).order_by('-dates').values_list('dates', flat=True).first()
-    datafi0 = datafi - gap
-    print('datafi', datafi, gap, datafi0)
-    data0 = data - 204
-    data1 = data - 205
-    data2 = data - 206
-    data3 = data - 207
-    data4 = data - 208
-    print('data', data-204, data)
+    print('data', data)
+
+    #   gap value is 0 for world cup (32 teams), 38 for old UCL (groups), 83 for Euro, 116 for new UCL (league), 204 for new WC (48 teams)
+    print('torneig', competition_code)
+    if competition_code == 2:
+        gap = 116
+    elif competition_code == 1:
+        gap = 204
+    elif competition_code == 3:
+        gap = 83
+
+    print('gap', gap)
+    print('data', data)
+
+    data0 = data - gap
+    data1 = data0 - 1
+    data2 = data1 - 1
+    data3 = data2 - 1
+    data4 = data3 - 1
+    print('data0', data0)
+
     dates0 = Dates.objects.get(id=data)
     dates1 = Dates.objects.get(id=data-1)
     dates2 = Dates.objects.get(id=data-2)
@@ -1370,7 +1610,12 @@ def statistics(request):
 #    player stats
 
 #   UCL is 2001, Euro is 2018, WC is 2000, FCWC is ?
-    uri = 'https://api.football-data.org/v4/competitions/2000//scorers/'
+    if competition_code == 2:
+        uri = 'https://api.football-data.org/v4/competitions/2001//scorers/'
+    elif competition_code == 1:
+        uri = 'https://api.football-data.org/v4/competitions/2000//scorers/'
+    elif competition_code == 3:
+        uri = 'https://api.football-data.org/v4/competitions/2018//scorers/'
     headers = { 'X-Auth-Token': '3d6936d5fb044a3b925f7a9383b7d4d6' }
     response_scorers = requests.get(uri, headers=headers)
 #    print('rsp scorers', response_scorers.json())
@@ -1413,6 +1658,15 @@ def oldforecasts(request):
 
     print('OLD FORECASTS')
 
+    # verificació de sessió oberta via get() perquè, si la clau no existeix, retorna None en lloc de provocar un KeyError.
+    session = request.session.get("eljocsession_playerdb_id")
+    if session is None:
+        # Eliminem qualsevol resta d'una sessió incompleta.
+        request.session.flush()
+        # Tornem l'usuari a la pàgina d'accés.
+        return redirect("access5")
+    # fi verificació de sessió
+
     print("PLAYER:", request.session.get("eljocsession_player_id"))
     print("EMAIL:", request.session.get("eljocsession_player_email"))
     print("EDITION:", request.session.get("eljocsession_edition_id"))
@@ -1430,7 +1684,8 @@ def oldforecasts(request):
         banner = "BannerElJoc.png"
 #        banner = "Euro-FormBanner24.png"
     elif competition_code == 2:
-        banner = "UCL-FormBanner.jpg"
+        banner = "BannerElJoc.png"
+    #    banner = "UCL-FormBanner.jpg"
     elif competition_code == 3:
         banner = "Euro-FormBanner2024.png"
     else:
@@ -1539,7 +1794,15 @@ def pointstable(request):
         
     print('POINTS TABLE')
 
-    print('Game')
+    # verificació de sessió oberta via get() perquè, si la clau no existeix, retorna None en lloc de provocar un KeyError.
+    session = request.session.get("eljocsession_playerdb_id")
+    if session is None:
+        # Eliminem qualsevol resta d'una sessió incompleta.
+        request.session.flush()
+        # Tornem l'usuari a la pàgina d'accés.
+        return redirect("access5")
+    # fi verificació de sessió
+
     print("PLAYER:", request.session.get("eljocsession_player_id"))
     print("EMAIL:", request.session.get("eljocsession_player_email"))
     print("EDITION:", request.session.get("eljocsession_edition_id"))
@@ -1557,7 +1820,8 @@ def pointstable(request):
         banner = "BannerElJoc.png"
 #        banner = "Euro-FormBanner24.png"
     elif competition_code == 2:
-        banner = "UCL-FormBanner.jpg"
+        banner = "BannerElJoc.png"
+    #    banner = "UCL-FormBanner.jpg"
     elif competition_code == 3:
         banner = "Euro-FormBanner2024.png"
     else:
@@ -1578,7 +1842,7 @@ def pointstable(request):
 #-----------------
 
 ## change 'items__close__gte' for 'items__close__lte' when competition starts
-    forecasts = Forecasts.objects.filter(f_isactive=1, items__editions=currentedition, items__close__lte=timezone.now()).values('items', 'f_player', 'f_email', 'fvalue1', 'fvalue2').annotate(
+    forecasts = Forecasts.objects.filter(f_isactive=1, items__editions=currentedition, items__close__gte=timezone.now()).values('items', 'f_player', 'f_email', 'fvalue1', 'fvalue2').annotate(
         itm=Concat('items__id', V('  '), Substr('items__description', 1, 5), V(' '), Substr('items__fixtures__localteam__teamsdb__short', 1, 3), Substr('items__fixtures__awayteam__teamsdb__short', 1, 3), output_field=CharField()),
         name=Concat(Substr('f_player__p_fname', 1, 1), Substr('f_player__p_lname', 1, 8), output_field=CharField()),
         day=F('items__dates'),
@@ -1614,7 +1878,15 @@ def communities(request):
 
     print('COMMUNITIES')
         
-    print('Game')
+    # verificació de sessió oberta via get() perquè, si la clau no existeix, retorna None en lloc de provocar un KeyError.
+    session = request.session.get("eljocsession_playerdb_id")
+    if session is None:
+        # Eliminem qualsevol resta d'una sessió incompleta.
+        request.session.flush()
+        # Tornem l'usuari a la pàgina d'accés.
+        return redirect("access5")
+    # fi verificació de sessió
+
     print("PLAYER:", request.session.get("eljocsession_player_id"))
     print("EMAIL:", request.session.get("eljocsession_player_email"))
     print("EDITION:", request.session.get("eljocsession_edition_id"))
@@ -1632,7 +1904,8 @@ def communities(request):
         banner = "BannerElJoc.png"
 #        banner = "Euro-FormBanner24.png"
     elif competition_code == 2:
-        banner = "UCL-FormBanner.jpg"
+        banner = "BannerElJoc.png"
+    #    banner = "UCL-FormBanner.jpg"
     elif competition_code == 3:
         banner = "Euro-FormBanner2024.png"
     else:
@@ -1742,7 +2015,15 @@ def forecasts5(request):
 
     print('FORECASTS 5')
 
-    print('Game')
+    # verificació de sessió oberta via get() perquè, si la clau no existeix, retorna None en lloc de provocar un KeyError.
+    session = request.session.get("eljocsession_playerdb_id")
+    if session is None:
+        # Eliminem qualsevol resta d'una sessió incompleta.
+        request.session.flush()
+        # Tornem l'usuari a la pàgina d'accés.
+        return redirect("access5")
+    # fi verificació de sessió
+
     print("PLAYER:", request.session.get("eljocsession_player_id"))
     print("EMAIL:", request.session.get("eljocsession_player_email"))
     print("EDITION:", request.session.get("eljocsession_edition_id"))
@@ -1760,7 +2041,8 @@ def forecasts5(request):
         banner = "BannerElJoc.png"
 #        banner = "Euro-FormBanner24.png"
     elif competition_code == 2:
-        banner = "UCL-FormBanner.jpg"
+        banner = "BannerElJoc.png"
+    #    banner = "UCL-FormBanner.jpg"
     elif competition_code == 3:
         banner = "Euro-FormBanner2024.png"
     else:
@@ -1785,7 +2067,7 @@ def forecasts5(request):
     items = Items.objects.filter(open__lt=time,close__gt=time).exclude(fields_id=1).exclude(fields_id=6)
     fixture = Fixtures.objects.all()
     team = Teams.objects.filter(editions=currentedition).order_by('coef')
-    team_2 = Teams.objects.filter(editions=currentedition, rev=0).order_by('coef')
+    team_2 = Teams.objects.filter(editions=currentedition).order_by('coef')[:25]
     team_3 = Teams.objects.filter(editions=currentedition).order_by('-coef')
     team_A = Teams.objects.filter(editions=currentedition, grp='A').order_by('pos')
     team_B = Teams.objects.filter(editions=currentedition, grp='B').order_by('pos')
@@ -1860,14 +2142,14 @@ def forecasts5(request):
     teamRo16_7 = Teamsdb.objects.filter(teams__id=170) | Teamsdb.objects.filter(teams__id=193).order_by('teams__pos')
     teamRo16_8 = Teamsdb.objects.filter(teams__id=185) | Teamsdb.objects.filter(teams__id=179).order_by('teams__pos')
     teamQF = Teamsdb.objects.filter(teams__editions=33,teams__round__id=4).order_by('id')
-    teamQF_1 = Teamsdb.objects.filter(teams__id=0) | Teamsdb.objects.filter(teams__id=0).order_by('teams__pos')
-    teamQF_2 = Teamsdb.objects.filter(teams__id=0) | Teamsdb.objects.filter(teams__id=0).order_by('teams__pos')
-    teamQF_3 = Teamsdb.objects.filter(teams__id=0) | Teamsdb.objects.filter(teams__id=0).order_by('teams__pos')
-    teamQF_4 = Teamsdb.objects.filter(teams__id=0) | Teamsdb.objects.filter(teams__id=0).order_by('teams__pos')
-    teamSF_1 = Teamsdb.objects.filter(teams__id=0) | Teamsdb.objects.filter(teams__id=0).order_by('teams__pos')
-    teamSF_2 = Teamsdb.objects.filter(teams__id=0) | Teamsdb.objects.filter(teams__id=0).order_by('teams__pos')
-    team3rd = Teamsdb.objects.filter(teams__id=0) | Teamsdb.objects.filter(teams__id=0).order_by('teams__pos')
-    teamW = Teamsdb.objects.filter(teams__id=0) | Teamsdb.objects.filter(teams__id=0).order_by('teams__pos')
+    teamQF_1 = Teamsdb.objects.filter(teams__id=168) | Teamsdb.objects.filter(teams__id=175).order_by('teams__pos')
+    teamQF_2 = Teamsdb.objects.filter(teams__id=169) | Teamsdb.objects.filter(teams__id=176).order_by('teams__pos')
+    teamQF_3 = Teamsdb.objects.filter(teams__id=195) | Teamsdb.objects.filter(teams__id=171).order_by('teams__pos')
+    teamQF_4 = Teamsdb.objects.filter(teams__id=170) | Teamsdb.objects.filter(teams__id=185).order_by('teams__pos')
+    teamSF_1 = Teamsdb.objects.filter(teams__id=168) | Teamsdb.objects.filter(teams__id=169).order_by('teams__pos')
+    teamSF_2 = Teamsdb.objects.filter(teams__id=171) | Teamsdb.objects.filter(teams__id=170).order_by('teams__pos')
+    team3rd = Teamsdb.objects.filter(teams__id=168) | Teamsdb.objects.filter(teams__id=171).order_by('teams__pos')
+    teamW = Teamsdb.objects.filter(teams__id=169) | Teamsdb.objects.filter(teams__id=170).order_by('teams__pos')
 
     forecast = Forecasts.objects.all()
     form = ForecastsForm
@@ -2021,12 +2303,12 @@ def forecasts5(request):
             print('playeredition', playeredition)
             playerid = getattr(playeredition, 'id')
             edition = getattr(getattr(playeredition, 'editions'), 'id')
-#            players = Players.objects.get(p_email=request.POST['p_email'])
+            # players = Players.objects.get(p_email=request.POST['p_email'])
             i = 0
             v1 = request.POST.getlist('fvalue1')
             v2 = request.POST.getlist('fvalue2')
             v3 = request.POST.getlist('id')
-#            print(v3, v2, v1)
+            # print(v3, v2, v1)
             xmail = request.POST['p_email']
             for x in v1:
                 if v1[i] == '':
@@ -2035,14 +2317,14 @@ def forecasts5(request):
 
                 else:
                     itemi = Items.objects.get(id=v3[i])
-#                    print(itemi)
+                    # print(itemi)
                     newforecast=Forecasts.objects.create(f_email=xmail, fvalue1=v1[i], fvalue2=v2[i], items=itemi, f_player=playeredition)
-#                    print(newforecast)
+                    # print(newforecast)
                     newforecast.ts = timezone.now()
                     try:
                         print('inner try')
                         zzz = Forecasts.objects.get(f_email=xmail, f_isactive=1, items=v3[i])
-#                        print(zzz)
+                        # print(zzz)
                         zzz.f_isactive = 0
                         zzz.save()
                     except Exception as error2:

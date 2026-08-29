@@ -210,14 +210,84 @@
             </tbody>
         </table>
     </div>
-     Final taula de dades de prova -->
+    <!-- Final taula de dades de prova -->
 
-    <!-- Inici gràfica de prova -->
-
+    <!-- Final gràfica de prova 1-->
     <div class="card card-body col-md-8 offset-md-2 mt-4 mb-4">
-        <h4>Evolution last 5 days</h4>
+        <h4>Rank evolution last 5 days</h4>
 
-        <svg class="ranking-svg" viewBox="0 0 900 360">
+        <svg class="ranking-svg" viewBox="0 0 {{ chart_svg_width }} {{ chart_svg_height }}">
+
+            <!-- Chart background. De moment només posem una àrea clara per veure bé l'espai. -->
+            <rect x="0" y="0" width="900" height="360" class="ranking-bg" />
+
+            <!-- Grid: Horizontal ranking lines. Cada línia representa una posició: #1, #2, #3... Com que mostrem Top 10, fem 10 línies.-->
+            {% for row in ranking_grid1 %}
+                <line
+                    x1="80"
+                    y1="{{ row.y }}"
+                    x2="740"
+                    y2="{{ row.y }}"
+                    class="ranking-grid-line"
+                />
+
+                <!-- Ranking labels on the left. #1, #2, #3... -->
+                <text
+                    x="58"
+                    y="{{ row.y }}"
+                    class="ranking-rank-label">
+                    {{ row.label }}
+                </text>
+            {% endfor %}
+
+            <!-- Day labels on top. These come from ranking_chart_days: 224, 225, 226... -->
+            {% for day in ranking_day_labels1 %}
+                <text
+                    x="{{ day.x }}"
+                    y="{{ day.y }}"
+                    class="ranking-day-label">
+                    Day {{ day.day }}
+                </text>
+            {% endfor %}
+
+            <!-- Player ranking lines -->
+            {% for player in ranking_chart1 %}
+                <polyline
+                    points="{{ player.svg_polyline_points }}"
+                    class="ranking-line ranking-{{ player.medal_class }}"
+                />
+            {% endfor %}
+
+            <!--Player points: Draw one circle for every player and every day. -->
+            {% for player in ranking_chart1 %}
+                {% for point in player.svg_points %}
+                    <circle
+                        cx="{{ point.x }}"
+                        cy="{{ point.y }}"
+                        r="5"
+                        class="ranking-point ranking-{{ player.medal_class }}"
+                    />
+                {% endfor %}
+            {% endfor %}
+
+            <!-- Player names -->
+            {% for player in ranking_chart1 %}
+                <text
+                    x="{{ player.svg_label_x }}"
+                    y="{{ player.svg_label_y }}"
+                    class="ranking-player-label ranking-text-{{ player.medal_class }}">
+                    {{ player.name }}
+                </text>
+            {% endfor %}
+        </svg>
+    </div>
+    <!-- Final gràfica de prova -->
+
+    <!-- Inici gràfica de prova 2-->
+    <div class="card card-body col-md-8 offset-md-2 mt-4 mb-4">
+        <h4>Points evolution last 5 days</h4>
+
+        <svg class="ranking-svg" viewBox="0 0 {{ chart_svg_width }} {{ chart_svg_height }}">
 
             <!-- Chart background. De moment només posem una àrea clara per veure bé l'espai. -->
             <rect x="0" y="0" width="900" height="360" class="ranking-bg" />
@@ -237,7 +307,7 @@
                     x="58"
                     y="{{ row.y }}"
                     class="ranking-rank-label">
-                    #{{ row.rank }}
+                    {{ row.label }}
                 </text>
             {% endfor %}
 
@@ -247,7 +317,7 @@
                     x="{{ day.x }}"
                     y="{{ day.y }}"
                     class="ranking-day-label">
-                    {{ day.day }}
+                    Day {{ day.day }}
                 </text>
             {% endfor %}
 
@@ -282,7 +352,7 @@
             {% endfor %}
         </svg>
     </div>
-    <!-- Final gràfica de prova -->
+    <!-- Final gràfica de prova 2 -->
 
 </main>
 {% endblock %}

@@ -418,12 +418,12 @@
               {% endif %}
               {% if item.list == 69 %}
                 {% for team3rd in team3rd %}
-                <option value="{{team3rd.name}}" {% if item.my_forecast and item.my_forecast.fvalue1 == team3rd.teamsdb.name %} selected {% endif %}>{{team3rd.name}} {% if team3rd.teamsdb.alphabet == 1 %} - {{team3rd.teamsdb.short}} {% endif %} </option>
+                <option value="{{team3rd.name}}" {% if item.my_forecast and item.my_forecast.fvalue1 == team3rd.name %} selected {% endif %}>{{team3rd.name}} {% if team3rd.alphabet == 1 %} - {{team3rd.short}} {% endif %} </option>
                 {% endfor %}
               {% endif %}
               {% if item.list == 70 %}
                 {% for teamW in teamW %}
-                <option value="{{teamW.name}}" {% if item.my_forecast and item.my_forecast.fvalue1 == teamW.teamsdb.name %} selected {% endif %}>{{teamW.name}} {% if teamW.teamsdb.alphabet == 1 %} - {{teamW.teamsdb.short}} {% endif %} </option>
+                <option value="{{teamW.name}}" {% if item.my_forecast and item.my_forecast.fvalue1 == teamW.name %} selected {% endif %}>{{teamW.name}} {% if teamW.alphabet == 1 %} - {{teamW.short}} {% endif %} </option>
                 {% endfor %}
               {% endif %}
             </select>

@@ -327,12 +327,12 @@
         <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
           <div class="navbar-nav ms-auto">
             <a class="nav-link {% if request.resolver_match.url_name == 'game' %} active {% endif %}" href="/game" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Game home"><img src="//imatges.vrn47.cat/Logo/LogoElJocDEF.png" width="17" height="17"</a>
-            <a class="nav-link {% if request.resolver_match.url_name == 'forecasts5' %} active {% endif %}" href="/forecasts" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Forecasts">🎯</a>
-            <a class="nav-link {% if request.resolver_match.url_name == 'standings' %} active {% endif %}" href="/standings" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Standings">🏆</a>
-            <a class="nav-link {% if request.resolver_match.url_name == 'statistics' %} active {% endif %}" href="/statistics" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Statistics">📊</a>
-            <a class="nav-link {% if request.resolver_match.url_name == 'oldforecasts' %} active {% endif %}" href="/oldforecasts" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Points">⭐</a>
-            <a class="nav-link {% if request.resolver_match.url_name == 'pointstable' %} active {% endif %}" href="/pointstable" data-bs-toggle="tooltip" data-bs-placement="bottom" title="History">📜</a>
-            <a class="nav-link {% if request.resolver_match.url_name == 'communities' %} active {% endif %}" href="/communities" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Communities">👥</a>
+            <a class="nav-link {% if request.resolver_match.url_name == 'forecasts5' %} active {% endif %}" href="/forecasts" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Forecasts">🎯 Forecasts</a>
+            <a class="nav-link {% if request.resolver_match.url_name == 'standings' %} active {% endif %}" href="/standings" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Standings">🏆 Stands</a>
+            <a class="nav-link {% if request.resolver_match.url_name == 'statistics' %} active {% endif %}" href="/statistics" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Statistics">📊 Stats</a>
+            <a class="nav-link {% if request.resolver_match.url_name == 'oldforecasts' %} active {% endif %}" href="/oldforecasts" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Points">⭐ Points</a>
+            <a class="nav-link {% if request.resolver_match.url_name == 'pointstable' %} active {% endif %}" href="/pointstable" data-bs-toggle="tooltip" data-bs-placement="bottom" title="History">📜 Table</a>
+            <a class="nav-link {% if request.resolver_match.url_name == 'communities' %} active {% endif %}" href="/communities" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Communities">👥 Groups</a>
             {% if eljocsession_username %} <a class="nav-link {% if request.resolver_match.url_name == 'playerinfo5' %} active {% endif %}" href="/playerinfo" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Profile"><span class="player-badge"><i class="bi bi-person-fill"></i>  {{ eljocsession_playerdb_id }}  {{ eljocsession_username }}</span></a>{% endif %}
             {% if eljocsession_username %} <a class="nav-link" href="/logout" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Logout"><i class="bi bi-box-arrow-right"></i></a> {% endif %}
           </div>

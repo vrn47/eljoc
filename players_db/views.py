@@ -299,6 +299,17 @@ def register5(request):
 
 def playerinfo5(request):
 
+    print('playerinfo5')
+
+    # verificació de sessió oberta via get() perquè, si la clau no existeix, retorna None en lloc de provocar un KeyError.
+    session = request.session.get("eljocsession_playerdb_id")
+    if session is None:
+        # Eliminem qualsevol resta d'una sessió incompleta.
+        request.session.flush()
+        # Tornem l'usuari a la pàgina d'accés.
+        return redirect("access5")
+    # fi verificació de sessió
+
     """
     Player info page.
 
@@ -322,8 +333,6 @@ def playerinfo5(request):
         username
     - Redirect to game.
     """
-
-    print('playerinfo5')
 
     # 01 Get data from session.
     eljoctemp_DBid = request.session.get("eljocsession_playerdb_id")
